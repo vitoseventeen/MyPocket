@@ -1,0 +1,23 @@
+// TEMA:
+Aplikace pro správu osobních financí
+
+// POPIS:
+Aplikace pro správu osobních financí umožní sledovat a spravovat svoje příjmy a náklady. 
+Uživatelé budou mít možnost kategorizovat finanční transakce a analyzovat finanční data. 
+Cílem aplikace je pomoct uživatelům ohledně jejich financích a zlepšit jejich finanční rozhodování.
+
+//OČEKÁVANÉ FUNKCE:
+-Registrace a přihlášení uživatelů
+-Zadávání příjmů a nákladů
+-Kategorizace transakcí podle typu (např. jídlo, doprava, odpočinek)
+-Možnost nastavení rozpočtů pro jednotlivé kategorie
+-Přehledné grafy o finanční aktivitě
+-Podpora různých měn
+-Možnost exportu finančních dat do souboru
+
+//PRO KOHO:
+Aplikace je určena pro lidi, kteří chtějí mít přehled o svých financích a lépe plánovat své výdaje. 
+Cílovou skupinou jsou uživatelé, kteří potřebují sledovat své příjmy, výdaje a rozpočty, 
+aby lépe hospodařili s penězi.
+
+//TEAM: stepavi2, havriboh
