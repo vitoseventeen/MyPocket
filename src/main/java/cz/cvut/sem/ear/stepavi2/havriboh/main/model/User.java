@@ -6,7 +6,7 @@ import jakarta.persistence.Entity;
 import java.util.Date;
 
 @Entity
-public abstract class User extends AbstractEntity {
+public class User extends AbstractEntity {
 
     protected String role;
     protected String email;
