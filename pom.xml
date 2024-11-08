@@ -30,6 +30,21 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+
+        <!-- Web application -->
+        <!-- Will pull in web-related dependencies, including Jackson for JSON -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- JPA dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -50,5 +65,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>
