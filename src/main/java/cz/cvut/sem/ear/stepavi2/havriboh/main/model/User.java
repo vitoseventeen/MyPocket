@@ -8,12 +8,12 @@ import java.util.Date;
 @Entity
 public abstract class User extends AbstractEntity {
 
-    private String role;
-    private String email;
-    private String username;
-    private boolean isSubscribed;
-    private Date subscriptionStartDate;
-    private Date subscriptionEndDate;
+    protected String role;
+    protected String email;
+    protected String username;
+    protected boolean isSubscribed;
+    protected Date subscriptionStartDate;
+    protected Date subscriptionEndDate;
 
     public void cancelSubscription() {
     }
