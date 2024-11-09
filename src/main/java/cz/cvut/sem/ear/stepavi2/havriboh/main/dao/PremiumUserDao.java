@@ -8,4 +8,6 @@ public class PremiumUserDao extends BaseDao<PremiumUser>{
     public PremiumUserDao() {
         super(PremiumUser.class);
     }
+
+
 }

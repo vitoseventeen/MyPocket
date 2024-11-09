@@ -15,7 +15,22 @@ public class TransactionDao extends BaseDao<Transaction> {
         super(Transaction.class);
     }
 
-    public List<Transaction> findTransactions(User user, Date fromDate, Date toDate, String categoryType) {
+    public void save(Transaction transaction) {
+        em.persist(transaction);
+    }
+
+    public List<Transaction> findAll() {
+        return em.createQuery("SELECT t FROM Transaction t", Transaction.class)
+                .getResultList();
+    }
+
+    public List<Transaction> findTransactionsByUser(User user) {
+        return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user", Transaction.class)
+                .setParameter("user", user)
+                .getResultList();
+    }
+
+    public List<Transaction> findTransactionsByUserWithDatesAndCategory(User user, Date fromDate, Date toDate, String categoryType) {
         return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user AND t.date BETWEEN :fromDate AND :toDate AND t.category = :categoryType", Transaction.class)
                 .setParameter("user", user)
                 .setParameter("fromDate", fromDate)

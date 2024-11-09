@@ -13,4 +13,11 @@ public class UserDao extends BaseDao<User> {
     public void save(User user) {
         em.persist(user);
     }
+
+    public User findUserByEmail(String email) {
+        return em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                .setParameter("email", email)
+                .getSingleResult();
+    }
+
 }
