@@ -1,16 +1,14 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.*;
 
 import java.util.Date;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "USER_TYPE")
+@DiscriminatorValue("USER")
 public class User extends AbstractEntity {
 
     protected String role;
