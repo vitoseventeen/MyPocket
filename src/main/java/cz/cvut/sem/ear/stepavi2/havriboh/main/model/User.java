@@ -4,6 +4,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -17,6 +18,18 @@ public class User extends AbstractEntity {
     protected boolean isSubscribed;
     protected Date subscriptionStartDate;
     protected Date subscriptionEndDate;
+    @OneToMany(mappedBy = "user")
+    private List<Report> reports;
+
+    @OneToMany(mappedBy = "user")
+    private List<Transaction> transactions;
+
+    @ManyToMany(mappedBy = "members")
+    private List<Group> groups;
+
+    @OneToMany(mappedBy = "user")
+    private List<Account> accounts;
+
 
     public void cancelSubscription() {
     }

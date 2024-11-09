@@ -1,8 +1,10 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 public class Budget extends AbstractEntity {
@@ -11,7 +13,32 @@ public class Budget extends AbstractEntity {
     private BigDecimal currentAmount;
     private String currency;
 
-    public void updateBalance() {}
+    @OneToMany(mappedBy = "budget")
+    private List<Category> categories;
+
+    public void addBudget(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        if (currentAmount.add(amount).compareTo(targetAmount) > 0) {
+            System.out.println("Warning: Exceeding target budget");
+        }
+        this.currentAmount = this.currentAmount.add(amount);
+    }
+
+    public void removeBudget(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        if (currentAmount.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            System.out.println("Warning: Removing more than current budget");
+        }
+        this.currentAmount = this.currentAmount.subtract(amount);
+    }
+
+    public BigDecimal calculateRemainingBudget() {
+        return targetAmount.subtract(currentAmount);
+    }
 
     public BigDecimal getTargetAmount() {
         return targetAmount;
