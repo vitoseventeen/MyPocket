@@ -8,4 +8,8 @@ public class GroupDao extends BaseDao<Group> {
     public GroupDao() {
         super(Group.class);
     }
+
+    public void save(Group group) {
+        em.persist(group);
+    }
 }

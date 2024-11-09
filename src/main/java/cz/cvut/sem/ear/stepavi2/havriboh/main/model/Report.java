@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -48,4 +49,6 @@ public class Report extends AbstractEntity {
                 ", toDate=" + toDate +
                 '}';
     }
+
+
 }
