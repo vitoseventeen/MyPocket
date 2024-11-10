@@ -73,7 +73,7 @@ Aplikace bude fungovat v následujícím provozním prostředí:
   uloženy v centralizované databázi s potenciálem na distribuované nasazení.
 - Vývojová platforma: Java (Spring Boot).
 
-2 .5 OMEZENÍ
+2.5 OMEZENÍ
 
 - Aplikace nebude poskytovat přímé propojení s bankovními účty pro automatické načítání
   transakcí.
