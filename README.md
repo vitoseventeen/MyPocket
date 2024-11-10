@@ -11,7 +11,7 @@
 
 ## UML CLASS DIAGRAM
 
-![UML](UML.png)
+![UML](uml.png)
 
 
 ## Software Requirements Specification
