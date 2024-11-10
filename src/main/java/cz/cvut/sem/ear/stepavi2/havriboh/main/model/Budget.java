@@ -30,10 +30,13 @@ public class Budget extends AbstractEntity {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        if (currentAmount.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            System.out.println("Warning: Removing more than current budget");
+        BigDecimal newAmount = currentAmount.subtract(amount);
+        if (newAmount.compareTo(BigDecimal.ZERO) < 0) {
+            System.out.println("Warning: Removing more than current budget. Setting to zero.");
+            this.currentAmount = BigDecimal.ZERO;
+        } else {
+            this.currentAmount = newAmount;
         }
-        this.currentAmount = this.currentAmount.subtract(amount);
     }
 
     public BigDecimal calculateRemainingBudget() {

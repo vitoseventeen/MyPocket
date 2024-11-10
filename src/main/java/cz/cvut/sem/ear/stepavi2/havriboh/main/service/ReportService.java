@@ -25,7 +25,7 @@ public class ReportService {
     }
 
     public Report generateReport(User user, Date fromDate, Date toDate, String categoryType) {
-        List<Transaction> transactions = transactionDao.findTransactions(user, fromDate, toDate, categoryType);
+        List<Transaction> transactions = transactionDao.findTransactionsByUserWithDatesAndCategory(user, fromDate, toDate, categoryType);
 
         /*
         BigDecimal income = transactions.stream()

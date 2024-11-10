@@ -72,6 +72,30 @@ public class Transaction extends AbstractEntity {
         this.type = type;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +

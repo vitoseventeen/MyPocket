@@ -10,6 +10,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "USER_TYPE")
 @DiscriminatorValue("USER")
+@Table(name = "users")
 public class User extends AbstractEntity {
 
     protected String role;
