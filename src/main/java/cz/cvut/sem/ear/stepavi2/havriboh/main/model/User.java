@@ -25,10 +25,9 @@ public class User extends AbstractEntity {
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
 
-    @ManyToMany(mappedBy = "members")
-    private List<Group> groups;
 
-    @OneToMany(mappedBy = "user")
+
+    @ManyToMany(mappedBy = "user")
     private List<Account> accounts;
 
 

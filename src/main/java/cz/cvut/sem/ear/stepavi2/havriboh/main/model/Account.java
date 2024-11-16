@@ -1,10 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,11 +15,9 @@ public class Account extends AbstractEntity {
     @OneToMany(mappedBy = "account")
     private List<Transaction> transactions;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToMany
+    private List<User> users;
 
-    public void updateBalance() {};
 
     public String getAccountName() {
         return accountName;

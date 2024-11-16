@@ -16,7 +16,7 @@ public class Budget extends AbstractEntity {
     @OneToMany(mappedBy = "budget")
     private List<Category> categories;
 
-    public void addBudget(BigDecimal amount) {
+    public void increaseBudget(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
@@ -26,7 +26,7 @@ public class Budget extends AbstractEntity {
         this.currentAmount = this.currentAmount.add(amount);
     }
 
-    public void removeBudget(BigDecimal amount) {
+    public void decreaseBudget(BigDecimal amount) { //zmenit nazvy metod
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
