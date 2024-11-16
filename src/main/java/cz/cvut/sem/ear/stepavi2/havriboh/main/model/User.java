@@ -3,6 +3,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -12,30 +13,21 @@ import java.util.List;
 @DiscriminatorValue("USER")
 @Table(name = "users")
 public class User extends AbstractEntity {
-
     protected String role;
     protected String email;
     protected String username;
     protected boolean isSubscribed;
-    protected Date subscriptionStartDate;
-    protected Date subscriptionEndDate;
+    protected LocalDate subscriptionStartDate;
+    protected LocalDate subscriptionEndDate;
+
     @OneToMany(mappedBy = "user")
     private List<Report> reports;
 
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
 
-
-
     @ManyToMany(mappedBy = "user")
     private List<Account> accounts;
-
-
-    public void cancelSubscription() {
-    }
-
-    public void activateSubscription(Date startDate, Date endDate) {
-    }
 
     public String getRole() {
         return role;
@@ -69,19 +61,19 @@ public class User extends AbstractEntity {
         isSubscribed = subscribed;
     }
 
-    public Date getSubscriptionStartDate() {
+    public LocalDate getSubscriptionStartDate() {
         return subscriptionStartDate;
     }
 
-    public void setSubscriptionStartDate(Date subscriptionStartDate) {
+    public void setSubscriptionStartDate(LocalDate subscriptionStartDate) {
         this.subscriptionStartDate = subscriptionStartDate;
     }
 
-    public Date getSubscriptionEndDate() {
+    public LocalDate getSubscriptionEndDate() {
         return subscriptionEndDate;
     }
 
-    public void setSubscriptionEndDate(Date subscriptionEndDate) {
+    public void setSubscriptionEndDate(LocalDate subscriptionEndDate) {
         this.subscriptionEndDate = subscriptionEndDate;
     }
 
