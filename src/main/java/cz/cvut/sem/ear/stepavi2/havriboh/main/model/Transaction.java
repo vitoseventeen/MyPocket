@@ -6,12 +6,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 public class Transaction extends AbstractEntity {
     private BigDecimal amount;
-    private Date date;
+    private LocalDate date;
     private String description;
     private String type;
 
@@ -27,17 +27,6 @@ public class Transaction extends AbstractEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    public void addTransaction(BigDecimal amount, Date date, String description, String type) {
-        this.amount = amount;
-        this.date = new Date();
-        this.description = description;
-        this.type = type;
-    }
-
-    //TODO implement
-    public void deleteTransaction() {
-    }
-
     public BigDecimal getAmount() {
         return amount;
     }
@@ -46,11 +35,11 @@ public class Transaction extends AbstractEntity {
         this.amount = amount;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
