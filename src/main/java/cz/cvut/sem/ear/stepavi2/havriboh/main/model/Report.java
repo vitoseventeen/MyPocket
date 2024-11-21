@@ -12,6 +12,15 @@ public class Report extends AbstractEntity {
     private String reportType;
     private LocalDate fromDate;
     private LocalDate toDate;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

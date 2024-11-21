@@ -7,6 +7,7 @@ import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,14 @@ public class TransactionDao extends BaseDao<Transaction> {
     @Override
     public void persist(Transaction transaction) {
         super.persist(transaction);
+    }
+
+    public List<Transaction> findTransactionsByUserAndDateRange(User user, LocalDate fromDate, LocalDate toDate) {
+        return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user AND t.date >= :fromDate AND t.date <= :toDate", Transaction.class)
+                .setParameter("user", user)
+                .setParameter("fromDate", fromDate)
+                .setParameter("toDate", toDate)
+                .getResultList();
     }
 
     public Optional<Transaction> findTransactionById(int id) {
