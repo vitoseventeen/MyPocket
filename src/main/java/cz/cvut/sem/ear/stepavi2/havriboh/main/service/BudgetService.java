@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-
 @Service
 public class BudgetService {
     private final BudgetDao budgetDao;
@@ -25,6 +24,32 @@ public class BudgetService {
         this.budgetDao = budgetDao;
         this.categoryDao = categoryDao;
     }
+
+    @Transactional
+    public void transferFundsById(int fromBudgetId, int toBudgetId, BigDecimal amount) {
+        Budget fromBudget = budgetDao.find(fromBudgetId);
+        Budget toBudget = budgetDao.find(toBudgetId);
+
+        if (fromBudget == null || toBudget == null) {
+            throw new BudgetNotFoundException("One or both budgets not found");
+        }
+
+        fromBudget.decreaseBudget(amount);
+        toBudget.increaseBudget(amount);
+
+        budgetDao.update(fromBudget);
+        budgetDao.update(toBudget);
+    }
+
+    // show remaining funds in all budgets
+    @Transactional(readOnly = true)
+    public BigDecimal getTotalRemainingFunds() {
+        List<Budget> budgets = budgetDao.findAll();
+        return budgets.stream()
+                .map(budget -> budget.getTargetAmount().subtract(budget.getCurrentAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 
     @Transactional(readOnly = true)
     public Budget getBudgetByCategoryId(int categoryId) {
@@ -93,6 +118,13 @@ public class BudgetService {
         }
         return budget;
     }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getRemainingLimit(int budgetId) {
+        Budget budget = getBudgetById(budgetId);
+        return budget.getTargetAmount().subtract(budget.getCurrentAmount());
+    }
+
 
     @Transactional
     public void deleteBudgetById(int id) {

@@ -1,8 +1,10 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 public class Category extends AbstractEntity {
@@ -14,8 +16,13 @@ public class Category extends AbstractEntity {
     @OneToOne(mappedBy = "category")
     private Budget budget;
 
-    public Category(String name, BigDecimal defaultLimit) {
+    @OneToMany(mappedBy = "category")
+    private List<Transaction> transactions;
+
+
+    public Category(String name,String description, BigDecimal defaultLimit) {
         this.name = name;
+        this.description = description;
         this.defaultLimit = defaultLimit;
     }
 
@@ -48,6 +55,16 @@ public class Category extends AbstractEntity {
     public void setDefaultLimit(BigDecimal defaultLimit) {
         this.defaultLimit = defaultLimit;
     }
+
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
 
     public Budget getBudget() {
         return budget;
