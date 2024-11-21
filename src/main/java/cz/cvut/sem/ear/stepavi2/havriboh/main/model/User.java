@@ -74,7 +74,6 @@ public class User extends AbstractEntity {
     @Override
     public String toString() {
         return "User{" +
-                "role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
                 ", isSubscribed=" + isSubscribed +
