@@ -28,5 +28,28 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
+    public Optional<User> findUserById(int id) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
+                            .setParameter("id", id)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
 
+
+    public Optional<User> findUserByUsername(String username) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                            .setParameter("username", username)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
 }

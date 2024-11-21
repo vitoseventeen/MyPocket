@@ -13,7 +13,6 @@ import java.util.List;
 @DiscriminatorValue("USER")
 @Table(name = "users")
 public class User extends AbstractEntity {
-    protected String role;
     protected String email;
     protected String username;
     protected boolean isSubscribed;
@@ -30,14 +29,6 @@ public class User extends AbstractEntity {
     private List<Account> accounts;
 
     public User() {
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getEmail() {
