@@ -21,7 +21,7 @@ public class Budget extends AbstractEntity {
             throw new IllegalArgumentException("Amount must be positive");
         }
         if (currentAmount.add(amount).compareTo(targetAmount) > 0) {
-            System.out.println("Warning: Exceeding target budget");
+            throw new IllegalArgumentException("Cannot increase the budget over the target amount.");
         }
         this.currentAmount = this.currentAmount.add(amount);
     }
@@ -32,8 +32,7 @@ public class Budget extends AbstractEntity {
         }
         BigDecimal newAmount = currentAmount.subtract(amount);
         if (newAmount.compareTo(BigDecimal.ZERO) < 0) {
-            System.out.println("Warning: Removing more than current budget. Setting to zero.");
-            this.currentAmount = BigDecimal.ZERO;
+            throw new IllegalArgumentException("Cannot remove more than the current budget.");
         } else {
             this.currentAmount = newAmount;
         }

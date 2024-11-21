@@ -11,7 +11,7 @@
 
 ## UML CLASS DIAGRAM
 
-![UML](uml.png)
+[//]: # (TODO: Přidat UML diagram)
 
 
 ## Software Requirements Specification
@@ -32,9 +32,6 @@ konkrétním kategoriím (např. potraviny, doprava, zábava), a sledovat své v
 stanoveného rozpočtu. Aplikace bude k dispozici prostřednictvím uživatelsky přívětivého rozhraní,
 které usnadní správu osobních financí.
 
-Aplikace podporuje distribuovanou databázi, která uchovává informace o uživatelských účtech,
-transakcích, rozpočtech a kategoriích. Aplikace je vyvíjena na klient/server architektuře, což
-umožňuje bezpečnou a efektivní správu dat.
 
 2.2 FUNKCE PRODUKTU
 
@@ -59,11 +56,8 @@ Hlavní funkce aplikace zahrnují:
 
 Aplikace bude podporovat následující typy uživatelů:
 
-1. Standardní uživatelé (User) – Mají přístup k základním funkcím, jako je zadávání a správa
-   transakcí, sledování rozpočtu.
-2. Prémioví uživatelé (Premium user) – Kromě základních funkcí mají možnost generovat
-   podrobné finanční reporty a exportovat data.
 
+[//]: # (TODO: Popsat tridy a charakteristiky uzivatelu)
 2.4 PROVOZNÍ PROSTŘEDÍ
 
 

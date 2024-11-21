@@ -3,11 +3,13 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.dao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class TransactionDao extends BaseDao<Transaction> {
@@ -15,13 +17,21 @@ public class TransactionDao extends BaseDao<Transaction> {
         super(Transaction.class);
     }
 
-    public void save(Transaction transaction) {
-        em.persist(transaction);
+    @Override
+    public void persist(Transaction transaction) {
+        super.persist(transaction);
     }
 
-    public List<Transaction> findAll() {
-        return em.createQuery("SELECT t FROM Transaction t", Transaction.class)
-                .getResultList();
+    public Optional<Transaction> findTransactionById(int id) {
+        try {
+            return Optional.of(
+                    em.createQuery("SELECT t FROM Transaction t WHERE t.id = :id", Transaction.class)
+                            .setParameter("id", id)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     public List<Transaction> findTransactionsByUser(User user) {
@@ -30,18 +40,15 @@ public class TransactionDao extends BaseDao<Transaction> {
                 .getResultList();
     }
 
-    public List<Transaction> findTransactionsByUserWithDatesAndCategory(User user, Date fromDate, Date toDate, String categoryType) {
-        return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user AND t.date BETWEEN :fromDate AND :toDate AND t.category = :categoryType", Transaction.class)
-                .setParameter("user", user)
-                .setParameter("fromDate", fromDate)
-                .setParameter("toDate", toDate)
-                .setParameter("categoryType", categoryType)
-                .getResultList();
-    }
-
-    public BigDecimal getTotalSpentByCategory(Category category) {
-        return em.createQuery("SELECT SUM(t.amount) FROM Transaction t WHERE t.category = :category", BigDecimal.class)
-                .setParameter("category", category)
-                .getSingleResult();
+    public Optional<BigDecimal> getTotalSpentByCategory(Category category) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT SUM(t.amount) FROM Transaction t WHERE t.category = :category", BigDecimal.class)
+                            .setParameter("category", category)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

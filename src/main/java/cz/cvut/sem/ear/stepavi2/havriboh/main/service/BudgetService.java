@@ -21,4 +21,10 @@ public class BudgetService {
         }
     }
 
+    public void createBudget(Budget budget) {
+        budgetDao.persist(budget);
+    }
+
+
+
 }

@@ -20,10 +20,4 @@ public class CategoryService {
         this.transactionDao = transactionDao;
     }
 
-    public void checkCategoryLimit(Category category, BigDecimal transactionAmount) {
-        BigDecimal totalSpent = transactionDao.getTotalSpentByCategory(category);
-        if (totalSpent.add(transactionAmount).compareTo(category.getDefaultLimit()) > 0) {
-            throw new CategoryLimitExceededException("Category limit is exceeded for " + category.getName() + " category");
-        }
-    }
 }

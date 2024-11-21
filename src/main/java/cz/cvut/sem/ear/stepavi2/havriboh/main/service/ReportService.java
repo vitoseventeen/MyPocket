@@ -21,10 +21,5 @@ public class ReportService {
         this.reportDao = reportDao;
     }
 
-    public Report generateReport(User user, LocalDate fromDate, LocalDate toDate, String categoryType) {
-        //generate report
-
-        return null;
-    }
 
 }

@@ -1,7 +1,10 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.dao;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public class UserDao extends BaseDao<User> {
@@ -9,14 +12,21 @@ public class UserDao extends BaseDao<User> {
         super(User.class);
     }
 
-    public void save(User user) {
+    public void persist(User user) {
         em.persist(user);
     }
 
-    public User findUserByEmail(String email) {
-        return em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", email)
-                .getSingleResult();
+    public Optional<User> findUserByEmail(String email) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                            .setParameter("email", email)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
+
 
 }

@@ -1,4 +1,4 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
-public class CategoryServiceTest {
+public class BudgetServiceTest {
 }
