@@ -2,6 +2,10 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.AccountDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.AccountNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.LastUserInAccountException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeBalanceException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,9 @@ public class AccountService {
 
     @Transactional
     public void createAccount(String name, BigDecimal balance, String currency) {
+        if (balance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeBalanceException("Balance cannot be negative");
+        }
         Account account = new Account();
         account.setAccountName(name);
         account.setCurrency(currency);
@@ -35,17 +42,36 @@ public class AccountService {
     @Transactional
     public void addUserToAccountById(int userId, int accountId) {
         Account account = accountDao.find(accountId);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
         User user = userDao.find(userId);
-        account.getUsers().add(user);
-        accountDao.update(account);
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        if (!account.getUsers().contains(user)) {
+            account.getUsers().add(user);
+            accountDao.update(account);
+        }
     }
 
     @Transactional
     public void removeUserFromAccountById(int userId, int accountId) {
         Account account = accountDao.find(accountId);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
         User user = userDao.find(userId);
-        account.getUsers().remove(user);
-        accountDao.update(account);
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        if (account.getUsers().contains(user)) {
+            account.getUsers().remove(user);
+            if (account.getUsers().isEmpty()) {
+                throw new LastUserInAccountException("Cannot remove the last user from the account");
+            }
+            accountDao.update(account);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -55,17 +81,20 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Account getAccountById(int id) {
-        return accountDao.find(id);
-    }
-
-    @Transactional
-    public void updateAccount(int id) {
-        accountDao.update(accountDao.find(id));
+        Account account = accountDao.find(id);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
+        return account;
     }
 
     @Transactional
     public void deleteAccountById(int id) {
-        accountDao.remove(accountDao.find(id));
+        Account account = accountDao.find(id);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found");
+        }
+        accountDao.remove(account);
     }
 
 
