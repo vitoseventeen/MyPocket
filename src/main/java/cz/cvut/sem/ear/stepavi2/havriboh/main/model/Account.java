@@ -73,13 +73,14 @@ public class Account extends AbstractEntity {
     }
 
 
-
     @Override
     public String toString() {
         return "Account{" +
                 "accountName='" + accountName + '\'' +
                 ", balance=" + balance +
                 ", currency='" + currency + '\'' +
+                ", transactions=" + transactions +
+                ", users=" + users +
                 '}';
     }
 }
