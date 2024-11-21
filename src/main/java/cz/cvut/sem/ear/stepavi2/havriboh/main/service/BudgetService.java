@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Service
@@ -23,6 +24,21 @@ public class BudgetService {
     public BudgetService(BudgetDao budgetDao, CategoryDao categoryDao) {
         this.budgetDao = budgetDao;
         this.categoryDao = categoryDao;
+    }
+
+    @Transactional(readOnly = true)
+    public Budget getBudgetByCategoryId(int categoryId) {
+        Category category = categoryDao.find(categoryId);
+        if (category == null) {
+            throw new IllegalArgumentException("Category not found");
+        }
+
+        return category.getBudget();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Budget> getAllBudgets() {
+        return budgetDao.findAll();
     }
 
     @Transactional
@@ -79,7 +95,7 @@ public class BudgetService {
     }
 
     @Transactional
-    public void deleteBudget(int id) {
+    public void deleteBudgetById(int id) {
         Budget budget = budgetDao.find(id);
         if (budget == null) {
             throw new BudgetNotFoundException("Budget not found");
