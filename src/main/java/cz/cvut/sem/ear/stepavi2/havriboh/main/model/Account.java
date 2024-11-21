@@ -18,6 +18,10 @@ public class Account extends AbstractEntity {
     @ManyToMany
     private List<User> users;
 
+    public Account() {
+    }
+
+
     public String getAccountName() {
         return accountName;
     }

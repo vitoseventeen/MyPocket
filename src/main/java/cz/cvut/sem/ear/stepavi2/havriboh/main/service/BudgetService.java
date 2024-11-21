@@ -4,6 +4,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.BudgetDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.CategoryDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.BudgetNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.CategoryNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmptyCurrencyException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeAmountException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Budget;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
@@ -32,6 +33,9 @@ public class BudgetService {
 
         if (fromBudget == null || toBudget == null) {
             throw new BudgetNotFoundException("One or both budgets not found");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Amount must be positive");
         }
 
         fromBudget.decreaseBudget(amount);
@@ -77,10 +81,17 @@ public class BudgetService {
             throw new NegativeAmountException("Target amount must be positive");
         }
 
+        if (currency == null) {
+            throw new EmptyCurrencyException("Currency must be specified");
+        }
+
         Budget budget = new Budget();
         budget.setTargetAmount(targetAmount);
         budget.setCurrentAmount(BigDecimal.ZERO);
         budget.setCurrency(currency);
+        if (category.getBudget() != null) {
+            throw new IllegalArgumentException("Category already has a budget");
+        }
         budget.setCategory(category);
 
         budgetDao.persist(budget);
@@ -91,6 +102,9 @@ public class BudgetService {
         Budget budget = budgetDao.find(budgetId);
         if (budget == null) {
             throw new BudgetNotFoundException("Budget not found");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Amount must be positive");
         }
 
         budget.increaseBudget(amount);
@@ -103,6 +117,9 @@ public class BudgetService {
         Budget budget = budgetDao.find(budgetId);
         if (budget == null) {
             throw new BudgetNotFoundException("Budget not found");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Amount must be positive");
         }
 
         budget.decreaseBudget(amount);
@@ -121,7 +138,10 @@ public class BudgetService {
 
     @Transactional(readOnly = true)
     public BigDecimal getRemainingLimit(int budgetId) {
-        Budget budget = getBudgetById(budgetId);
+        Budget budget = budgetDao.find(budgetId);
+        if (budget == null) {
+            throw new BudgetNotFoundException("Budget not found");
+        }
         return budget.getTargetAmount().subtract(budget.getCurrentAmount());
     }
 

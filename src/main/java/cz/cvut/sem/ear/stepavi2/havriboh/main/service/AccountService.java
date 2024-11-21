@@ -2,10 +2,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.AccountDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.AccountNotFoundException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.LastUserInAccountException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeBalanceException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +26,17 @@ public class AccountService {
 
     @Transactional
     public void createAccount(String name, BigDecimal balance, String currency) {
+
+        Account account = new Account();
         if (balance.compareTo(BigDecimal.ZERO) < 0) {
             throw new NegativeBalanceException("Balance cannot be negative");
         }
-        Account account = new Account();
+        if (name.isBlank()) {
+            throw new EmptyNameException("Name cannot be empty");
+        }
+        if (currency.isBlank()) {
+            throw new EmptyCurrencyException("Currency cannot be empty");
+        }
         account.setAccountName(name);
         account.setCurrency(currency);
         account.setBalance(balance);

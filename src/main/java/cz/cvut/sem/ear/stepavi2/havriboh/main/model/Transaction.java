@@ -27,6 +27,9 @@ public class Transaction extends AbstractEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    public Transaction() {
+    }
+
     public BigDecimal getAmount() {
         return amount;
     }

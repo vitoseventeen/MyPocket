@@ -40,6 +40,12 @@ public class TransactionDao extends BaseDao<Transaction> {
                 .getResultList();
     }
 
+    public List<Transaction> findTransactionsByCategory(Category category) {
+        return em.createQuery("SELECT t FROM Transaction t WHERE t.category = :category", Transaction.class)
+                .setParameter("category", category)
+                .getResultList();
+    }
+
     public Optional<BigDecimal> getTotalSpentByCategory(Category category) {
         try {
             return Optional.ofNullable(

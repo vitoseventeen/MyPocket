@@ -29,6 +29,9 @@ public class User extends AbstractEntity {
     @ManyToMany(mappedBy = "user")
     private List<Account> accounts;
 
+    public User() {
+    }
+
     public String getRole() {
         return role;
     }

@@ -19,26 +19,15 @@ public class Budget extends AbstractEntity {
     @OneToOne
     private Category category;
 
+    public Budget() {
+    }
+
     public void increaseBudget(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
-        }
-        if (currentAmount.add(amount).compareTo(targetAmount) > 0) {
-            throw new TargetAmountException("Cannot increase the budget over the target amount.");
-        }
         this.currentAmount = this.currentAmount.add(amount);
     }
 
     public void decreaseBudget(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
-        }
-        BigDecimal newAmount = currentAmount.subtract(amount);
-        if (newAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RemoveMoreThanCurrentBudgetException("Cannot remove more than the current budget.");
-        } else {
-            this.currentAmount = newAmount;
-        }
+        this.currentAmount = this.currentAmount.subtract(amount);
     }
 
     @Override

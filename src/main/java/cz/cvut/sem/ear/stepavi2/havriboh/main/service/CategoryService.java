@@ -1,9 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.CategoryDao;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.CategoryHasTransactionsException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.CategoryNotFoundException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeCategoryLimitException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,15 @@ public class CategoryService {
     @Transactional
     public void createCategory(String name, String description, BigDecimal defaultLimit) {
         Category category = new Category();
+        if (name.isBlank()) {
+            throw new EmptyNameException("Name cannot be empty");
+        }
+        if (description.isBlank()) {
+            throw new EmptyDescriptionException("Description cannot be empty");
+        }
+        if (defaultLimit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeCategoryLimitException("Limit cannot be negative");
+        }
         category.setName(name);
         category.setDescription(description);
         category.setDefaultLimit(defaultLimit);
@@ -45,6 +52,18 @@ public class CategoryService {
     @Transactional
     public void updateCategoryById(int categoryId, String name, String description, BigDecimal defaultLimit) {
         Category category = getCategoryById(categoryId);
+        if (name.isBlank()) {
+            throw new EmptyNameException("Name cannot be empty");
+        }
+        if (description.isBlank()) {
+            throw new EmptyDescriptionException("Description cannot be empty");
+        }
+        if (defaultLimit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeCategoryLimitException("Limit cannot be negative");
+        }
+        if (category == null) {
+            throw new CategoryNotFoundException("Category not found");
+        }
         category.setName(name);
         category.setDescription(description);
         category.setDefaultLimit(defaultLimit);
@@ -96,6 +115,12 @@ public class CategoryService {
     @Transactional
     public void updateCategoryNameById(int categoryId, String newName) {
         Category category = getCategoryById(categoryId);
+        if (newName.isBlank()) {
+            throw new EmptyNameException("Name cannot be empty");
+        }
+        if (category == null) {
+            throw new CategoryNotFoundException("Category not found");
+        }
         category.setName(newName);
         categoryDao.update(category);
     }
@@ -103,6 +128,12 @@ public class CategoryService {
     @Transactional
     public void updateCategoryDescriptionById(int categoryId, String newDescription) {
         Category category = getCategoryById(categoryId);
+        if (newDescription.isBlank()) {
+            throw new EmptyDescriptionException("Description cannot be empty");
+        }
+        if (category == null) {
+            throw new CategoryNotFoundException("Category not found");
+        }
         category.setDescription(newDescription);
         categoryDao.update(category);
     }
@@ -110,6 +141,9 @@ public class CategoryService {
     @Transactional
     public void deleteCategoryById(int categoryId) {
         Category category = getCategoryById(categoryId);
+        if (category == null) {
+            throw new CategoryNotFoundException("Category not found");
+        }
         if (!category.getTransactions().isEmpty()) {
             throw new CategoryHasTransactionsException("Category has associated transactions, cannot delete");
         }
