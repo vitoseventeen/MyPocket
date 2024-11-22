@@ -63,12 +63,18 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void createAccountCreatesNewAccount() {
-        Account savedAccount = accountDao.find(account.getId());
-        assertNotNull(savedAccount, "Account should be saved in the database");
-        assertEquals("testAccount", savedAccount.getAccountName());
-        assertEquals(BigDecimal.valueOf(100), savedAccount.getBalance());
-        assertEquals("CZK", savedAccount.getCurrency());
+    public void createAccountCreatesAccountWithValidData() {
+        accountService.createAccount("Savings", BigDecimal.valueOf(500), "USD");
+
+        Account createdAccount = accountDao.findAll().stream()
+                .filter(acc -> acc.getAccountName().equals("Savings"))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(createdAccount, "Account should be persisted in the database");
+        assertEquals("Savings", createdAccount.getAccountName());
+        assertEquals(BigDecimal.valueOf(500), createdAccount.getBalance());
+        assertEquals("USD", createdAccount.getCurrency());
     }
 
     @Test
