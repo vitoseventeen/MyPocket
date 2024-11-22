@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,7 @@ public class Category extends AbstractEntity {
     private Budget budget;
 
     @OneToMany(mappedBy = "category")
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
 
     public Category() {}
 

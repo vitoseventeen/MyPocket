@@ -9,7 +9,6 @@ import java.time.LocalDate;
 
 @Entity
 public class Report extends AbstractEntity {
-    private String reportType;
     private LocalDate fromDate;
     private LocalDate toDate;
 
@@ -25,13 +24,6 @@ public class Report extends AbstractEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public String getReportType() {
-        return reportType;
-    }
-
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
 
     public LocalDate getFromDate() {
         return fromDate;
@@ -52,7 +44,7 @@ public class Report extends AbstractEntity {
     @Override
     public String toString() {
         return "Report{" +
-                "reportType='" + reportType + '\'' +
+                "user=" + user +
                 ", fromDate=" + fromDate +
                 ", toDate=" + toDate +
                 '}';

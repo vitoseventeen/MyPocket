@@ -31,44 +31,7 @@ public class ReportService {
     }
 
     @Transactional
-    public void generateSpendingReportByUserIdInDates(int id, LocalDate fromDate, LocalDate toDate) {
-        User user = userService.getUserById(id);
-        if (user == null) {
-            throw new UserNotFoundException("User not found with ID: " + id);
-        }
-        if (fromDate.isAfter(toDate)) {
-            throw new InvalidDateException("From date must be before to date");
-        }
-        if (!user.isSubscribed()) {
-            throw new NotPremiumUserException("User is not subscribed");
-        }
-        List<Transaction> transactions = transactionDao.findTransactionsByUserAndDateRange(user, fromDate, toDate);
-        Map<String, BigDecimal> categorySpending = new HashMap<>();
-
-        for (Transaction transaction : transactions) {
-            if (transaction.getAmount().compareTo(BigDecimal.ZERO) < 0) {  // it is a spending transaction
-                String category = transaction.getCategory().getName();
-                categorySpending.put(category, categorySpending.getOrDefault(category, BigDecimal.ZERO).add(transaction.getAmount().abs()));
-            }
-        }
-
-
-        Report report = new Report();
-        report.setFromDate(fromDate);
-        report.setToDate(toDate);
-        report.setReportType("spending");
-        report.setUser(user);
-
-        StringBuilder reportContent = new StringBuilder("Spending Report\n");
-        categorySpending.forEach((category, total) -> {
-            reportContent.append("Category: ").append(category).append(", Total Spending: ").append(total).append("\n");
-        });
-
-        reportDao.persist(report);
-    }
-
-    @Transactional
-    public void createReport(LocalDate fromDate, LocalDate toDate, String reportType, int userId) {
+    public void createReport(int userId, LocalDate fromDate, LocalDate toDate) {
         User user = userService.getUserById(userId);
         if (user == null) {
             throw new UserNotFoundException("User not found with ID: " + userId);
@@ -79,14 +42,44 @@ public class ReportService {
         if (fromDate.isAfter(toDate)) {
             throw new InvalidDateException("From date must be before to date");
         }
-        if (reportType.isEmpty()) {
-            throw new EmptyReportTypeException("Report type cannot be empty");
+
+        List<Transaction> transactions = transactionDao.findTransactionsByUserAndDateRange(user, fromDate, toDate);
+
+        Map<String, BigDecimal> incomeByCategory = new HashMap<>();
+        Map<String, BigDecimal> spendingByCategory = new HashMap<>();
+
+        for (Transaction transaction : transactions) {
+            String categoryName = transaction.getCategory().getName();
+            BigDecimal amount = transaction.getAmount();
+
+            if (amount.compareTo(BigDecimal.ZERO) > 0) { // income
+                incomeByCategory.put(categoryName,
+                        incomeByCategory.getOrDefault(categoryName, BigDecimal.ZERO).add(amount));
+            } else { // spending
+                spendingByCategory.put(categoryName,
+                        spendingByCategory.getOrDefault(categoryName, BigDecimal.ZERO).add(amount.abs()));
+            }
         }
+
+        StringBuilder reportContent = new StringBuilder();
+        reportContent.append("Financial Report (").append(")\n");
+        reportContent.append("Period: ").append(fromDate).append(" - ").append(toDate).append("\n\n");
+
+        reportContent.append("Income by Category:\n");
+        incomeByCategory.forEach((category, total) ->
+                reportContent.append("  Category: ").append(category)
+                        .append(", Total Income: ").append(total).append("\n"));
+
+        reportContent.append("\nSpending by Category:\n");
+        spendingByCategory.forEach((category, total) ->
+                reportContent.append("  Category: ").append(category)
+                        .append(", Total Spending: ").append(total).append("\n"));
+
         Report report = new Report();
         report.setFromDate(fromDate);
         report.setToDate(toDate);
-        report.setReportType(reportType);
         report.setUser(user);
+
         reportDao.persist(report);
     }
 
@@ -136,7 +129,6 @@ public class ReportService {
         }
         report.setFromDate(fromDate);
         report.setToDate(toDate);
-        report.setReportType(reportType);
         reportDao.update(report);
     }
 }
