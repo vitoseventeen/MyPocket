@@ -25,7 +25,7 @@ public class User extends AbstractEntity {
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
 
-    @ManyToMany(mappedBy = "user")
+    @ManyToMany(mappedBy = "users")
     private List<Account> accounts;
 
     public User() {

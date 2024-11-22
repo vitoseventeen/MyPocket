@@ -57,6 +57,9 @@ public class AccountService {
             account.getUsers().add(user);
             accountDao.update(account);
         }
+        else {
+            throw new UserAlreadyInAccountException("User is already in the account");
+        }
     }
 
     @Transactional

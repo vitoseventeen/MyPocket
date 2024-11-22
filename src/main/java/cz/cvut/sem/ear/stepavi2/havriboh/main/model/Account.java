@@ -4,6 +4,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,11 +17,10 @@ public class Account extends AbstractEntity {
     private List<Transaction> transactions;
 
     @ManyToMany
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     public Account() {
     }
-
 
     public String getAccountName() {
         return accountName;
