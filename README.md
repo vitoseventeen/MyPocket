@@ -11,7 +11,7 @@
 
 ## UML CLASS DIAGRAM
 
-[//]: # (TODO: Přidat UML diagram)
+
 
 
 ## Software Requirements Specification
@@ -35,7 +35,8 @@ které usnadní správu osobních financí.
 
 2.2 FUNKCE PRODUKTU
 
-Hlavní funkce aplikace zahrnují:
+_Hlavní funkce aplikace zahrnují:_
+
 
 - Registrace a autentizace uživatelů: Uživatelé se mohou registrovat, přihlásit a spravovat své
   účty. Prémioví uživatelé mohou vygenerovat reporty (popsané níž).
@@ -54,18 +55,37 @@ Hlavní funkce aplikace zahrnují:
 
 2.3 CHARAKTERISTIKY UŽIVATELŮ A TŘÍDY
 
-Aplikace bude podporovat následující typy uživatelů:
+_Aplikace bude podporovat následující typy uživatelů:_
 
 
-[//]: # (TODO: Popsat tridy a charakteristiky uzivatelu)
+1. Běžní uživatelé
+Běžní uživatelé mají základní účet bez předplatného.
+
+Možnosti:
+
+- Přidávání a správa vlastních transakcí.
+- Prohlížení seznamu vlastních kategorií příjmů a výdajů.
+- Sledování celkových příjmů a výdajů.
+
+Omezení:
+
+- Nemají přístup k funkcím pro generování reportů a analytických výstupů.
+
+2. Prémioví uživatelé
+Prémioví uživatelé mají předplatné, které jim umožňuje přístup k rozšířeným funkcím.
+
+Možnosti:
+
+- Veškeré funkce běžného uživatele.
+- Generování detailních reportů o příjmech a výdajích za zvolené časové období.
+
 2.4 PROVOZNÍ PROSTŘEDÍ
 
+Aplikace bude fungovat na lokálním počítači nebo serveru s podporou Javy. Pro provoz bude využívat:
 
-Aplikace bude fungovat v následujícím provozním prostředí:
-
-- Databáze: PostgreSQL pro ukládání a správu uživatelských dat a transakcí. Údaje budou
-  uloženy v centralizované databázi s potenciálem na distribuované nasazení.
-- Vývojová platforma: Java (Spring Boot).
+- Serverové prostředí: Aplikace může být nasazena na serverový kontejner, jako je Apache Tomcat, nebo v prostředí Docker.
+- Databázový systém: Data budou ukládána v relační databázi, například PostgreSQL nebo MySQL.
+- Prostředí pro vývoj: Aplikace je vytvořena v Javě a vyžaduje Java SE Runtime Environment (JRE) a Java Development Kit (JDK).
 
 2.5 OMEZENÍ
 
@@ -81,8 +101,3 @@ Aplikace bude fungovat v následujícím provozním prostředí:
 Předpokládáme, že aplikace bude používána jednotlivci, kteří chtějí mít kontrolu nad svými osobními
 financemi. Základní funkce jsou navrženy tak, aby byly přístupné širokému okruhu uživatelů.
 Prémiové funkce jsou určené pro uživatele, kteří chtějí podrobnější analýzu svých financí.
-
-Aplikace v budoucnu bude závislá na SQL databázi, která poskytuje úložiště pro transakční data a
-podporuje komplexní dotazy pro generování finančních přehledů.
-
-
