@@ -94,16 +94,6 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public List<Report> getReportsByUserIdAndReportType(int userId, String reportType) {
-        return reportDao.findReportsByUserIdAndReportType(userId, reportType);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Report> getReportsByUserIdAndDateRangeAndReportType(int userId, LocalDate fromDate, LocalDate toDate, String reportType) {
-        return reportDao.findReportsByUserIdAndDateRangeAndReportType(userId, fromDate, toDate, reportType);
-    }
-
-    @Transactional(readOnly = true)
     public Report getReportById(int reportId) {
         Report report = reportDao.find(reportId);
         if (report == null) {
@@ -119,13 +109,10 @@ public class ReportService {
     }
 
     @Transactional
-    public void updateReportById(int reportId, LocalDate fromDate, LocalDate toDate, String reportType) {
+    public void updateReportDateById(int reportId, LocalDate fromDate, LocalDate toDate ) {
         Report report = getReportById(reportId);
         if (fromDate.isAfter(toDate)) {
             throw new InvalidDateException("From date must be before to date");
-        }
-        if (reportType.isEmpty()) {
-            throw new EmptyReportTypeException("Report type cannot be empty");
         }
         report.setFromDate(fromDate);
         report.setToDate(toDate);
