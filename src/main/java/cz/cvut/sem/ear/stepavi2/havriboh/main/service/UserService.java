@@ -72,7 +72,7 @@ public class UserService {
     public void updateUsernameById(int userId, String newUsername) {
         User user = getUserById(userId);
         if (userDao.findUserByUsername(newUsername).isPresent()) {
-            throw new EmailAlreadyTakenException("This username is already taken.");
+            throw new UsernameAlreadyTakenException("This username is already taken.");
         }
         user.setUsername(newUsername);
         userDao.update(user);
