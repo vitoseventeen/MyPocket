@@ -26,7 +26,7 @@ public class UserService {
             throw new EmailAlreadyTakenException("This email is already taken.");
         }
         if (userDao.findUserByUsername(username).isPresent()) {
-            throw new EmailAlreadyTakenException("This username is already taken.");
+            throw new UsernameAlreadyTakenException("This username is already taken.");
         }
         User user = new User();
         user.setEmail(email);
