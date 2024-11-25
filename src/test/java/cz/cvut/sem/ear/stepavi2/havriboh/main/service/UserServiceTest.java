@@ -5,6 +5,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;

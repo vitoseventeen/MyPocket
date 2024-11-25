@@ -238,7 +238,7 @@ public class ReportServiceTest {
         report.setUser(testUser);
         reportDao.persist(report);
 
-        reportService.updateReportById(report.getId(), LocalDate.now().minusDays(20), LocalDate.now(), "income");
+        reportService.updateReportDateById(report.getId(), LocalDate.now().minusDays(20), LocalDate.now());
 
         Report updatedReport = reportService.getReportById(report.getId());
         assertNotNull(updatedReport);
