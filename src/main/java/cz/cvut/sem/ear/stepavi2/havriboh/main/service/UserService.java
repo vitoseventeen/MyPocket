@@ -26,7 +26,7 @@ public class UserService {
             throw new EmailAlreadyTakenException("This email is already taken.");
         }
         if (userDao.findUserByUsername(username).isPresent()) {
-            throw new EmailAlreadyTakenException("This username is already taken.");
+            throw new UsernameAlreadyTakenException("This username is already taken.");
         }
         User user = new User();
         user.setEmail(email);
@@ -72,7 +72,7 @@ public class UserService {
     public void updateUsernameById(int userId, String newUsername) {
         User user = getUserById(userId);
         if (userDao.findUserByUsername(newUsername).isPresent()) {
-            throw new EmailAlreadyTakenException("This username is already taken.");
+            throw new UsernameAlreadyTakenException("This username is already taken.");
         }
         user.setUsername(newUsername);
         userDao.update(user);

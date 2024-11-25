@@ -97,13 +97,13 @@ public class UserServiceTest {
     }
 
     @Test
-    void updateUsernameByIdThrowsEmailAlreadyTakenException() {
+    void updateUsernameByIdThrowsUsernameAlreadyTakenException() {
         User anotherUser = new User();
         anotherUser.setEmail("anotheruser@example.com");
         anotherUser.setUsername("anotherusername");
         userDao.persist(anotherUser);
 
-        assertThrows(EmailAlreadyTakenException.class, () ->
+        assertThrows(UsernameAlreadyTakenException.class, () ->
                 userService.updateUsernameById(testUser.getId(), "anotherusername")
         );
     }
