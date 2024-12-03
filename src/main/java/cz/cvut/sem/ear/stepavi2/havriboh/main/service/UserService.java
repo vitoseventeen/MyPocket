@@ -5,50 +5,76 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenExcepti
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Service
 public class UserService {
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserDao userDao) {
-        this.userDao = userDao;
+    public UserService(UserDao dao, PasswordEncoder passwordEncoder) {
+        this.userDao = dao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public void createUser(String email, String username) {
-        if (userDao.findUserByEmail(email).isPresent()) {
+    public void createUser(String username, String email, String password) {
+        if (userDao.findByEmail(email).isPresent()) {
             throw new EmailAlreadyTakenException("This email is already taken.");
         }
-        if (userDao.findUserByUsername(username).isPresent()) {
+        if (userDao.findByUsername(username).isPresent()) {
             throw new UsernameAlreadyTakenException("This username is already taken.");
         }
+
         User user = new User();
         user.setEmail(email);
         user.setUsername(username);
         user.setSubscribed(false);
+
+        user.setPassword(passwordEncoder.encode(password));
+
         userDao.persist(user);
+    }
+
+    @Transactional
+    public void persist(User user) {
+        Objects.requireNonNull(user);
+        user.encodePassword(passwordEncoder);
+        if (user.getRole() == null) {
+            user.setRole(Constants.DEFAULT_ROLE);
+        }
+        userDao.persist(user);
+    }
+
+
+    @Transactional(readOnly = true)
+    public boolean exists(String username) {
+        return userDao.findByUsername(username).isPresent();
     }
 
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
-        return userDao.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        return userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
 
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
-        return userDao.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+        return userDao.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
     }
 
     @Transactional(readOnly = true)
     public User getUserById(int id) {
-        return userDao.findUserById(id).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
+        return userDao.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
     }
 
     @Transactional
@@ -72,25 +98,22 @@ public class UserService {
     @Transactional
     public void updateUsernameById(int userId, String newUsername) {
         User user = getUserById(userId);
-        if (userDao.findUserByUsername(newUsername).isPresent()) {
+        if (userDao.findByUsername(newUsername).isPresent()) {
             throw new UsernameAlreadyTakenException("This username is already taken.");
         }
         user.setUsername(newUsername);
         userDao.update(user);
     }
 
-
-
     @Transactional
     public void updateEmailById(int userId, String newEmail) {
         User user = getUserById(userId);
-        if (userDao.findUserByEmail(newEmail).isPresent()) {
+        if (userDao.findByEmail(newEmail).isPresent()) {
             throw new EmailAlreadyTakenException("This email is already taken.");
         }
         user.setEmail(newEmail);
         userDao.update(user);
     }
-
 
     @Transactional
     public void activateSubscriptionForOneMonth(User user) {
@@ -103,6 +126,9 @@ public class UserService {
             user.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
             user.setSubscribed(true);
         }
+        if (user.isSubscribed()) {
+            user.setRole(Role.PREMIUM);
+        }
         userDao.update(user);
     }
 
@@ -113,12 +139,26 @@ public class UserService {
         }
         user.setSubscriptionEndDate(LocalDate.now());
         user.setSubscribed(false);
+        user.setRole(Role.USER);
         userDao.update(user);
     }
-
 
     @Transactional(readOnly = true)
     public boolean isSubscribed(User user) {
         return user.isSubscribed() && !user.getSubscriptionEndDate().isBefore(LocalDate.now());
+    }
+
+    // Method to update the password
+    @Transactional
+    public void updatePassword(int userId, String newPassword) {
+        User user = getUserById(userId);
+        user.setPassword(passwordEncoder.encode(newPassword)); // Encode new password
+        userDao.update(user);
+    }
+
+    // Method to check if the provided password matches the stored (encoded) password
+    @Transactional(readOnly = true)
+    public boolean checkPassword(User user, String password) {
+        return passwordEncoder.matches(password, user.getPassword());
     }
 }

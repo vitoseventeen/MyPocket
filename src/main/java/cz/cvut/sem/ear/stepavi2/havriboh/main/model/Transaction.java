@@ -1,29 +1,37 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "transactions")
 public class Transaction extends AbstractEntity {
-    private BigDecimal amount;
-    private LocalDate date;
-    private String description;
-    private String type;
 
-    @ManyToOne
+    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
+    @Column(name = "description", length = 255)
+    private String description;
+
+    @Column(name = "type", length = 50)
+    private TransactionType type;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     private Category category;
 
@@ -54,11 +62,11 @@ public class Transaction extends AbstractEntity {
         this.description = description;
     }
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 

@@ -27,19 +27,4 @@ public class ReportDao extends BaseDao<Report> {
                 .getResultList();
     }
 
-    public List<Report> findReportsByUserIdAndReportType(int userId, String reportType) {
-        return em.createQuery("SELECT r FROM Report r WHERE r.user.id = :userId AND r.reportType = :reportType", Report.class)
-                .setParameter("userId", userId)
-                .setParameter("reportType", reportType)
-                .getResultList();
-    }
-
-    public List<Report> findReportsByUserIdAndDateRangeAndReportType(int userId, LocalDate fromDate, LocalDate toDate, String reportType) {
-        return em.createQuery("SELECT r FROM Report r WHERE r.user.id = :userId AND r.fromDate >= :fromDate AND r.toDate <= :toDate AND r.reportType = :reportType", Report.class)
-                .setParameter("userId", userId)
-                .setParameter("fromDate", fromDate)
-                .setParameter("toDate", toDate)
-                .setParameter("reportType", reportType)
-                .getResultList();
-    }
 }

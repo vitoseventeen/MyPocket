@@ -1,5 +1,6 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
+import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.AccountDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.CategoryDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.TransactionDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
@@ -11,26 +12,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
     private final TransactionDao transactionDao;
     private final UserDao userDao;
     private final CategoryDao categoryDao;
+    private final AccountDao accountDao;
 
     @Autowired
-    public TransactionService(TransactionDao transactionDao, UserDao userDao, CategoryDao categoryDao) {
+    public TransactionService(TransactionDao transactionDao, UserDao userDao, CategoryDao categoryDao, AccountDao accountDao) {
         this.transactionDao = transactionDao;
         this.userDao = userDao;
         this.categoryDao = categoryDao;
+        this.accountDao = accountDao;
     }
 
-
-    // if transaction exceeds category limit, decrease budget by the difference
     @Transactional
-    public void createTransaction(BigDecimal amount, LocalDate date, String description, String type, int userId, int categoryId) {
+    public void createTransaction(BigDecimal amount, LocalDate date, String description,
+                                  TransactionType type, int userId, int accountId, int categoryId) {
         User user = userDao.find(userId);
         if (user == null) {
             throw new UserNotFoundException("User not found with ID: " + userId);
@@ -41,8 +43,24 @@ public class TransactionService {
             throw new CategoryNotFoundException("Category not found with ID: " + categoryId);
         }
 
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
+        if (type == null) {
+            throw new InvalidTransactionTypeException("Transaction type cannot be null");
+        }
+
+        Account account = accountDao.find(accountId);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found with ID: " + accountId);
+        } else {
+            if (type == TransactionType.EXPENSE) {
+                account.decreaseBalance(amount);
+            }
+            if (type == TransactionType.INCOME) {
+                account.increaseBalance(amount);
+            }
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new NegativeAmountException("Amount must be a positive number");
         }
 
         BigDecimal totalSpent = transactionDao.getTotalSpentByCategory(category).orElse(BigDecimal.ZERO);
@@ -66,28 +84,28 @@ public class TransactionService {
         transaction.setType(type);
         transaction.setUser(user);
         transaction.setCategory(category);
+        transaction.setAccount(account);
 
         transactionDao.persist(transaction);
+
     }
 
-    //create a transaction that will be repeat every "days", examples : subscriptions(spotify premium, youtube premium), rent, etc.
+
     @Transactional
-    public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description, String type, int userId, int categoryId, int days, LocalDate endDate) {
+    public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int categoryId, int accountId, int days, LocalDate endDate) {
         if (days <= 0) {
             throw new NegativeIntervalException("The interval 'days' must be a positive number.");
         }
 
-        // if endDate is null, set it to 1 year from the start date
+        // If endDate is null, set it to 1 year from the start date
         if (endDate == null) {
             endDate = date.plusYears(1);
         }
 
         for (LocalDate currentDate = date; !currentDate.isAfter(endDate); currentDate = currentDate.plusDays(days)) {
-            createTransaction(amount, currentDate, description, type, userId, categoryId);
+            createTransaction(amount, currentDate, description, type, userId, categoryId, accountId);
         }
     }
-
-
 
     @Transactional(readOnly = true)
     public List<Transaction> getTransactionsByUserId(int userId) {
@@ -112,7 +130,6 @@ public class TransactionService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-
     @Transactional(readOnly = true)
     public List<Transaction> getTransactionsByCategoryId(int categoryId) {
         Category category = categoryDao.find(categoryId);
@@ -135,10 +152,11 @@ public class TransactionService {
 
     @Transactional
     public void deleteTransactionById(int transactionId) {
-        Transaction transaction = transactionDao.findTransactionById(transactionId)
-                .orElseThrow(() -> new TransactionNotFoundException("Transaction not found with ID: " + transactionId));
-
-        transactionDao.remove(transaction);
+        Optional<Transaction> transaction = transactionDao.findTransactionById(transactionId);
+        if (transaction.isPresent()) {
+            transactionDao.remove(transaction.get());
+        } else {
+            throw new TransactionNotFoundException("Transaction with ID " + transactionId + " not found");
+        }
     }
-
 }

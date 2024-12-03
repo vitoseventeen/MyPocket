@@ -1,13 +1,11 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
+import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.AccountDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.CategoryDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.TransactionDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Budget;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.*;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,12 +19,11 @@ import org.springframework.test.context.TestPropertySource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
-
 @SpringBootTest
 @Transactional
 @AutoConfigureTestEntityManager
@@ -45,27 +42,43 @@ public class TransactionServiceTest {
     @SpyBean
     private CategoryDao categoryDao;
 
+    @SpyBean
+    private AccountDao accountDao;
+
     private User user;
     private Category category;
     private Transaction transaction;
+    private Account account;
+
 
     @BeforeEach
     public void setup() {
         user = new User();
         user.setId(1);
         user.setUsername("Test User");
+        user.setPassword("Test Password");
+        user.setEmail("asd@s.s");
+        user.setRole(Role.USER);
 
         category = new Category();
         category.setId(1);
         category.setName("Test Category");
         category.setDefaultLimit(BigDecimal.valueOf(100));
 
+        account = new Account();
+        account.setId(1);
+        account.setBalance(BigDecimal.valueOf(1000));
+        account.setCurrency("CZK");
+        account.setAccountName("Test Account");
+        account.setTransactions(Collections.singletonList(transaction));
+        account.setUsers(Collections.singletonList(user));
 
         transaction = new Transaction();
         transaction.setId(1);
         transaction.setAmount(BigDecimal.valueOf(50));
         transaction.setUser(user);
         transaction.setCategory(category);
+        transaction.setAccount(account);
         transaction.setDate(LocalDate.now());
         transaction.setDescription("Test Transaction");
     }
@@ -74,9 +87,10 @@ public class TransactionServiceTest {
     public void createTransactionCreatesTransactionIfValid() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
         when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(20)));
 
-        transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Valid Transaction", "EXPENSE", 1, 1);
+        transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Valid Transaction", TransactionType.EXPENSE,1, 1, 1);
 
         verify(transactionDao, times(1)).persist(any(Transaction.class));
     }
@@ -86,32 +100,44 @@ public class TransactionServiceTest {
         when(userDao.find(1)).thenReturn(null);
 
         assertThrows(UserNotFoundException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", "EXPENSE", 1, 1));
+                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE,1, 1, 1));
     }
 
     @Test
     public void createTransactionThrowsCategoryNotFoundException() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(null);
+        when(accountDao.find(1)).thenReturn(account);
 
         assertThrows(CategoryNotFoundException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", "EXPENSE", 1, 1));
+                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE,1, 1, 1));
+    }
+
+    @Test
+    public void createTransactionThrowsInvalidInvalidTransactionTypeException() {
+        when(userDao.find(1)).thenReturn(user);
+        when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
+
+        assertThrows(InvalidTransactionTypeException.class, () ->
+                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", null, 1, 1, 1));
     }
 
     @Test
     public void createTransactionThrowsNegativeAmountException() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
 
-        assertThrows(NegativeAmountException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(-10), LocalDate.now(), "Invalid Transaction", "EXPENSE", 1, 1));
+        assertThrows(IllegalArgumentException.class, () ->
+                transactionService.createTransaction(BigDecimal.valueOf(-110), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE, 1, 1, 1));
     }
 
     @Test
     public void createTransactionWarnsIfExceedsCategoryLimit() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);
-
+        when(accountDao.find(1)).thenReturn(account);
         when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(90)));
 
         Budget budget = new Budget();
@@ -121,32 +147,32 @@ public class TransactionServiceTest {
         BigDecimal amount = BigDecimal.valueOf(20); // Total spent would be 90 + 20 = 110, exceeding limit of 100
         LocalDate date = LocalDate.now();
         String description = "Exceeding Transaction";
-        String type = "EXPENSE";
+        TransactionType type = TransactionType.EXPENSE;
 
-        transactionService.createTransaction(amount, date, description, type, 1, 1);
+        transactionService.createTransaction(amount, date, description, type, 1,1, 1);
 
         BigDecimal expectedRemainingAmount = BigDecimal.valueOf(600).subtract(BigDecimal.valueOf(20)); // Exceeded by 10
         assertEquals(expectedRemainingAmount, budget.getCurrentAmount(), "Budget remaining amount is incorrect");
 
         verify(transactionDao, times(1)).persist(any(Transaction.class));
 
-     }
+    }
 
     @Test
     public void createRecurringTransactionCreatesMultipleTransactions() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);
-
+        when(accountDao.find(1)).thenReturn(account);
         when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.ZERO));
 
         BigDecimal amount = BigDecimal.valueOf(50);
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         String description = "Recurring Subscription";
-        String type = "EXPENSE";
+        TransactionType type = TransactionType.EXPENSE;
         int intervalDays = 7;
         LocalDate endDate = startDate.plusWeeks(3);
 
-        transactionService.createRecurringTransaction(amount, startDate, description, type, 1, 1, intervalDays, endDate);
+        transactionService.createRecurringTransaction(amount, startDate, description, type, 1,1, 1, intervalDays, endDate);
 
         int expectedOccurrences = 4;
         verify(transactionDao, times(expectedOccurrences)).persist(any(Transaction.class));
@@ -156,7 +182,7 @@ public class TransactionServiceTest {
     public void createRecurringTransactionThrowsNegativeIntervalException() {
         assertThrows(NegativeIntervalException.class, () ->
                 transactionService.createRecurringTransaction(
-                        BigDecimal.valueOf(10), LocalDate.now(), "Invalid Recurring Transaction", "EXPENSE", 1, 1, -5, LocalDate.now().plusDays(21)));
+                        BigDecimal.valueOf(10), LocalDate.now(), "Invalid Recurring Transaction", TransactionType.EXPENSE, 1, 1, 1, -5, LocalDate.now().plusDays(21)));
     }
 
     @Test
@@ -182,23 +208,11 @@ public class TransactionServiceTest {
 
     @Test
     public void deleteTransactionByIdDeletesTransaction() {
-        User testUser = new User();
-        testUser.setUsername("Test User");
-        userDao.persist(testUser);
-
-        Category testCategory = new Category();
-        testCategory.setName("Test Category");
-        testCategory.setDescription("Test Description");
-        testCategory.setDefaultLimit(BigDecimal.valueOf(500));
-        categoryDao.persist(testCategory);
-
         Transaction testTransaction = new Transaction();
         testTransaction.setAmount(BigDecimal.valueOf(100));
         testTransaction.setDate(LocalDate.now());
         testTransaction.setDescription("Test Transaction");
-        testTransaction.setType("EXPENSE");
-        testTransaction.setUser(testUser);
-        testTransaction.setCategory(testCategory);
+        testTransaction.setType(TransactionType.EXPENSE);
         transactionDao.persist(testTransaction);
 
         transactionService.deleteTransactionById(testTransaction.getId());
@@ -213,4 +227,5 @@ public class TransactionServiceTest {
         assertThrows(TransactionNotFoundException.class, () ->
                 transactionService.deleteTransactionById(1));
     }
+
 }

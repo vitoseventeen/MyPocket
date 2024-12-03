@@ -7,16 +7,29 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 public class Account extends AbstractEntity {
+
+    @Column(name = "account_name", nullable = false, length = 100)
     private String accountName;
+
+    @Column(name = "balance", nullable = false, precision = 15, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
+
+    @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
-    @OneToMany(mappedBy = "account")
-    private List<Transaction> transactions;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
+    private List<Transaction> transactions = new ArrayList<>();
+
 
     @ManyToMany
+    @JoinTable(
+            name = "account_user",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> users = new ArrayList<>();
 
     public Account() {
