@@ -1,30 +1,37 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "transactions")
 public class Transaction extends AbstractEntity {
+
+    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
+
+    @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @Column(name = "description", length = 255)
     private String description;
+
+    @Column(name = "type", length = 50)
     private String type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     public Transaction() {
