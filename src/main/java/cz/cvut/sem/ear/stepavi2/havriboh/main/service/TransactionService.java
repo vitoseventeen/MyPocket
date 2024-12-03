@@ -43,6 +43,10 @@ public class TransactionService {
             throw new CategoryNotFoundException("Category not found with ID: " + categoryId);
         }
 
+        if (type == null) {
+            throw new InvalidTransactionTypeException("Transaction type cannot be null");
+        }
+
         Account account = accountDao.find(accountId);
         if (account == null) {
             throw new AccountNotFoundException("Account not found with ID: " + accountId);

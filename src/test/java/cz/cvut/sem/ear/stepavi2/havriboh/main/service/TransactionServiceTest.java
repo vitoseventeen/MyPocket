@@ -114,6 +114,16 @@ public class TransactionServiceTest {
     }
 
     @Test
+    public void createTransactionThrowsInvalidInvalidTransactionTypeException() {
+        when(userDao.find(1)).thenReturn(user);
+        when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
+
+        assertThrows(InvalidTransactionTypeException.class, () ->
+                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", null, 1, 1, 1));
+    }
+
+    @Test
     public void createTransactionThrowsNegativeAmountException() {
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);

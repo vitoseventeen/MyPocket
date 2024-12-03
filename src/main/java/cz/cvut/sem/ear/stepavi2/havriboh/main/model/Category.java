@@ -1,6 +1,6 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeCategoryLimitException;
+
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

@@ -9,9 +9,6 @@ D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\dao\ReportDao.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\dao\TransactionDao.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\dao\UserDao.java
-D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\environment\Environment.java
-D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\environment\Generator.java
-D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\environment\TestConfiguration.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\AccountNotFoundException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\BudgetLimitExceededException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\BudgetNotFoundException.java
@@ -24,6 +21,7 @@ D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\EmptyNameException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\EmptyReportTypeException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\InvalidDateException.java
+D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\InvalidTransactionTypeException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\LastUserInAccountException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\NegativeAmountException.java
 D:\Study\semestr_3\EAR\semestralnipraceear\src\main\java\cz\cvut\sem\ear\stepavi2\havriboh\main\exception\NegativeBalanceException.java
