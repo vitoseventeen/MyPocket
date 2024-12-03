@@ -16,7 +16,7 @@ public class UserDao extends BaseDao<User> {
         em.persist(user);
     }
 
-    public Optional<User> findUserByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         try {
             return Optional.ofNullable(
                     em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
@@ -28,7 +28,7 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-    public Optional<User> findUserById(int id) {
+    public Optional<User> findById(int id) {
         try {
             return Optional.ofNullable(
                     em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
@@ -41,7 +41,7 @@ public class UserDao extends BaseDao<User> {
     }
 
 
-    public Optional<User> findUserByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         try {
             return Optional.ofNullable(
                     em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
@@ -52,4 +52,6 @@ public class UserDao extends BaseDao<User> {
             return Optional.empty();
         }
     }
+
+
 }

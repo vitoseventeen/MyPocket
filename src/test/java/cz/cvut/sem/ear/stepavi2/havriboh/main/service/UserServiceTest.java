@@ -2,9 +2,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import jakarta.transaction.Transactional;
@@ -49,7 +47,7 @@ public class UserServiceTest {
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
         userService.activateSubscriptionForOneMonth(testUser);
 
-        User updatedUser = userDao.findUserById(testUser.getId()).orElseThrow();
+        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertTrue(updatedUser.isSubscribed());
         assertEquals(LocalDate.now().plusMonths(1), updatedUser.getSubscriptionEndDate());
     }
@@ -62,7 +60,7 @@ public class UserServiceTest {
 
         userService.activateSubscriptionForOneMonth(testUser);
 
-        User updatedUser = userDao.findUserById(testUser.getId()).orElseThrow();
+        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertEquals(LocalDate.now().plusMonths(3), updatedUser.getSubscriptionEndDate());
     }
     @Test
@@ -73,7 +71,7 @@ public class UserServiceTest {
 
         userService.cancelSubscription(testUser);
 
-        User updatedUser = userDao.findUserById(testUser.getId()).orElseThrow();
+        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertFalse(updatedUser.isSubscribed());
         assertEquals(LocalDate.now(), updatedUser.getSubscriptionEndDate());
     }
@@ -93,7 +91,7 @@ public class UserServiceTest {
         String newUsername = "updateduser";
         userService.updateUsernameById(testUser.getId(), newUsername);
 
-        User updatedUser = userDao.findUserById(testUser.getId()).orElseThrow();
+        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertEquals(newUsername, updatedUser.getUsername());
     }
 
