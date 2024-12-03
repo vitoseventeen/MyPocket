@@ -2,6 +2,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -13,11 +14,28 @@ import java.util.List;
 @DiscriminatorValue("USER")
 @Table(name = "users")
 public class User extends AbstractEntity {
-    protected String email;
-    protected String username;
+
+
     protected boolean isSubscribed;
     protected LocalDate subscriptionStartDate;
     protected LocalDate subscriptionEndDate;
+
+
+    @Basic(optional = false)
+    @Column(name = "username", nullable = false, unique = true)
+    protected String username;
+
+    @Basic(optional = false)
+    @Column(name = "email", nullable = false, unique = true)
+    protected String email;
+
+    @Basic(optional = false)
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 
     @OneToMany(mappedBy = "user")
     private List<Report> reports;
@@ -69,6 +87,34 @@ public class User extends AbstractEntity {
 
     public void setSubscriptionEndDate(LocalDate subscriptionEndDate) {
         this.subscriptionEndDate = subscriptionEndDate;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void encodePassword(PasswordEncoder encoder) {
+        this.password = encoder.encode(password);
+    }
+
+    public void erasePassword() {
+        this.password = null;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean isPremium() {
+        return role == Role.PREMIUM;
     }
 
     @Override
