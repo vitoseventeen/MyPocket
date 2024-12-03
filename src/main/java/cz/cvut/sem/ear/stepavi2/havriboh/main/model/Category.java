@@ -1,9 +1,8 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeCategoryLimitException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +10,19 @@ import java.util.List;
 @Entity
 public class Category extends AbstractEntity {
 
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
+
+    @Column(name = "description", length = 255)
     private String description;
+
+    @Column(name = "default_limit", precision = 15, scale = 2)
     private BigDecimal defaultLimit;
 
-    @OneToOne(mappedBy = "category")
+    @OneToOne(mappedBy = "category", cascade = CascadeType.ALL)
     private Budget budget;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Transaction> transactions = new ArrayList<>();
 
     public Category() {}
