@@ -6,12 +6,14 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveExc
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -38,10 +40,25 @@ public class UserService {
         user.setUsername(username);
         user.setSubscribed(false);
 
-        // Encode the password before saving it
         user.setPassword(passwordEncoder.encode(password));
 
         userDao.persist(user);
+    }
+
+    @Transactional
+    public void persist(User user) {
+        Objects.requireNonNull(user);
+        user.encodePassword(passwordEncoder);
+        if (user.getRole() == null) {
+            user.setRole(Constants.DEFAULT_ROLE);
+        }
+        userDao.persist(user);
+    }
+
+
+    @Transactional(readOnly = true)
+    public boolean exists(String username) {
+        return userDao.findByUsername(username).isPresent();
     }
 
     @Transactional(readOnly = true)
