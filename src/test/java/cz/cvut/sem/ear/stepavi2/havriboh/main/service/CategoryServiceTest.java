@@ -3,11 +3,9 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.CategoryDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.TransactionDao;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.TransactionType;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.*;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +48,8 @@ public class CategoryServiceTest {
     private TransactionService transactionService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserDao userDao;
 
     @BeforeEach
     public void setup() {
@@ -136,22 +136,33 @@ public class CategoryServiceTest {
         Category deletedCategory = categoryDao.find(newCategory.getId());
         assertNull(deletedCategory);
     }
-// TODO: FIX
-//    @Test
-//    public void deleteCategoryByIdThrowsExceptionWhenCategoryHasTransactions() {
-//        Category newCategory = new Category();
-//        newCategory.setName("CategoryWithTransactions");
-//        newCategory.setDescription("Description");
-//        newCategory.setDefaultLimit(BigDecimal.valueOf(100));
-//        categoryDao.persist(newCategory);
-//
-//        User user = userService.createUser("testUser", "testUser", "testUser",);
-//
-//        Transaction transaction = transactionService.createTransaction(BigDecimal.valueOf(100),LocalDate.now(), "description", TransactionType.INCOME,, category.getId());
-//
-//        assertThrows(CategoryHasTransactionsException.class, () ->
-//                categoryService.deleteCategoryById(newCategory.getId()));
-//    }
+
+    @Test
+    public void deleteCategoryByIdThrowsExceptionWhenCategoryHasTransactions() {
+        Transaction transaction = new Transaction();
+        transaction.setAmount(BigDecimal.valueOf(50));
+        transaction.setDate(LocalDate.now());
+        transaction.setType(TransactionType.EXPENSE);
+        transaction.setDescription("Test Transaction");
+        transaction.setUser(userDao.find(1));
+        transactionDao.persist(transaction);
+
+        Category newCategory = new Category();
+        newCategory.setName("CategoryToDelete");
+        newCategory.setDescription("Description");
+        newCategory.setDefaultLimit(BigDecimal.valueOf(100));
+        newCategory.setTransactions(Collections.singletonList(transaction));
+        categoryDao.persist(newCategory);
+
+        assertTrue(!newCategory.getTransactions().isEmpty(), "Category should have transactions");
+
+        assertThrows(CategoryHasTransactionsException.class, () -> {
+            categoryService.deleteCategoryById(newCategory.getId());
+        });
+
+        Category deletedCategory = categoryDao.find(newCategory.getId());
+        assertNotNull(deletedCategory, "Category should not be deleted");
+    }
 
 
 }
