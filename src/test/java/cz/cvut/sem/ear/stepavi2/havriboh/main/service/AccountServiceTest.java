@@ -5,6 +5,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.AccountDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Account;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +53,9 @@ public class AccountServiceTest {
     public void setUp() {
         this.user = new User();
         user.setUsername("testUser");
+        user.setPassword("testPassword");
+        user.setEmail("testMail@gmail.com");
+        user.setRole(Role.USER);
 
         this.account = new Account();
         account.setAccountName("testAccount");
@@ -131,6 +135,9 @@ public class AccountServiceTest {
     public void removeUserFromAccountByIdRemovesUserFromAccount() {
         User anotherUser = new User();
         anotherUser.setUsername("anotherUser");
+        anotherUser.setPassword("anotherPassword");
+        anotherUser.setEmail("anotherMail@gmail.com");
+        anotherUser.setRole(Role.USER);
         em.persist(anotherUser);
 
         account.getUsers().add(user);

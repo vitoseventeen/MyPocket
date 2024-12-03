@@ -7,10 +7,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.InvalidDateException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NotPremiumUserException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.ReportNotFoundException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Report;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.*;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,19 +43,41 @@ public class ReportServiceTest {
 
     @Autowired
     private UserDao userDao;
+
     @Autowired
     private CategoryDao categoryDao;
 
+    private User createUser(String email, String username, boolean isSubscribed) {
+        User testUser = new User();
+        testUser.setEmail(email);
+        testUser.setUsername(username);
+        testUser.setPassword("password");
+        testUser.setRole(Role.USER);
+        testUser.setSubscribed(isSubscribed);
+        userDao.persist(testUser);
+        return testUser;
+    }
+
+    private Category createCategory(String name) {
+        Category category = new Category();
+        category.setName(name);
+        categoryDao.persist(category);
+        return category;
+    }
+
+    private Transaction createTransaction(User user, Category category, BigDecimal amount, LocalDate date) {
+        Transaction transaction = new Transaction();
+        transaction.setUser(user);
+        transaction.setCategory(category);
+        transaction.setAmount(amount);
+        transaction.setDate(date);
+        transactionDao.persist(transaction);
+        return transaction;
+    }
 
     @Test
     void createReportThrowsExceptionForNonPremiumUser() {
-        User testUser = new User();
-        testUser.setEmail("nonpremium@example.com");
-        testUser.setUsername("nonPremiumUser");
-        if (testUser.isSubscribed()) {
-            userService.cancelSubscription(testUser);
-        }
-        userDao.persist(testUser);
+        User testUser = createUser("nonpremium@example.com", "nonPremiumUser", false);
 
         assertThrows(NotPremiumUserException.class, () ->
                 reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now())
@@ -69,23 +86,10 @@ public class ReportServiceTest {
 
     @Test
     void createReportCreatesReportForPremiumUser() {
-        // Создаем подписанного пользователя
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
-        Category incomeCategory = new Category();
-        incomeCategory.setName("Salary");
-        categoryDao.persist(incomeCategory);
-
-        Transaction incomeTransaction = new Transaction();
-        incomeTransaction.setUser(testUser);
-        incomeTransaction.setCategory(incomeCategory);
-        incomeTransaction.setAmount(BigDecimal.valueOf(1000));
-        incomeTransaction.setDate(LocalDate.now().minusDays(2));
-        transactionDao.persist(incomeTransaction);
+        Category incomeCategory = createCategory("Salary");
+        createTransaction(testUser, incomeCategory, BigDecimal.valueOf(1000), LocalDate.now().minusDays(2));
 
         reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now());
 
@@ -101,11 +105,7 @@ public class ReportServiceTest {
 
     @Test
     void createReportThrowsExceptionForInvalidDateRange() {
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
         assertThrows(InvalidDateException.class, () ->
                 reportService.createReport(testUser.getId(), LocalDate.now(), LocalDate.now().minusDays(1))
@@ -114,32 +114,12 @@ public class ReportServiceTest {
 
     @Test
     void createReportAddsTransactionsToReport() {
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
-        Category incomeCategory = new Category();
-        Category spendingCategory = new Category();
-        incomeCategory.setName("Salary");
-        spendingCategory.setName("Food");
-        categoryDao.persist(incomeCategory);
-        categoryDao.persist(spendingCategory);
-
-        Transaction incomeTransaction = new Transaction();
-        incomeTransaction.setUser(testUser);
-        incomeTransaction.setCategory(incomeCategory);
-        incomeTransaction.setAmount(BigDecimal.valueOf(1000));
-        incomeTransaction.setDate(LocalDate.now().minusDays(2));
-        transactionDao.persist(incomeTransaction);
-
-        Transaction spendingTransaction = new Transaction();
-        spendingTransaction.setUser(testUser);
-        spendingTransaction.setCategory(spendingCategory);
-        spendingTransaction.setAmount(BigDecimal.valueOf(-200));
-        spendingTransaction.setDate(LocalDate.now().minusDays(1));
-        transactionDao.persist(spendingTransaction);
+        Category incomeCategory = createCategory("Salary");
+        Category spendingCategory = createCategory("Food");
+        createTransaction(testUser, incomeCategory, BigDecimal.valueOf(1000), LocalDate.now().minusDays(2));
+        createTransaction(testUser, spendingCategory, BigDecimal.valueOf(-200), LocalDate.now().minusDays(1));
 
         reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now());
 
@@ -149,38 +129,20 @@ public class ReportServiceTest {
         Report createdReport = reports.get(0);
         assertNotNull(createdReport);
         assertEquals(testUser.getId(), createdReport.getUser().getId());
-
-        Map<String, BigDecimal> expectedIncome = new HashMap<>();
-        expectedIncome.put(incomeCategory.getName(), BigDecimal.valueOf(1000));
-
-        Map<String, BigDecimal> expectedSpending = new HashMap<>();
-        expectedSpending.put(spendingCategory.getName(), BigDecimal.valueOf(200));
     }
 
     @Test
     void generateSpendingReportThrowsExceptionForNonPremiumUser() {
-        User testUser = new User();
-        testUser.setEmail("nonpremium@example.com");
-        testUser.setUsername("nonPremiumUser");
-        if (testUser.isSubscribed()) {
-            userService.cancelSubscription(testUser);
-        }
-        userDao.persist(testUser);
+        User testUser = createUser("nonpremium@example.com", "nonPremiumUser", false);
 
         assertThrows(NotPremiumUserException.class, () ->
-                reportService.createReport(
-                        testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now()
-                )
+                reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now())
         );
     }
 
     @Test
     void getReportByIdReturnsCorrectReport() {
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));
@@ -205,11 +167,7 @@ public class ReportServiceTest {
 
     @Test
     void deleteReportByIdRemovesReport() {
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));
@@ -226,11 +184,7 @@ public class ReportServiceTest {
 
     @Test
     void updateReportByIdUpdatesCorrectly() {
-        User testUser = new User();
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("testUser");
-        testUser.setSubscribed(true);
-        userDao.persist(testUser);
+        User testUser = createUser("test@example.com", "testUser", true);
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));

@@ -5,6 +5,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenExcepti
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +126,9 @@ public class UserService {
             user.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
             user.setSubscribed(true);
         }
+        if (user.isSubscribed()) {
+            user.setRole(Role.PREMIUM);
+        }
         userDao.update(user);
     }
 
@@ -135,6 +139,7 @@ public class UserService {
         }
         user.setSubscriptionEndDate(LocalDate.now());
         user.setSubscribed(false);
+        user.setRole(Role.USER);
         userDao.update(user);
     }
 
