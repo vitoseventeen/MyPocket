@@ -20,8 +20,9 @@ public class Account extends AbstractEntity {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
+
 
     @ManyToMany
     @JoinTable(

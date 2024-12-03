@@ -27,7 +27,7 @@ public class UserService {
     }
 
     @Transactional
-    public void createUser(String email, String username, String password) {
+    public void createUser(String username, String email, String password) {
         if (userDao.findByEmail(email).isPresent()) {
             throw new EmailAlreadyTakenException("This email is already taken.");
         }

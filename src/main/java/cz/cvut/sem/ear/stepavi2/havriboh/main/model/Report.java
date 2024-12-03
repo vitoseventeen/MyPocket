@@ -1,10 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -16,7 +13,7 @@ public class Report extends AbstractEntity {
     @Column(name = "to_date", nullable = false)
     private LocalDate toDate;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

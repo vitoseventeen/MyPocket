@@ -22,8 +22,9 @@ public class Category extends AbstractEntity {
     @OneToOne(mappedBy = "category", cascade = CascadeType.ALL)
     private Budget budget;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
+
 
     public Category() {}
 

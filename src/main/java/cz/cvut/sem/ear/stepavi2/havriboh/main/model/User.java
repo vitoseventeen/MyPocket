@@ -40,14 +40,15 @@ public class User extends AbstractEntity {
     @Column(name = "subscription_end_date")
     protected LocalDate subscriptionEndDate;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Report> reports;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Transaction> transactions;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Account> accounts;
+
 
     public User() {
     }

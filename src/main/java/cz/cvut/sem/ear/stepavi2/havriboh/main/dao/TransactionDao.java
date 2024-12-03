@@ -2,6 +2,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.dao;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.TransactionType;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,16 @@ public class TransactionDao extends BaseDao<Transaction> {
     public TransactionDao() {
         super(Transaction.class);
     }
+
+    @Override
+    public void remove(Transaction transaction) {
+        if (em.contains(transaction)) {
+            em.remove(transaction);
+        } else {
+            em.remove(em.merge(transaction));
+        }
+    }
+
 
     @Override
     public void persist(Transaction transaction) {
@@ -65,5 +76,13 @@ public class TransactionDao extends BaseDao<Transaction> {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+
+    public List<Transaction> findTransactionsByType(TransactionType type)
+    {
+        return em.createQuery("SELECT t FROM Transaction t WHERE t.type = :type", Transaction.class)
+                .setParameter("type", type)
+                .getResultList();
     }
 }

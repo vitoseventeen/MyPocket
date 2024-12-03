@@ -2,6 +2,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,18 +21,18 @@ public class Transaction extends AbstractEntity {
     private String description;
 
     @Column(name = "type", length = 50)
-    private String type;
+    private TransactionType type;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     public Transaction() {
@@ -61,11 +62,11 @@ public class Transaction extends AbstractEntity {
         this.description = description;
     }
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
