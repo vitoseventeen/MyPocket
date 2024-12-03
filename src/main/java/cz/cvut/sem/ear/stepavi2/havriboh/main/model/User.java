@@ -14,13 +14,6 @@ import java.util.List;
 @DiscriminatorValue("USER")
 @Table(name = "users")
 public class User extends AbstractEntity {
-
-
-    protected boolean isSubscribed;
-    protected LocalDate subscriptionStartDate;
-    protected LocalDate subscriptionEndDate;
-
-
     @Basic(optional = false)
     @Column(name = "username", nullable = false, unique = true)
     protected String username;
@@ -36,6 +29,16 @@ public class User extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
+
+    @Basic(optional = false)
+    @Column(name = "is_subscribed")
+    protected boolean isSubscribed;
+
+    @Column(name = "subscription_start_date")
+    protected LocalDate subscriptionStartDate;
+
+    @Column(name = "subscription_end_date")
+    protected LocalDate subscriptionEndDate;
 
     @OneToMany(mappedBy = "user")
     private List<Report> reports;
