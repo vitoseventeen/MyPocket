@@ -3,6 +3,7 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.NegativeAmountException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.RemoveMoreThanCurrentBudgetException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.TargetAmountException;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 
@@ -12,8 +13,13 @@ import java.math.BigDecimal;
 @Entity
 public class Budget extends AbstractEntity {
 
+    @Column(name = "target_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal targetAmount;
+
+    @Column(name = "current_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal currentAmount;
+
+    @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
     @OneToOne
