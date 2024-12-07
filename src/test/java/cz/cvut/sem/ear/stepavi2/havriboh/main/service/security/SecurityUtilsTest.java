@@ -1,7 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service.security;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.environment.Environment;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.environment.Generator;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.security.SecurityUtils;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.security.model.UserDetails;
@@ -18,8 +18,10 @@ public class SecurityUtilsTest {
 
     @BeforeEach
     public void setUp() {
-        this.user = Generator.generateUser();
-        user.setId(Generator.randomInt());
+        user = new User();
+        user.setUsername("user");
+        user.setPassword("password");
+        user.setRole(Role.USER);
     }
 
     @AfterEach

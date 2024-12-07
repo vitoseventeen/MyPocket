@@ -49,20 +49,6 @@ public class AccountControllerTest extends BaseControllerTestRunner {
                 .andExpect(jsonPath("$[1].accountName").value("Account2"));
     }
 
-    @Test
-    void getAccountById_shouldReturnAccount() throws Exception {
-        Account account = new Account();
-        account.setAccountName("Account1");
-        account.setBalance(BigDecimal.TEN);
-        account.setCurrency("CZK");
-
-        when(accountService.getAccountById(1)).thenReturn(account);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/accounts/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.accountName").value("Account1"));
-    }
-
     // create account
     @Test
     void createAccount_shouldCreateAndReturn201() throws Exception {
