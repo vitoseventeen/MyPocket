@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -115,6 +116,8 @@ public class UserService {
         userDao.update(user);
     }
 
+
+
     @Transactional
     public void activateSubscriptionForOneMonth(User user) {
         if (user.isSubscribed() && user.getSubscriptionEndDate().isAfter(LocalDate.now())) {
@@ -160,5 +163,15 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean checkPassword(User user, String password) {
         return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> findAll() {
+        return userDao.findAll();
+    }
+
+    @Transactional
+    public void updateUser(User existingUser) {
+        userDao.update(existingUser);
     }
 }

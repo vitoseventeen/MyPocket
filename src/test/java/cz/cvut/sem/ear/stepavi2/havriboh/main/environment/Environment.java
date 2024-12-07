@@ -1,10 +1,12 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.environment;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.security.model.UserDetails;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.LocalDateSerializer;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.HashSet;
 
 public class Environment {
@@ -29,6 +32,13 @@ public class Environment {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+            objectMapper.registerModule(new JavaTimeModule());
+
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(LocalDate.class, new LocalDateSerializer());
+
+            objectMapper.registerModule(module);
         }
         return objectMapper;
     }

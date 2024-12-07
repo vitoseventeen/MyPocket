@@ -90,6 +90,22 @@ public class TransactionService {
 
     }
 
+    @Transactional
+    public void updateTransaction(int transactionId, BigDecimal amount, LocalDate date, String description,
+                                  TransactionType type) {
+        Optional<Transaction> transaction = transactionDao.findTransactionById(transactionId);
+        if (transaction.isPresent()) {
+            Transaction t = transaction.get();
+            t.setAmount(amount);
+            t.setDate(date);
+            t.setDescription(description);
+            t.setType(type);
+            transactionDao.update(t);
+        } else {
+            throw new TransactionNotFoundException("Transaction with ID " + transactionId + " not found");
+        }
+    }
+
 
     @Transactional
     public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int categoryId, int accountId, int days, LocalDate endDate) {
@@ -159,4 +175,5 @@ public class TransactionService {
             throw new TransactionNotFoundException("Transaction with ID " + transactionId + " not found");
         }
     }
+
 }
