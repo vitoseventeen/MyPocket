@@ -61,13 +61,40 @@ public class TransactionController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> updateTransaction(@PathVariable("id") Long id, @RequestBody Object transaction) {
-        return ResponseEntity.ok().body("Transaction with id " + id + " updated");
-    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTransaction(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body("Transaction with id " + id + " deleted");
+    public ResponseEntity<Object> deleteTransaction(@PathVariable("id") int id) {
+        try {
+            transactionService.deleteTransactionById(id);
+            logger.info("Deleted transaction with id: {}", id);
+            return ResponseEntity.ok("Transaction deleted");
+        } catch (TransactionNotFoundException e) {
+            logger.error("Transaction not found with id: {}", id);
+            return ResponseEntity.status(404).body("Transaction not found");
+        }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateTransaction(
+            @PathVariable("id") int id,
+            @RequestBody Transaction transaction) {
+        try {
+            transactionService.updateTransaction(
+                    id,
+                    transaction.getAmount(),
+                    transaction.getDate(),
+                    transaction.getDescription(),
+                    transaction.getType()
+            );
+            logger.info("Updated transaction with id: {}", id);
+            return ResponseEntity.ok("Transaction updated");
+        } catch (TransactionNotFoundException e) {
+            logger.error("Transaction not found with id: {}", id);
+            return ResponseEntity.status(404).body("Transaction not found");
+        } catch (Exception e) {
+            logger.error("Error updating transaction with id {}: {}", id, e.getMessage());
+            return ResponseEntity.status(400).body("Error updating transaction: " + e.getMessage());
+        }
+    }
+
 }
