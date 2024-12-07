@@ -84,6 +84,11 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
+    public List<Report> getAllReports() {
+        return reportDao.findAll();
+    }
+
+    @Transactional(readOnly = true)
     public List<Report> getReportsByUserId(int userId) {
         return reportDao.findReportsByUserId(userId);
     }

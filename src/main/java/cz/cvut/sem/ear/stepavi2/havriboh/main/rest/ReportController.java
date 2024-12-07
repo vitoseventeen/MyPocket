@@ -74,6 +74,16 @@ public class ReportController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<Object> getAllReports() {
+        try {
+            List<Report> reports = reportService.getAllReports();
+            return ResponseEntity.ok(reports);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while retrieving all reports.");
+        }
+    }
+
     @DeleteMapping("/{reportId}")
     public ResponseEntity<Object> deleteReportById(@PathVariable int reportId) {
         try {
