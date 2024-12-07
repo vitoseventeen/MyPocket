@@ -1,5 +1,6 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.rest;
 
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.CategoryNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Category;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,11 +66,11 @@ class CategoryControllerTest extends BaseControllerTestRunner {
 
     @Test
     void getCategoryById_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new RuntimeException("Category not found")).when(categoryService).getCategoryById(anyInt());
+        doThrow(new CategoryNotFoundException("")).when(categoryService).getCategoryById(anyInt());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rest/categories/1"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("Category not found"));
+                .andExpect(MockMvcResultMatchers.content().string("\"Category not found\""));
     }
 
     @Test
@@ -78,7 +79,7 @@ class CategoryControllerTest extends BaseControllerTestRunner {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Category1\",\"description\":\"Description1\",\"defaultLimit\":10}"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.content().string("Category created"));
+                .andExpect(jsonPath("$").value("Category created"));
 
         verify(categoryService, times(1))
                 .createCategory("Category1", "Description1", BigDecimal.TEN);
@@ -88,12 +89,12 @@ class CategoryControllerTest extends BaseControllerTestRunner {
     void updateCategory_shouldUpdateAndReturn200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.put("/rest/categories/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"UpdatedCategory\",\"description\":\"UpdatedDescription\",\"defaultLimit\":15}"))
+                        .content("{\"name\":\"Category1\",\"description\":\"Description1\",\"defaultLimit\":10}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Category updated"));
+                .andExpect(jsonPath("$").value("Category updated"));
 
         verify(categoryService, times(1))
-                .updateCategoryById(1, "UpdatedCategory", "UpdatedDescription", BigDecimal.valueOf(15));
+                .updateCategoryById(1, "Category1", "Description1", BigDecimal.TEN);
     }
 
     @Test
@@ -108,10 +109,10 @@ class CategoryControllerTest extends BaseControllerTestRunner {
 
     @Test
     void deleteCategory_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new RuntimeException("Category not found")).when(categoryService).deleteCategoryById(anyInt());
+        doThrow(new CategoryNotFoundException("")).when(categoryService).deleteCategoryById(anyInt());
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/rest/categories/1"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("Category not found"));
+                .andExpect(MockMvcResultMatchers.content().string("\"Category not found\""));
     }
 }
