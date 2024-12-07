@@ -131,9 +131,7 @@ public class CategoryService {
         if (newDescription.isBlank()) {
             throw new EmptyDescriptionException("Description cannot be empty");
         }
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found");
-        }
+
         category.setDescription(newDescription);
         categoryDao.update(category);
     }
@@ -141,13 +139,13 @@ public class CategoryService {
     @Transactional
     public void deleteCategoryById(int categoryId) {
         Category category = getCategoryById(categoryId);
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found");
-        }
+
         if (!category.getTransactions().isEmpty()) {
             throw new CategoryHasTransactionsException("Category has associated transactions, cannot delete");
         }
+
         categoryDao.remove(category);
     }
+
 
 }
