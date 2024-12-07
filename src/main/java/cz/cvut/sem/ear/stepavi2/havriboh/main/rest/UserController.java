@@ -24,7 +24,11 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
-        return ResponseEntity.ok().body("List of all users");
+        try {
+            return ResponseEntity.ok().body(userService.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Error getting users: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -50,15 +54,16 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable("id") int id, @RequestBody User user) {
         try {
-            userService.updateUsernameById(id, user.getUsername());
-            userService.updateEmailById(id, user.getEmail());
-            return ResponseEntity.ok().body("User with ID " + id + " updated successfully");
+            User existingUser = userService.getUserById(id);
+            existingUser.setUsername(user.getUsername());
+            existingUser.setEmail(user.getEmail());
+            userService.updateUser(existingUser);
+            return ResponseEntity.ok("User with ID " + id + " updated successfully");
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body("User not found with ID: " + id);
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error updating user: " + e.getMessage());
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable("id") int id) {
