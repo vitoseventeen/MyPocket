@@ -57,14 +57,17 @@ public class BudgetController {
         }
     }
 
-    // increase or decrease budget
-
+    //TODO: think about better way to select increase or decrease
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
+    public ResponseEntity<Object> updateBudget(@PathVariable("id") int id, @RequestBody Budget budget, @RequestParam("increase") boolean increase) {
         try {
-            budgetService.increaseBudget(id, budget.getTargetAmount()); // or budgetService.decreaseBudget based on the change
-            logger.info("Updated budget with id: {}", id);
-            return ResponseEntity.ok("Budget updated");
+            if (increase) {
+                budgetService.increaseBudget(id, budget.getTargetAmount());
+            } else {
+                budgetService.decreaseBudget(id, budget.getTargetAmount());
+            }
+                logger.info("Updated budget with id: {}", id);
+                return ResponseEntity.ok("Budget updated");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
             logger.error("Error updating budget: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error updating budget: " + e.getMessage());

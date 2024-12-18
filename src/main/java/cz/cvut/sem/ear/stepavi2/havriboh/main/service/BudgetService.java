@@ -112,7 +112,6 @@ public class BudgetService {
         budgetDao.update(budget);
     }
 
-    // nemuze byt mensi nez 0
     @Transactional
     public void decreaseBudget(int budgetId, BigDecimal amount) {
         Budget budget = budgetDao.find(budgetId);
@@ -121,6 +120,9 @@ public class BudgetService {
         }
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new NegativeAmountException("Amount must be positive");
+        }
+        if (amount.compareTo(budget.getCurrentAmount()) > 0) {
+            throw new NegativeAmountException("Amount must be less than current amount");
         }
 
         budget.decreaseBudget(amount);

@@ -55,12 +55,6 @@ public class AccountController {
         }
     }
 
-    // nic nedela
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> updateAccount(@PathVariable("id") Long id, @RequestBody Object account) {
-        return ResponseEntity.ok().body("Account with id " + id + " updated");
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
