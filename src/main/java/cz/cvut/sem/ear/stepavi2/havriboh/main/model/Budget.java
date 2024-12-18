@@ -6,11 +6,13 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.TargetAmountException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "budgets")
 public class Budget extends AbstractEntity {
 
     @Column(name = "target_amount", nullable = false, precision = 15, scale = 2)

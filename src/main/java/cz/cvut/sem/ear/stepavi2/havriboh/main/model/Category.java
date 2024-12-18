@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "categories")
 public class Category extends AbstractEntity {
 
     @Column(name = "name", nullable = false, length = 100)

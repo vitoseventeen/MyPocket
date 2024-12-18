@@ -9,6 +9,7 @@ import java.util.List;
 
 
 @Entity
+@Table(name = "accounts")
 public class Account extends AbstractEntity {
 
     @Column(name = "account_name", nullable = false, length = 100)
