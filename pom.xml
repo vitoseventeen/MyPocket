@@ -11,14 +11,31 @@
     <groupId>cz.cvut.sem.ear.stepavi2.havriboh.main</groupId>
     <artifactId>Semestralka</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Semestralka</name>
-    <description>Semestralka</description>
+    <name>MyPocketApp</name>
+    <description>Semestralni prace z predmetu EAR (stepavi2, havriboh)
+
+    </description>
     <url/>
     <licenses>
         <license/>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <name>Vitalii Stepaniuk</name>
+            <email>stepavi2@fel.cvut.cz</email>
+            <organization/>
+            <organizationUrl/>
+            <roles>
+            </roles>
+        </developer>
+        <developer>
+            <name>Bohdan Havrikov</name>
+            <email>havrikov@fel.cvut.cz</email>
+            <organization/>
+            <organizationUrl/>
+            <roles>
+            </roles>
+        </developer>
     </developers>
     <scm>
         <connection/>
@@ -70,9 +87,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
 
     </dependencies>
