@@ -9,9 +9,7 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.model.*;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +20,6 @@ import org.springframework.test.context.TestPropertySource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -44,10 +41,7 @@ public class CategoryServiceTest {
     private Category category;
     @Autowired
     private TransactionDao transactionDao;
-    @Autowired
-    private TransactionService transactionService;
-    @Autowired
-    private UserService userService;
+
     @Autowired
     private UserDao userDao;
 
@@ -153,11 +147,9 @@ public class CategoryServiceTest {
         newCategory.setTransactions(Collections.singletonList(transaction));
         categoryDao.persist(newCategory);
 
-        assertTrue(!newCategory.getTransactions().isEmpty(), "Category should have transactions");
+        assertFalse(newCategory.getTransactions().isEmpty(), "Category should have transactions");
 
-        assertThrows(CategoryHasTransactionsException.class, () -> {
-            categoryService.deleteCategoryById(newCategory.getId());
-        });
+        assertThrows(CategoryHasTransactionsException.class, () -> categoryService.deleteCategoryById(newCategory.getId()));
 
         Category deletedCategory = categoryDao.find(newCategory.getId());
         assertNotNull(deletedCategory, "Category should not be deleted");

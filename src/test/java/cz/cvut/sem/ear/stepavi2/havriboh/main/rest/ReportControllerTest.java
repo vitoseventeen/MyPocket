@@ -20,12 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ReportControllerTest extends BaseControllerTestRunner {
 
     private ReportService reportService;
-    private ReportController reportController;
 
     @BeforeEach
     void setUp() {
         reportService = Mockito.mock(ReportService.class);
-        reportController = new ReportController(reportService);
+        ReportController reportController = new ReportController(reportService);
         super.setUp(reportController);
     }
 

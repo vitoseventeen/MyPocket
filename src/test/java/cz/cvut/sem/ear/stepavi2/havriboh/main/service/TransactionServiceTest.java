@@ -47,7 +47,6 @@ public class TransactionServiceTest {
 
     private User user;
     private Category category;
-    private Transaction transaction;
     private Account account;
 
 
@@ -66,11 +65,12 @@ public class TransactionServiceTest {
         category.setDescription("Test Description");
         categoryDao.persist(category);
 
+
         account = new Account();
         account.setBalance(BigDecimal.valueOf(1000));
         account.setCurrency("CZK");
         account.setAccountName("Test Account");
-        account.setTransactions(Collections.singletonList(transaction));
+        account.setTransactions(Collections.singletonList(new Transaction()));
         account.setUsers(Collections.singletonList(user));
         accountDao.persist(account);
 
@@ -205,7 +205,7 @@ public class TransactionServiceTest {
     @Test
     public void getTransactionsByUserIdReturnsTransactions() {
         when(userDao.find(1)).thenReturn(user);
-        when(transactionDao.findTransactionsByUser(user)).thenReturn(Collections.singletonList(transaction));
+        when(transactionDao.findTransactionsByUser(user)).thenReturn(Collections.singletonList(new Transaction()));
 
         var transactions = transactionService.getTransactionsByUserId(1);
 
