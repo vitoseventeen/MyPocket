@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "reports")
 public class Report extends AbstractEntity {
     @Column(name = "from_date", nullable = false)
     private LocalDate fromDate;

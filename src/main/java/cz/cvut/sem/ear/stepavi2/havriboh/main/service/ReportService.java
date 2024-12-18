@@ -30,6 +30,7 @@ public class ReportService {
         this.transactionDao = transactionDao;
     }
 
+    // pridat kontrolu
     @Transactional
     public void createReport(int userId, LocalDate fromDate, LocalDate toDate) {
         User user = userService.getUserById(userId);
@@ -83,6 +84,7 @@ public class ReportService {
         reportDao.persist(report);
     }
 
+    // pridat kontrolu
     @Transactional(readOnly = true)
     public List<Report> getAllReports() {
         return reportDao.findAll();

@@ -5,14 +5,11 @@ import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "USER_TYPE")
-@DiscriminatorValue("USER")
-@Table(name = "users")
+@Table(name = "app_user")
 public class User extends AbstractEntity {
     @Basic(optional = false)
     @Column(name = "username", nullable = false, unique = true)
