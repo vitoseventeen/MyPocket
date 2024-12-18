@@ -1,10 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
@@ -41,20 +38,10 @@ public class UserService {
         user.setEmail(email);
         user.setUsername(username);
         user.setSubscribed(false);
+        user.setRole(Role.USER);
 
         user.setPassword(passwordEncoder.encode(password));
 
-        userDao.persist(user);
-    }
-
-    // smazat
-    @Transactional
-    public void persist(User user) {
-        Objects.requireNonNull(user);
-        user.encodePassword(passwordEncoder);
-        if (user.getRole() == null) {
-            user.setRole(Constants.DEFAULT_ROLE);
-        }
         userDao.persist(user);
     }
 
@@ -117,24 +104,26 @@ public class UserService {
         userDao.update(user);
     }
 
-
-    // zmenit predplatne do nejakeho data
     @Transactional
-    public void activateSubscriptionForOneMonth(User user) {
+    public void activateSubscription(User user, int months) {
+        if (months <= 0) {
+            throw new InvalidDataException("Subscription period must be a positive number of months.");
+        }
+
         if (user.isSubscribed() && user.getSubscriptionEndDate().isAfter(LocalDate.now())) {
-            // if subscription is active and not expired, extend it by one month
-            user.setSubscriptionEndDate(user.getSubscriptionEndDate().plusMonths(1));
+            user.setSubscriptionEndDate(user.getSubscriptionEndDate().plusMonths(months));
         } else {
-            // if subscription is expired or not active, create new subscription
             user.setSubscriptionStartDate(LocalDate.now());
-            user.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
+            user.setSubscriptionEndDate(LocalDate.now().plusMonths(months));
             user.setSubscribed(true);
         }
+
         if (user.isSubscribed()) {
             user.setRole(Role.PREMIUM);
         }
         userDao.update(user);
     }
+
 
     @Transactional
     public void cancelSubscription(User user) {
@@ -159,14 +148,6 @@ public class UserService {
         User user = getUserById(userId);
         user.setPassword(passwordEncoder.encode(newPassword)); // Encode new password
         userDao.update(user);
-    }
-
-    // Method to check if the provided password matches the stored (encoded) password
-    // login
-    // smazat
-    @Transactional(readOnly = true)
-    public boolean checkPassword(User user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
     }
 
     // pridat kontrolu

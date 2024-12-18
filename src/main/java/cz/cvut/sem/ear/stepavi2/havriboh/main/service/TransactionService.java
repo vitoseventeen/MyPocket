@@ -125,7 +125,7 @@ public class TransactionService {
         transactionDao.update(t);
     }
 
-    private LocalDate calculateNextDate(LocalDate currentDate, int interval, String intervalUnit) {
+    public LocalDate calculateNextDate(LocalDate currentDate, int interval, String intervalUnit) {
         return switch (intervalUnit.toLowerCase()) {
             case "months" -> currentDate.plusMonths(interval);
             case "years" -> currentDate.plusYears(interval);
