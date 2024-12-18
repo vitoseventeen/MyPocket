@@ -47,6 +47,7 @@ public class UserService {
         userDao.persist(user);
     }
 
+    // smazat
     @Transactional
     public void persist(User user) {
         Objects.requireNonNull(user);
@@ -117,7 +118,7 @@ public class UserService {
     }
 
 
-
+    // zmenit predplatne do nejakeho data
     @Transactional
     public void activateSubscriptionForOneMonth(User user) {
         if (user.isSubscribed() && user.getSubscriptionEndDate().isAfter(LocalDate.now())) {
@@ -152,6 +153,7 @@ public class UserService {
     }
 
     // Method to update the password
+    // pridat kontrolu autorizace
     @Transactional
     public void updatePassword(int userId, String newPassword) {
         User user = getUserById(userId);
@@ -160,11 +162,14 @@ public class UserService {
     }
 
     // Method to check if the provided password matches the stored (encoded) password
+    // login
+    // smazat
     @Transactional(readOnly = true)
     public boolean checkPassword(User user, String password) {
         return passwordEncoder.matches(password, user.getPassword());
     }
 
+    // pridat kontrolu
     @Transactional(readOnly = true)
     public List<User> findAll() {
         return userDao.findAll();

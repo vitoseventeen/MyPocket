@@ -66,6 +66,7 @@ public class TransactionService {
         BigDecimal totalSpent = transactionDao.getTotalSpentByCategory(category).orElse(BigDecimal.ZERO);
         BigDecimal newTotal = totalSpent.add(amount);
 
+        // throw exception nebo logger
         if (newTotal.compareTo(category.getDefaultLimit()) > 0) {
             System.out.println("Warning: Transaction exceeds category limit! Category limit is exceeded by " +
                     newTotal.subtract(category.getDefaultLimit()) + ". Category budget is now negative.");
@@ -107,6 +108,7 @@ public class TransactionService {
     }
 
 
+    // change 1 year ( make constant )
     @Transactional
     public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int categoryId, int accountId, int days, LocalDate endDate) {
         if (days <= 0) {

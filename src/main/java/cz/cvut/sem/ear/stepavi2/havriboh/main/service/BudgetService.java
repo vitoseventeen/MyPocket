@@ -112,6 +112,7 @@ public class BudgetService {
         budgetDao.update(budget);
     }
 
+    // nemuze byt mensi nez 0
     @Transactional
     public void decreaseBudget(int budgetId, BigDecimal amount) {
         Budget budget = budgetDao.find(budgetId);

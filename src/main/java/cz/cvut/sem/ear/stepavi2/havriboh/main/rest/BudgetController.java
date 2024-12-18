@@ -57,6 +57,8 @@ public class BudgetController {
         }
     }
 
+    // increase or decrease budget
+
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
         try {
