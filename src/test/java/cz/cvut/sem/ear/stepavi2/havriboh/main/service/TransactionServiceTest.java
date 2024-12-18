@@ -52,35 +52,29 @@ public class TransactionServiceTest {
 
 
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         user = new User();
-        user.setId(1);
         user.setUsername("Test User");
         user.setPassword("Test Password");
         user.setEmail("asd@s.s");
         user.setRole(Role.USER);
+        userDao.persist(user);
 
         category = new Category();
-        category.setId(1);
         category.setName("Test Category");
         category.setDefaultLimit(BigDecimal.valueOf(100));
+        category.setDescription("Test Description");
+        categoryDao.persist(category);
 
         account = new Account();
-        account.setId(1);
         account.setBalance(BigDecimal.valueOf(1000));
         account.setCurrency("CZK");
         account.setAccountName("Test Account");
         account.setTransactions(Collections.singletonList(transaction));
         account.setUsers(Collections.singletonList(user));
+        accountDao.persist(account);
 
-        transaction = new Transaction();
-        transaction.setId(1);
-        transaction.setAmount(BigDecimal.valueOf(50));
-        transaction.setUser(user);
-        transaction.setCategory(category);
-        transaction.setAccount(account);
-        transaction.setDate(LocalDate.now());
-        transaction.setDescription("Test Transaction");
+
     }
 
     @Test
@@ -219,14 +213,15 @@ public class TransactionServiceTest {
         assertEquals(1, transactions.size());
     }
 
+
     @Test
-    public void getTotalSpentByUserIdCalculatesTotal() {
-        when(userDao.find(1)).thenReturn(user);
-        when(transactionDao.findTransactionsByUser(user)).thenReturn(Collections.singletonList(transaction));
+    public void getTotalSpentByCategoryReturnsTotalSpent() {
+        when(categoryDao.find(1)).thenReturn(category);
+        when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(100)));
 
-        BigDecimal totalSpent = transactionService.getTotalSpentByUserId(1);
+        var totalSpent = transactionService.getTotalSpentByCategoryId(1);
 
-        assertEquals(BigDecimal.valueOf(50), totalSpent);
+        assertEquals(BigDecimal.valueOf(100), totalSpent);
     }
 
     @Test

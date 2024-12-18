@@ -54,7 +54,6 @@ public class CategoryServiceTest {
     @BeforeEach
     public void setup() {
         category = new Category();
-        category.setId(1);
         category.setName("Test Category");
         category.setDescription("Test Description");
         category.setDefaultLimit(BigDecimal.valueOf(100));

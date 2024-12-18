@@ -7,7 +7,6 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.service.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
@@ -58,7 +57,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
     @Test
     void getReportsByUserId_shouldReturnReports() throws Exception {
         Report report = new Report();
-        report.setId(1);
         report.setFromDate(LocalDate.of(2023, 1, 1));
         report.setToDate(LocalDate.of(2023, 12, 31));
 
@@ -66,7 +64,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/user/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].fromDate").value("2023-01-01"))
                 .andExpect(jsonPath("$[0].toDate").value("2023-12-31"));
     }
@@ -81,9 +78,8 @@ class ReportControllerTest extends BaseControllerTestRunner {
     }
 
     @Test
-    void getReportById_shouldReturnReport() throws Exception {
+    void getReportById_shouldReturnReportWhenFound() throws Exception {
         Report report = new Report();
-        report.setId(1);
         report.setFromDate(LocalDate.of(2023, 1, 1));
         report.setToDate(LocalDate.of(2023, 12, 31));
 
@@ -91,7 +87,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.fromDate").value("2023-01-01"))
                 .andExpect(jsonPath("$.toDate").value("2023-12-31"));
     }
@@ -104,6 +99,46 @@ class ReportControllerTest extends BaseControllerTestRunner {
         mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("\"Report not found\""));
+    }
+
+    @Test
+    void updateReportDateById_shouldReturn200OnSuccess() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/rest/reports/1")
+                        .param("fromDate", "2023-01-01")
+                        .param("toDate", "2023-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("\"Report dates updated successfully.\""));
+
+        verify(reportService, times(1)).updateReportDateById(1, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31));
+    }
+
+    @Test
+    void updateReportDateById_shouldReturnBadRequestInvalidDate() throws Exception {
+        doThrow(new InvalidDateException("From date must be before to date"))
+                .when(reportService).updateReportDateById(anyInt(), any(LocalDate.class), any(LocalDate.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/rest/reports/1")
+                        .param("fromDate", "2023-12-31")
+                        .param("toDate", "2023-01-01"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("\"From date must be before to date\""));
+    }
+
+    @Test
+    void getReportsByUserIdAndDateRange_shouldReturnReports() throws Exception {
+        Report report = new Report();
+        report.setFromDate(LocalDate.of(2023, 1, 1));
+        report.setToDate(LocalDate.of(2023, 12, 31));
+
+        when(reportService.getReportsByUserIdAndDateRange(1, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31)))
+                .thenReturn(Collections.singletonList(report));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/user/1/date-range")
+                        .param("fromDate", "2023-01-01")
+                        .param("toDate", "2023-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].fromDate").value("2023-01-01"))
+                .andExpect(jsonPath("$[0].toDate").value("2023-12-31"));
     }
 
     @Test

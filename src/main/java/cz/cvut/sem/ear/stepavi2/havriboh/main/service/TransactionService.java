@@ -6,6 +6,8 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.TransactionDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,8 @@ import java.util.Optional;
 
 @Service
 public class TransactionService {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
+
     private final TransactionDao transactionDao;
     private final UserDao userDao;
     private final CategoryDao categoryDao;
@@ -30,7 +34,8 @@ public class TransactionService {
         this.accountDao = accountDao;
     }
 
-    private boolean isValidData(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int accountId, int categoryId) {
+    @Transactional
+    protected boolean isValidData(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int accountId, int categoryId) {
         if (userDao.find(userId) == null) {
             throw new UserNotFoundException("User not found with ID: " + userId);
         }
@@ -59,6 +64,7 @@ public class TransactionService {
     }
 
 
+
     @Transactional
     public void createTransaction(BigDecimal amount, LocalDate date, String description,
                                   TransactionType type, int userId, int accountId, int categoryId) {
@@ -82,12 +88,9 @@ public class TransactionService {
         BigDecimal newTotal = totalSpent.add(amount);
 
         if (newTotal.compareTo(category.getDefaultLimit()) > 0) {
-            try {
-                throw new CategoryLimitExceededException("Transaction exceeds category limit! Category limit is exceeded by " +
-                        newTotal.subtract(category.getDefaultLimit()) + ". Category budget is now negative.");
-            } catch (CategoryLimitExceededException e) {
-                e.printStackTrace();
-            }
+            String message = "Transaction exceeds category limit! Category limit is exceeded by " +
+                    newTotal.subtract(category.getDefaultLimit()) + ". Category budget is now negative.";
+            logger.warn(message);
 
             budget.decreaseBudget(amount.subtract(category.getDefaultLimit()));
         }
@@ -102,7 +105,6 @@ public class TransactionService {
         transaction.setAccount(account);
 
         transactionDao.persist(transaction);
-
     }
 
     @Transactional
@@ -125,6 +127,7 @@ public class TransactionService {
         transactionDao.update(t);
     }
 
+    @Transactional
     public LocalDate calculateNextDate(LocalDate currentDate, int interval, TransactionIntervalType intervalUnit) {
         return switch (intervalUnit) {
             case DAYS -> currentDate.plusDays(interval);
