@@ -117,11 +117,11 @@ class UserControllerTest extends BaseControllerTestRunner {
         user.setUsername("userWithSubscription");
 
         when(userService.getUserById(anyInt())).thenReturn(user); // Mocking getUserById
-        doNothing().when(userService).activateSubscriptionForOneMonth(user);
+        doNothing().when(userService).activateSubscription(user, 1); // Mocking activateSubscription
 
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/users/{id}/activate-subscription", 1))
                 .andExpect(status().isOk())
-                .andExpect(content().string("\"Subscription activated for user with ID: 1\""));
+                .andExpect(content().string("\"Subscription activated for user with ID: 1 for 1 month(s)\""));
     }
 
     @Test

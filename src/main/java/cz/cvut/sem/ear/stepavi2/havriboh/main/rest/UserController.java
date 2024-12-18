@@ -78,17 +78,16 @@ public class UserController {
     }
 
     @PostMapping("/{id}/activate-subscription")
-    public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id) {
+    public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id, @RequestParam(value = "months", defaultValue = "1") int months) {
         try {
             User user = userService.getUserById(id);
-            userService.activateSubscriptionForOneMonth(user);
-            return ResponseEntity.ok().body("Subscription activated for user with ID: " + id);
+            userService.activateSubscription(user, months);
+            return ResponseEntity.ok().body("Subscription activated for user with ID: " + id + " for " + months + " month(s)");
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body("User not found with ID: " + id);
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error activating subscription: " + e.getMessage());
         }
     }
+
 
     @PostMapping("/{id}/cancel-subscription")
     public ResponseEntity<Object> cancelSubscription(@PathVariable("id") int id) {

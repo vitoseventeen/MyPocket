@@ -125,20 +125,19 @@ public class TransactionService {
         transactionDao.update(t);
     }
 
-    public LocalDate calculateNextDate(LocalDate currentDate, int interval, String intervalUnit) {
-        return switch (intervalUnit.toLowerCase()) {
-            case "months" -> currentDate.plusMonths(interval);
-            case "years" -> currentDate.plusYears(interval);
-            case "days" -> currentDate.plusDays(interval);
-            case "weeks" -> currentDate.plusWeeks(interval);
-            default ->
-                    throw new InvalidDataException("Invalid interval unit. Use 'days', 'months', 'years', or 'weeks'.");
+    public LocalDate calculateNextDate(LocalDate currentDate, int interval, TransactionIntervalType intervalUnit) {
+        return switch (intervalUnit) {
+            case DAYS -> currentDate.plusDays(interval);
+            case WEEKS -> currentDate.plusWeeks(interval);
+            case MONTHS -> currentDate.plusMonths(interval);
+            case YEARS -> currentDate.plusYears(interval);
+            default -> throw new InvalidDataException("Invalid interval unit: " + intervalUnit);
         };
     }
 
     @Transactional
     public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description,
-                                           TransactionType type, int userId, int categoryId, int accountId, int interval, String intervalUnit) {
+                                           TransactionType type, int userId, int categoryId, int accountId, int interval, TransactionIntervalType intervalUnit) {
 
         if (interval <= 0) {
             throw new NegativeIntervalException("The interval 'days' must be a positive number.");

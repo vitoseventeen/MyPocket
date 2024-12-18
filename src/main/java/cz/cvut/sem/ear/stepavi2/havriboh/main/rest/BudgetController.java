@@ -57,20 +57,27 @@ public class BudgetController {
         }
     }
 
-    //TODO: think about better way to select increase or decrease
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> updateBudget(@PathVariable("id") int id, @RequestBody Budget budget, @RequestParam("increase") boolean increase) {
+    @PutMapping("/{id}/increase")
+    public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
         try {
-            if (increase) {
-                budgetService.increaseBudget(id, budget.getTargetAmount());
-            } else {
-                budgetService.decreaseBudget(id, budget.getTargetAmount());
-            }
-                logger.info("Updated budget with id: {}", id);
-                return ResponseEntity.ok("Budget updated");
+            budgetService.increaseBudget(id, budget.getTargetAmount());
+            logger.info("Increased budget with id: {} by amount: {}", id, budget.getTargetAmount());
+            return ResponseEntity.ok("Budget increased successfully");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
-            logger.error("Error updating budget: {}", e.getMessage());
-            return ResponseEntity.status(400).body("Error updating budget: " + e.getMessage());
+            logger.error("Error increasing budget: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Error increasing budget: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/decrease")
+    public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
+        try {
+            budgetService.decreaseBudget(id, budget.getTargetAmount());
+            logger.info("Decreased budget with id: {} by amount: {}", id, budget.getTargetAmount());
+            return ResponseEntity.ok("Budget decreased successfully");
+        } catch (BudgetNotFoundException | NegativeAmountException e) {
+            logger.error("Error decreasing budget: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Error decreasing budget: " + e.getMessage());
         }
     }
 

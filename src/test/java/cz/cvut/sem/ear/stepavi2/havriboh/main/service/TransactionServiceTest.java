@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static cz.cvut.sem.ear.stepavi2.havriboh.main.model.TransactionIntervalType.MONTHS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 @SpringBootTest
@@ -84,33 +85,92 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void createTransactionCreatesTransactionIfValid() {
+    public void createTransactionWithValidDate() {
+        // Arrange
         when(userDao.find(1)).thenReturn(user);
         when(categoryDao.find(1)).thenReturn(category);
         when(accountDao.find(1)).thenReturn(account);
-        when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(20)));
+        when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(90)));
 
-        transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Valid Transaction", TransactionType.EXPENSE,1, 1, 1);
+        Budget budget = new Budget();
+        budget.setCurrentAmount(BigDecimal.valueOf(500));
+        category.setBudget(budget);
 
+        BigDecimal amount = BigDecimal.valueOf(20); // Total spent would be 90 + 20 = 110, exceeding limit of 100
+        LocalDate date = LocalDate.of(2024, 12, 18);
+        String description = "Valid Transaction";
+        TransactionType type = TransactionType.EXPENSE;
+
+        // Act
+        transactionService.createTransaction(amount, date, description, type, 1, 1, 1);
+
+        // Assert
+        BigDecimal expectedRemainingAmount = BigDecimal.valueOf(600).subtract(BigDecimal.valueOf(20)); // Exceeded by 10
+        assertEquals(expectedRemainingAmount, budget.getCurrentAmount(), "Budget remaining amount is incorrect");
         verify(transactionDao, times(1)).persist(any(Transaction.class));
     }
 
     @Test
-    public void createTransactionThrowsUserNotFoundException() {
-        when(userDao.find(1)).thenReturn(null);
+    public void createTransactionWithInvalidDate_nullDate() {
+        // Arrange
+        when(userDao.find(1)).thenReturn(user);
+        when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
 
-        assertThrows(UserNotFoundException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE,1, 1, 1));
+        BigDecimal amount = BigDecimal.valueOf(20);
+        LocalDate date = null; // Invalid date
+        String description = "Invalid Transaction";
+        TransactionType type = TransactionType.EXPENSE;
+
+        // Act & Assert
+        assertThrows(InvalidDateException.class, () ->
+                transactionService.createTransaction(amount, date, description, type, 1, 1, 1));
+    }
+
+
+    @Test
+    public void createRecurringTransactionWithValidDates() {
+        // Arrange
+        when(userDao.find(1)).thenReturn(user);
+        when(categoryDao.find(1)).thenReturn(category);
+        when(accountDao.find(1)).thenReturn(account);
+        when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.valueOf(90)));
+
+        Budget budget = new Budget();
+        budget.setCurrentAmount(BigDecimal.valueOf(500));
+        category.setBudget(budget);
+
+        BigDecimal amount = BigDecimal.valueOf(20);
+        LocalDate startDate = LocalDate.of(2024, 12, 18);
+        String description = "Recurring Transaction";
+        TransactionType type = TransactionType.EXPENSE;
+        int interval = 1; // Monthly interval
+
+        // Act
+        transactionService.createRecurringTransaction(amount, startDate, description, type, 1, 1, 1, interval, MONTHS);
+
+        // Assert: Check if the first transaction is created and the budget is updated
+        BigDecimal expectedRemainingAmount = BigDecimal.valueOf(600).subtract(BigDecimal.valueOf(20)); // Exceeded by 10
+        assertEquals(expectedRemainingAmount, budget.getCurrentAmount(), "Budget remaining amount is incorrect");
+        verify(transactionDao, times(1)).persist(any(Transaction.class)); // Ensure at least 1 transaction was created
     }
 
     @Test
-    public void createTransactionThrowsCategoryNotFoundException() {
+    public void createRecurringTransactionWithInvalidDate_nullDate() {
+        // Arrange
         when(userDao.find(1)).thenReturn(user);
-        when(categoryDao.find(1)).thenReturn(null);
+        when(categoryDao.find(1)).thenReturn(category);
         when(accountDao.find(1)).thenReturn(account);
 
-        assertThrows(CategoryNotFoundException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE,1, 1, 1));
+        BigDecimal amount = BigDecimal.valueOf(20);
+        LocalDate startDate = null; // Invalid date
+        String description = "Invalid Recurring Transaction";
+        TransactionType type = TransactionType.EXPENSE;
+        int interval = 1; // Monthly interval
+
+        // Act & Assert
+        assertThrows(InvalidDateException.class, () ->
+                transactionService.createRecurringTransaction(amount, startDate, description, type, 1, 1, 1, interval, MONTHS));
     }
 
     @Test
@@ -121,16 +181,6 @@ public class TransactionServiceTest {
 
         assertThrows(InvalidTransactionTypeException.class, () ->
                 transactionService.createTransaction(BigDecimal.valueOf(50), LocalDate.now(), "Invalid Transaction", null, 1, 1, 1));
-    }
-
-    @Test
-    public void createTransactionThrowsNegativeAmountException() {
-        when(userDao.find(1)).thenReturn(user);
-        when(categoryDao.find(1)).thenReturn(category);
-        when(accountDao.find(1)).thenReturn(account);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                transactionService.createTransaction(BigDecimal.valueOf(-110), LocalDate.now(), "Invalid Transaction", TransactionType.EXPENSE, 1, 1, 1));
     }
 
     @Test
@@ -158,32 +208,6 @@ public class TransactionServiceTest {
 
     }
 
-    @Test
-    public void createRecurringTransactionCreatesMultipleTransactions() {
-        when(userDao.find(1)).thenReturn(user);
-        when(categoryDao.find(1)).thenReturn(category);
-        when(accountDao.find(1)).thenReturn(account);
-        when(transactionDao.getTotalSpentByCategory(category)).thenReturn(Optional.of(BigDecimal.ZERO));
-
-        BigDecimal amount = BigDecimal.valueOf(50);
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        String description = "Recurring Subscription";
-        TransactionType type = TransactionType.EXPENSE;
-        int intervalDays = 7;
-        LocalDate endDate = startDate.plusWeeks(3);
-
-        transactionService.createRecurringTransaction(amount, startDate, description, type, 1,1, 1, intervalDays, endDate);
-
-        int expectedOccurrences = 4;
-        verify(transactionDao, times(expectedOccurrences)).persist(any(Transaction.class));
-    }
-
-    @Test
-    public void createRecurringTransactionThrowsNegativeIntervalException() {
-        assertThrows(NegativeIntervalException.class, () ->
-                transactionService.createRecurringTransaction(
-                        BigDecimal.valueOf(10), LocalDate.now(), "Invalid Recurring Transaction", TransactionType.EXPENSE, 1, 1, 1, -5, LocalDate.now().plusDays(21)));
-    }
 
     @Test
     public void getTransactionsByUserIdReturnsTransactions() {

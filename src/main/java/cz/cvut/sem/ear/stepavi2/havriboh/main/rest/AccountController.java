@@ -1,6 +1,8 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.rest;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.AccountNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserAlreadyInAccountException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Account;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.service.AccountService;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ public class AccountController {
             return ResponseEntity.status(400).body("Error creating account");
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {

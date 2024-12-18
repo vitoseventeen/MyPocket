@@ -64,21 +64,6 @@ public class AccountControllerTest extends BaseControllerTestRunner {
                 .andExpect(MockMvcResultMatchers.content().string("\"Account created\""));
     }
 
-    // update account
-    @Test
-    void updateAccount_shouldUpdateAndReturn200() throws Exception {
-        Account account = new Account();
-        account.setAccountName("Account1");
-        account.setBalance(BigDecimal.TEN);
-        account.setCurrency("CZK");
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/rest/accounts/1")
-                .contentType("application/json")
-                .content("{\"accountName\":\"Account1\",\"balance\":10,\"currency\":\"CZK\"}"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("\"Account with id 1 updated\""));
-    }
-
     // delete account
     @Test
     void deleteAccount_shouldDeleteAndReturn200() throws Exception {

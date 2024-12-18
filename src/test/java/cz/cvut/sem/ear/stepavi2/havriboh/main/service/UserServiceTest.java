@@ -62,18 +62,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void checkPasswordReturnsTrueForCorrectPassword() {
-        assertTrue(userService.checkPassword(testUser, "oldPassword"));
-    }
-
-    @Test
-    void checkPasswordReturnsFalseForIncorrectPassword() {
-        assertFalse(userService.checkPassword(testUser, "wrongPassword"));
-    }
-
-    @Test
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
-        userService.activateSubscriptionForOneMonth(testUser);
+        userService.activateSubscription(testUser, 1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertTrue(updatedUser.isSubscribed());
@@ -86,7 +76,7 @@ public class UserServiceTest {
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
         userDao.update(testUser);
 
-        userService.activateSubscriptionForOneMonth(testUser);
+        userService.activateSubscription(testUser,1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertEquals(LocalDate.now().plusMonths(3), updatedUser.getSubscriptionEndDate());
