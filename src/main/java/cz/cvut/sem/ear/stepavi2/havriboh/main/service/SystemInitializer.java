@@ -1,5 +1,6 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
+import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import jakarta.annotation.PostConstruct;
@@ -9,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import java.time.LocalDate;
 
 @Component
 public class SystemInitializer {
@@ -24,12 +23,14 @@ public class SystemInitializer {
     private final UserService userService;
 
     private final PlatformTransactionManager txManager;
+    private final UserDao userDao;
 
     @Autowired
     public SystemInitializer(UserService userService,
-                             PlatformTransactionManager txManager) {
+                             PlatformTransactionManager txManager, UserDao userDao) {
         this.userService = userService;
         this.txManager = txManager;
+        this.userDao = userDao;
     }
 
     @PostConstruct
@@ -52,6 +53,6 @@ public class SystemInitializer {
         premium.setRole(Role.PREMIUM);
         premium.setSubscribed(true);
         LOG.info("Generated premium user with credentials " + premium.getUsername() + "/" + premium.getPassword());
-        userService.persist(premium);
+        userDao.persist(premium);
     }
 }

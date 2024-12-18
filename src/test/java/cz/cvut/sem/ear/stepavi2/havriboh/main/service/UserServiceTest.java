@@ -19,7 +19,6 @@ import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Transactional
@@ -62,18 +61,15 @@ public class UserServiceTest {
     }
 
     @Test
-    void checkPasswordReturnsTrueForCorrectPassword() {
-        assertTrue(userService.checkPassword(testUser, "oldPassword"));
-    }
+    void deleteUserByUsernameDeletesUser() {
+        userService.deleteUserByUsername(testUser.getUsername());
 
-    @Test
-    void checkPasswordReturnsFalseForIncorrectPassword() {
-        assertFalse(userService.checkPassword(testUser, "wrongPassword"));
+        assertFalse(userDao.findByUsername(testUser.getUsername()).isPresent());
     }
 
     @Test
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
-        userService.activateSubscriptionForOneMonth(testUser);
+        userService.activateSubscription(testUser, 1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertTrue(updatedUser.isSubscribed());
@@ -86,7 +82,7 @@ public class UserServiceTest {
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
         userDao.update(testUser);
 
-        userService.activateSubscriptionForOneMonth(testUser);
+        userService.activateSubscription(testUser,1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertEquals(LocalDate.now().plusMonths(3), updatedUser.getSubscriptionEndDate());
@@ -136,5 +132,14 @@ public class UserServiceTest {
         assertThrows(UsernameAlreadyTakenException.class, () ->
                 userService.updateUsernameById(testUser.getId(), otherUser.getUsername())
         );
+    }
+
+    @Test
+    void isSubscribedReturnsTrueIfUserIsSubscribed() {
+        testUser.setSubscribed(true);
+        testUser.setSubscriptionEndDate(LocalDate.now().plusDays(1));
+        userDao.update(testUser);
+
+        assertTrue(userService.isSubscribed(testUser));
     }
 }

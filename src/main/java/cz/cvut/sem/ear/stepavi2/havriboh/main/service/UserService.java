@@ -1,13 +1,9 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.service;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.EmailAlreadyTakenException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.SubscriptionNotActiveException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UsernameAlreadyTakenException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class UserService {
@@ -41,19 +36,10 @@ public class UserService {
         user.setEmail(email);
         user.setUsername(username);
         user.setSubscribed(false);
+        user.setRole(Role.USER);
 
         user.setPassword(passwordEncoder.encode(password));
 
-        userDao.persist(user);
-    }
-
-    @Transactional
-    public void persist(User user) {
-        Objects.requireNonNull(user);
-        user.encodePassword(passwordEncoder);
-        if (user.getRole() == null) {
-            user.setRole(Constants.DEFAULT_ROLE);
-        }
         userDao.persist(user);
     }
 
@@ -61,11 +47,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean exists(String username) {
         return userDao.findByUsername(username).isPresent();
-    }
-
-    @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
-        return userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
 
     @Transactional(readOnly = true)
@@ -81,12 +62,6 @@ public class UserService {
     @Transactional
     public void deleteUserById(int userId) {
         User user = getUserById(userId);
-        userDao.remove(user);
-    }
-
-    @Transactional
-    public void deleteUserByEmail(String email) {
-        User user = getUserByEmail(email);
         userDao.remove(user);
     }
 
@@ -116,24 +91,26 @@ public class UserService {
         userDao.update(user);
     }
 
-
-
     @Transactional
-    public void activateSubscriptionForOneMonth(User user) {
+    public void activateSubscription(User user, int months) {
+        if (months <= 0) {
+            throw new InvalidDataException("Subscription period must be a positive number of months.");
+        }
+
         if (user.isSubscribed() && user.getSubscriptionEndDate().isAfter(LocalDate.now())) {
-            // if subscription is active and not expired, extend it by one month
-            user.setSubscriptionEndDate(user.getSubscriptionEndDate().plusMonths(1));
+            user.setSubscriptionEndDate(user.getSubscriptionEndDate().plusMonths(months));
         } else {
-            // if subscription is expired or not active, create new subscription
             user.setSubscriptionStartDate(LocalDate.now());
-            user.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
+            user.setSubscriptionEndDate(LocalDate.now().plusMonths(months));
             user.setSubscribed(true);
         }
+
         if (user.isSubscribed()) {
             user.setRole(Role.PREMIUM);
         }
         userDao.update(user);
     }
+
 
     @Transactional
     public void cancelSubscription(User user) {
@@ -152,6 +129,7 @@ public class UserService {
     }
 
     // Method to update the password
+    // pridat kontrolu autorizace
     @Transactional
     public void updatePassword(int userId, String newPassword) {
         User user = getUserById(userId);
@@ -159,12 +137,7 @@ public class UserService {
         userDao.update(user);
     }
 
-    // Method to check if the provided password matches the stored (encoded) password
-    @Transactional(readOnly = true)
-    public boolean checkPassword(User user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
+    // pridat kontrolu
     @Transactional(readOnly = true)
     public List<User> findAll() {
         return userDao.findAll();

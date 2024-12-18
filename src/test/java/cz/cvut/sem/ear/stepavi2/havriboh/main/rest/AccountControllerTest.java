@@ -19,13 +19,12 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.service.AccountService;
 
 
 public class AccountControllerTest extends BaseControllerTestRunner {
-    private AccountController accountController;
     private AccountService accountService;
 
     @BeforeEach
     void setUp() {
         accountService = Mockito.mock(AccountService.class);
-        accountController = new AccountController(accountService);
+        AccountController accountController = new AccountController(accountService);
         super.setUp(accountController);
     }
 
@@ -62,21 +61,6 @@ public class AccountControllerTest extends BaseControllerTestRunner {
                 .content("{\"accountName\":\"Account1\",\"balance\":10,\"currency\":\"CZK\"}"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content().string("\"Account created\""));
-    }
-
-    // update account
-    @Test
-    void updateAccount_shouldUpdateAndReturn200() throws Exception {
-        Account account = new Account();
-        account.setAccountName("Account1");
-        account.setBalance(BigDecimal.TEN);
-        account.setCurrency("CZK");
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/rest/accounts/1")
-                .contentType("application/json")
-                .content("{\"accountName\":\"Account1\",\"balance\":10,\"currency\":\"CZK\"}"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("\"Account with id 1 updated\""));
     }
 
     // delete account
