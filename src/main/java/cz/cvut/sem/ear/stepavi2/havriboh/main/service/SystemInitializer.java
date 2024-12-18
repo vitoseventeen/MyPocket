@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDate;
+
 @Component
 public class SystemInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(SystemInitializer.class);
@@ -52,6 +54,8 @@ public class SystemInitializer {
         premium.setPassword("premium");
         premium.setRole(Role.PREMIUM);
         premium.setSubscribed(true);
+        premium.setSubscriptionStartDate(LocalDate.now());
+        premium.setSubscriptionEndDate(LocalDate.now().plusYears(1));
         LOG.info("Generated premium user with credentials " + premium.getUsername() + "/" + premium.getPassword());
         userDao.persist(premium);
     }
