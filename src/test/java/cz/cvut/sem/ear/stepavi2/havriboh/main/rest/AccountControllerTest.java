@@ -19,13 +19,12 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.service.AccountService;
 
 
 public class AccountControllerTest extends BaseControllerTestRunner {
-    private AccountController accountController;
     private AccountService accountService;
 
     @BeforeEach
     void setUp() {
         accountService = Mockito.mock(AccountService.class);
-        accountController = new AccountController(accountService);
+        AccountController accountController = new AccountController(accountService);
         super.setUp(accountController);
     }
 

@@ -19,7 +19,6 @@ import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Transactional

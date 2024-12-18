@@ -26,26 +26,7 @@ public class BudgetService {
         this.categoryDao = categoryDao;
     }
 
-    @Transactional
-    public void transferFundsById(int fromBudgetId, int toBudgetId, BigDecimal amount) {
-        Budget fromBudget = budgetDao.find(fromBudgetId);
-        Budget toBudget = budgetDao.find(toBudgetId);
 
-        if (fromBudget == null || toBudget == null) {
-            throw new BudgetNotFoundException("One or both budgets not found");
-        }
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
-        }
-
-        fromBudget.decreaseBudget(amount);
-        toBudget.increaseBudget(amount);
-
-        budgetDao.update(fromBudget);
-        budgetDao.update(toBudget);
-    }
-
-    // show remaining funds in all budgets
     @Transactional(readOnly = true)
     public BigDecimal getTotalRemainingFunds() {
         List<Budget> budgets = budgetDao.findAll();

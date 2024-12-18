@@ -19,7 +19,6 @@ import org.springframework.test.context.TestPropertySource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static cz.cvut.sem.ear.stepavi2.havriboh.main.model.TransactionIntervalType.MONTHS;

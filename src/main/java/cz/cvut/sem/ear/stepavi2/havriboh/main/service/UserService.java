@@ -4,7 +4,6 @@ import cz.cvut.sem.ear.stepavi2.havriboh.main.dao.UserDao;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.*;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Role;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
-import cz.cvut.sem.ear.stepavi2.havriboh.main.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class UserService {
@@ -69,18 +67,6 @@ public class UserService {
     @Transactional
     public void deleteUserById(int userId) {
         User user = getUserById(userId);
-        userDao.remove(user);
-    }
-
-    @Transactional
-    public void deleteUserByEmail(String email) {
-        User user = getUserByEmail(email);
-        userDao.remove(user);
-    }
-
-    @Transactional
-    public void deleteUserByUsername(String username) {
-        User user = getUserByUsername(username);
         userDao.remove(user);
     }
 

@@ -20,12 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest extends BaseControllerTestRunner {
 
     private UserService userService;
-    private UserController userController;
 
     @BeforeEach
     void setUp() {
         userService = Mockito.mock(UserService.class);
-        userController = new UserController(userService);
+        UserController userController = new UserController(userService);
         super.setUp(userController);
     }
 

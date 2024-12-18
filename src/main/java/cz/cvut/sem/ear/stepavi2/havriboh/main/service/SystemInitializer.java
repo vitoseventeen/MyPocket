@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.time.LocalDate;
-
 @Component
 public class SystemInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(SystemInitializer.class);
