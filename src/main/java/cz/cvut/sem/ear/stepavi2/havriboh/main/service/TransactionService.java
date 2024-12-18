@@ -110,7 +110,7 @@ public class TransactionService {
                                   TransactionType type) {
 
         Optional<Transaction> transaction = transactionDao.findTransactionById(transactionId);
-        if (!transaction.isPresent()) {
+        if (transaction.isEmpty()) {
             throw new TransactionNotFoundException("Transaction not found with ID: " + transactionId);
         }
         Transaction t = transaction.get();

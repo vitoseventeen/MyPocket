@@ -61,6 +61,13 @@ public class UserServiceTest {
     }
 
     @Test
+    void deleteUserByUsernameDeletesUser() {
+        userService.deleteUserByUsername(testUser.getUsername());
+
+        assertFalse(userDao.findByUsername(testUser.getUsername()).isPresent());
+    }
+
+    @Test
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
         userService.activateSubscription(testUser, 1);
 
@@ -125,5 +132,14 @@ public class UserServiceTest {
         assertThrows(UsernameAlreadyTakenException.class, () ->
                 userService.updateUsernameById(testUser.getId(), otherUser.getUsername())
         );
+    }
+
+    @Test
+    void isSubscribedReturnsTrueIfUserIsSubscribed() {
+        testUser.setSubscribed(true);
+        testUser.setSubscriptionEndDate(LocalDate.now().plusDays(1));
+        userDao.update(testUser);
+
+        assertTrue(userService.isSubscribed(testUser));
     }
 }

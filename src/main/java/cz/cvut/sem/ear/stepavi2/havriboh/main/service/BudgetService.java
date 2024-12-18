@@ -35,17 +35,6 @@ public class BudgetService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-
-    @Transactional(readOnly = true)
-    public Budget getBudgetByCategoryId(int categoryId) {
-        Category category = categoryDao.find(categoryId);
-        if (category == null) {
-            throw new IllegalArgumentException("Category not found");
-        }
-
-        return category.getBudget();
-    }
-
     @Transactional(readOnly = true)
     public List<Budget> getAllBudgets() {
         return budgetDao.findAll();

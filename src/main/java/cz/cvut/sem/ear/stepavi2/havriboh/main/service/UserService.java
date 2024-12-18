@@ -50,11 +50,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
-        return userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
-    }
-
-    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return userDao.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
     }
@@ -67,6 +62,12 @@ public class UserService {
     @Transactional
     public void deleteUserById(int userId) {
         User user = getUserById(userId);
+        userDao.remove(user);
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        User user = getUserByUsername(username);
         userDao.remove(user);
     }
 
