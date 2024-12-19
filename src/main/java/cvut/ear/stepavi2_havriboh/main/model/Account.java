@@ -1,6 +1,8 @@
 package cvut.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -22,8 +24,8 @@ public class Account extends AbstractEntity {
     private String currency;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @JsonManagedReference
     private List<Transaction> transactions = new ArrayList<>();
-
 
     @ManyToMany
     @JoinTable(
@@ -31,6 +33,7 @@ public class Account extends AbstractEntity {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonBackReference
     private List<User> users = new ArrayList<>();
 
     public Account() {

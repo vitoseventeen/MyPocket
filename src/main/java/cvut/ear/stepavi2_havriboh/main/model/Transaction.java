@@ -1,11 +1,11 @@
 package cvut.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
 @Entity
 @Table(name = "transactions")
 public class Transaction extends AbstractEntity {
@@ -25,16 +25,18 @@ public class Transaction extends AbstractEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "account_id")
+    @JsonBackReference
     private Account account;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private Category category;
-
     public Transaction() {
     }
 

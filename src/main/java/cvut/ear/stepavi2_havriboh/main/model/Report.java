@@ -1,13 +1,18 @@
 package cvut.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reports")
 public class Report extends AbstractEntity {
+
     @Column(name = "from_date", nullable = false)
     private LocalDate fromDate;
 
@@ -16,6 +21,7 @@ public class Report extends AbstractEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     public User getUser() {
