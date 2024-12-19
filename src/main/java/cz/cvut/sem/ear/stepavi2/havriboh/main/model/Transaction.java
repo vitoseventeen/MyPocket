@@ -21,6 +21,7 @@ public class Transaction extends AbstractEntity {
     private String description;
 
     @Column(name = "type", length = 50)
+    @Enumerated(EnumType.STRING)
     private TransactionType type;
 
     @ManyToOne(cascade = CascadeType.MERGE)

@@ -27,7 +27,7 @@ public class User extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role = Role.USER;
+    private Role role;
 
     @Column(name = "subscription_start_date", nullable = true)
     private LocalDate subscriptionStartDate;
