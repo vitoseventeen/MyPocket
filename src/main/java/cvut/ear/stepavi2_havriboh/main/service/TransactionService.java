@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -170,4 +171,7 @@ public class TransactionService {
         return transactionDao.findById(id).orElseThrow(() -> new TransactionNotFoundException("Transaction not found with ID: " + id));
     }
 
+    public List<Transaction> getAllTransactions() {
+        return transactionDao.findAll();
+    }
 }
