@@ -1,6 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class Category extends AbstractEntity {
     private BigDecimal defaultLimit;
 
     @OneToOne(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Budget budget;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.MERGE, orphanRemoval = true)
