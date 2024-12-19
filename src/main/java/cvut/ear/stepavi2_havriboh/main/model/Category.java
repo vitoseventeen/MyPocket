@@ -2,6 +2,7 @@ package cvut.ear.stepavi2_havriboh.main.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -23,11 +24,11 @@ public class Category extends AbstractEntity {
     private BigDecimal defaultLimit;
 
     @OneToOne(mappedBy = "category", cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonIgnore
     private Budget budget;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
 
 
@@ -84,4 +85,5 @@ public class Category extends AbstractEntity {
                 ", defaultLimit=" + defaultLimit +
                 '}';
     }
+
 }

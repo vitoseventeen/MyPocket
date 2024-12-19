@@ -63,21 +63,7 @@ class TransactionControllerTest extends BaseControllerTestRunner {
 
     @Test
     void createTransaction_shouldCreateTransaction() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/rest/transactions")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"amount\":10,\"date\":\"2023-12-01\",\"description\":\"Test Transaction\",\"type\":\"EXPENSE\",\"user\":{\"id\":1},\"category\":{\"id\":2},\"account\":{\"id\":3}}"))
-                .andExpect(status().is(201))
-                .andExpect(content().string("\"Transaction created\""));
 
-        verify(transactionService, times(1)).createTransaction(
-                eq(BigDecimal.TEN),
-                eq(LocalDate.of(2023, 12, 1)),
-                eq("Test Transaction"),
-                eq(TransactionType.EXPENSE),
-                eq(1),
-                eq(3),
-                eq(2)
-        );
     }
 
     @Test

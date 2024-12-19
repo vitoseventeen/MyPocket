@@ -2,6 +2,7 @@ package cvut.ear.stepavi2_havriboh.main.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -24,7 +25,7 @@ public class Account extends AbstractEntity {
     private String currency;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToMany
@@ -33,7 +34,7 @@ public class Account extends AbstractEntity {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonBackReference
+    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
     public Account() {

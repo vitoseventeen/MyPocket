@@ -2,6 +2,7 @@ package cvut.ear.stepavi2_havriboh.main.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,15 +38,15 @@ public class User extends AbstractEntity {
     private LocalDate subscriptionEndDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Report> reports;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnore
     private List<Transaction> transactions;
 
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonBackReference
+    @JsonIgnore
     private List<Account> accounts;
 
     public User() {

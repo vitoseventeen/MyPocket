@@ -61,19 +61,35 @@ class UserControllerTest extends BaseControllerTestRunner {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("\"User not found with ID: 999\""));
     }
-
     @Test
     void testCreateUser_Success() throws Exception {
         User user = new User();
         user.setUsername("newUser");
         user.setEmail("newUser@example.com");
-        user.setPassword("password123");
+        user.setPassword("password");
+
+        doNothing().when(userService).createUser(anyString(), anyString(), anyString());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"newUser\", \"email\":\"newUser@example.com\", \"password\":\"password123\"}"))
+                        .content("{\"username\":\"newUser\",\"email\":\"newUser@example.com\",\"password\":\"password\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(content().string("\"User created successfully\""));
+    }
+
+    @Test
+    void testUpdateUser_UserNotFound() throws Exception {
+        User user = new User();
+        user.setUsername("updatedUser");
+        user.setEmail("updatedUser@example.com");
+
+        when(userService.getUserById(anyInt())).thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/rest/users/{id}", 999)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"updatedUser\",\"email\":\"updatedUser@example.com\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("\"User not found with ID: 999\""));
     }
 
     @Test
@@ -83,12 +99,11 @@ class UserControllerTest extends BaseControllerTestRunner {
         user.setEmail("updatedUser@example.com");
 
         when(userService.getUserById(anyInt())).thenReturn(user);
-        doNothing().when(userService).updateUsernameById(anyInt(), any());
-        doNothing().when(userService).updateEmailById(anyInt(), any());
+        doNothing().when(userService).updateUser(any(User.class));
 
         mockMvc.perform(MockMvcRequestBuilders.put("/rest/users/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"updatedUser\", \"email\":\"updatedUser@example.com\"}"))
+                        .content("{\"username\":\"updatedUser\",\"email\":\"updatedUser@example.com\"}"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("\"User with ID 1 updated successfully\""));
     }
@@ -168,17 +183,6 @@ class UserControllerTest extends BaseControllerTestRunner {
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/users/{id}/cancel-subscription", 1))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("\"Subscription is not active for user with ID: 1\""));
-    }
-
-    @Test
-    void testUpdateUser_UserNotFound() throws Exception {
-        when(userService.getUserById(anyInt())).thenThrow(UserNotFoundException.class);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/rest/users/{id}", 999)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"updatedUser\", \"email\":\"updatedUser@example.com\"}"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("\"User not found with ID: 999\""));
     }
 
 
