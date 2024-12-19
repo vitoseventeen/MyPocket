@@ -47,13 +47,12 @@ public class ReportServiceTest {
     @Autowired
     private CategoryDao categoryDao;
 
-    private User createUser(String email, String username, boolean isSubscribed) {
+    private User createUser(String email, String username) {
         User testUser = new User();
         testUser.setEmail(email);
         testUser.setUsername(username);
         testUser.setPassword("password");
         testUser.setRole(Role.USER);
-        testUser.setSubscribed(isSubscribed);
         userDao.persist(testUser);
         return testUser;
     }
@@ -77,7 +76,7 @@ public class ReportServiceTest {
 
     @Test
     void createReportThrowsExceptionForNonPremiumUser() {
-        User testUser = createUser("nonpremium@example.com", "nonPremiumUser", false);
+        User testUser = createUser("nonpremium@example.com", "nonPremiumUser");
 
         assertThrows(NotPremiumUserException.class, () ->
                 reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now())
@@ -86,7 +85,8 @@ public class ReportServiceTest {
 
     @Test
     void createReportCreatesReportForPremiumUser() {
-        User testUser = createUser("test@example.com", "testUser", true);
+        User testUser = createUser("test@example.com", "testUser");
+        testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
 
         Category incomeCategory = createCategory("Salary");
         createTransaction(testUser, incomeCategory, BigDecimal.valueOf(1000), LocalDate.now().minusDays(2));
@@ -105,8 +105,8 @@ public class ReportServiceTest {
 
     @Test
     void createReportThrowsExceptionForInvalidDateRange() {
-        User testUser = createUser("test@example.com", "testUser", true);
-
+        User testUser = createUser("test@example.com", "testUser");
+        testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
         assertThrows(InvalidDateException.class, () ->
                 reportService.createReport(testUser.getId(), LocalDate.now(), LocalDate.now().minusDays(1))
         );
@@ -114,7 +114,8 @@ public class ReportServiceTest {
 
     @Test
     void createReportAddsTransactionsToReport() {
-        User testUser = createUser("test@example.com", "testUser", true);
+        User testUser = createUser("test@example.com", "testUser");
+        testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
 
         Category incomeCategory = createCategory("Salary");
         Category spendingCategory = createCategory("Food");
@@ -133,7 +134,7 @@ public class ReportServiceTest {
 
     @Test
     void generateSpendingReportThrowsExceptionForNonPremiumUser() {
-        User testUser = createUser("nonpremium@example.com", "nonPremiumUser", false);
+        User testUser = createUser("nonpremium@example.com", "nonPremiumUser");
 
         assertThrows(NotPremiumUserException.class, () ->
                 reportService.createReport(testUser.getId(), LocalDate.now().minusDays(5), LocalDate.now())
@@ -142,7 +143,7 @@ public class ReportServiceTest {
 
     @Test
     void getReportByIdReturnsCorrectReport() {
-        User testUser = createUser("test@example.com", "testUser", true);
+        User testUser = createUser("test@example.com", "testUser");
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));
@@ -167,7 +168,7 @@ public class ReportServiceTest {
 
     @Test
     void deleteReportByIdRemovesReport() {
-        User testUser = createUser("test@example.com", "testUser", true);
+        User testUser = createUser("test@example.com", "testUser");
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));
@@ -184,7 +185,7 @@ public class ReportServiceTest {
 
     @Test
     void updateReportByIdUpdatesCorrectly() {
-        User testUser = createUser("test@example.com", "testUser", true);
+        User testUser = createUser("test@example.com", "testUser");
 
         Report report = new Report();
         report.setFromDate(LocalDate.now().minusDays(10));

@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -158,7 +159,7 @@ class UserControllerTest extends BaseControllerTestRunner {
     void testCancelSubscription_NotActive() throws Exception {
         User user = new User();
         user.setUsername("userWithInactiveSubscription");
-        user.setSubscribed(false);
+        user.setSubscriptionEndDate(LocalDate.now());
 
         when(userService.getUserById(anyInt())).thenReturn(user);
         doThrow(SubscriptionNotActiveException.class).when(userService).cancelSubscription(user);

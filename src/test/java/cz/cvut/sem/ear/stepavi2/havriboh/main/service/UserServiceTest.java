@@ -42,7 +42,6 @@ public class UserServiceTest {
         testUser = new User();
         testUser.setEmail("test@example.com");
         testUser.setUsername("testuser");
-        testUser.setSubscribed(false);
         testUser.setSubscriptionStartDate(LocalDate.now());
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(1));
         testUser.setPassword(passwordEncoder.encode("oldPassword"));
@@ -69,7 +68,11 @@ public class UserServiceTest {
 
     @Test
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
-        userService.activateSubscription(testUser, 1);
+        User user = new User();
+        user.setEmail("userserser@gmail.com");
+        user.setUsername("userwqeqwe");
+        user.setPassword(passwordEncoder.encode("password"));
+        userService.activateSubscription(user, 1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertTrue(updatedUser.isSubscribed());
@@ -78,7 +81,7 @@ public class UserServiceTest {
 
     @Test
     void activateSubscriptionForOneMonthUpdatesExistingSubscription() {
-        testUser.setSubscribed(true);
+        userService.activateSubscription(testUser, 1);
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
         userDao.update(testUser);
 
@@ -89,7 +92,7 @@ public class UserServiceTest {
     }
     @Test
     void cancelSubscriptionCancelsSubscription() {
-        testUser.setSubscribed(true);
+        userService.activateSubscription(testUser, 1);
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
         userDao.update(testUser);
 
@@ -101,7 +104,7 @@ public class UserServiceTest {
     }
     @Test
     void cancelSubscriptionThrowsSubscriptionNotActiveException() {
-        testUser.setSubscribed(false);
+        userService.cancelSubscription(testUser);
         testUser.setSubscriptionEndDate(LocalDate.now().minusDays(1));
         userDao.update(testUser);
 
@@ -124,7 +127,7 @@ public class UserServiceTest {
         User otherUser = new User();
         otherUser.setEmail("testmailll@gmail.com");
         otherUser.setUsername("otherUser");
-        otherUser.setSubscribed(false);
+        userService.cancelSubscription(testUser);
         otherUser.setPassword(passwordEncoder.encode("password"));
         otherUser.setRole(Role.USER);
         userDao.persist(otherUser);
@@ -136,7 +139,7 @@ public class UserServiceTest {
 
     @Test
     void isSubscribedReturnsTrueIfUserIsSubscribed() {
-        testUser.setSubscribed(true);
+        userService.activateSubscription(testUser, 1);
         testUser.setSubscriptionEndDate(LocalDate.now().plusDays(1));
         userDao.update(testUser);
 
