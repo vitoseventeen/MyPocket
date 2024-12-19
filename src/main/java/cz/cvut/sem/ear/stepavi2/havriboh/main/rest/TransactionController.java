@@ -3,7 +3,9 @@ package cz.cvut.sem.ear.stepavi2.havriboh.main.rest;
 
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.CategoryNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.TransactionNotFoundException;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.exception.UserNotFoundException;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.model.Transaction;
+import cz.cvut.sem.ear.stepavi2.havriboh.main.model.User;
 import cz.cvut.sem.ear.stepavi2.havriboh.main.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +28,18 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Object> getTransactionsByCategoryId(@PathVariable("categoryId") int categoryId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getTransactionById(@PathVariable("id") int id) {
         try {
-            List<Transaction> transactions = transactionService.getTransactionsByCategoryId(categoryId);
-            return ResponseEntity.ok(transactions);
-        } catch (CategoryNotFoundException e) {
-            logger.error("Category not found with id: {}", categoryId);
-            return ResponseEntity.status(404).body("Category not found");
+            Transaction transaction = transactionService.getTransactionsById(id);
+            return ResponseEntity.ok(transaction);
+        } catch (TransactionNotFoundException e) {
+            logger.error("Transaction not found with id: {}", id);
+            return ResponseEntity.status(404).body("Transaction not found");
         }
     }
 
-    @GetMapping("/category/{categoryId}/total")
+    @GetMapping("/{categoryId}/total")
     public ResponseEntity<Object> getTotalSpentByCategoryId(@PathVariable("categoryId") int categoryId) {
         try {
             BigDecimal totalSpent = transactionService.getTotalSpentByCategoryId(categoryId);

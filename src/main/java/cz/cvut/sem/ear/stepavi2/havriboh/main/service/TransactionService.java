@@ -168,29 +168,6 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public BigDecimal getTotalSpentByUserId(int userId) {
-        User user = userDao.find(userId);
-        if (user == null) {
-            throw new UserNotFoundException("User not found with ID: " + userId);
-        }
-
-        List<Transaction> transactions = transactionDao.findTransactionsByUser(user);
-        return transactions.stream()
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Transaction> getTransactionsByCategoryId(int categoryId) {
-        Category category = categoryDao.find(categoryId);
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found with ID: " + categoryId);
-        }
-
-        return transactionDao.findTransactionsByCategory(category);
-    }
-
-    @Transactional(readOnly = true)
     public BigDecimal getTotalSpentByCategoryId(int categoryId) {
         Category category = categoryDao.find(categoryId);
         if (category == null) {
@@ -210,4 +187,8 @@ public class TransactionService {
         }
     }
 
+    @Transactional
+    public Transaction getTransactionsById(int id) {
+        return transactionDao.findById(id).orElseThrow(() -> new UserNotFoundException("Transaction not found with ID: " + id));
+    }
 }

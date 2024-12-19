@@ -34,41 +34,26 @@ class TransactionControllerTest extends BaseControllerTestRunner {
     }
 
     @Test
-    void getTransactionsByCategoryId_shouldReturnTransactions() throws Exception {
-        Transaction transaction1 = new Transaction();
-        transaction1.setAmount(BigDecimal.TEN);
-        transaction1.setDate(LocalDate.now());
-        transaction1.setDescription("Transaction1");
-        transaction1.setType(TransactionType.EXPENSE);
+    void getTransactionById_shouldReturnTransaction() throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setAmount(BigDecimal.TEN);
+        transaction.setDate(LocalDate.now());
+        transaction.setDescription("Test Transaction");
+        transaction.setType(TransactionType.EXPENSE);
 
-        Transaction transaction2 = new Transaction();
-        transaction2.setAmount(BigDecimal.valueOf(20));
-        transaction2.setDate(LocalDate.now());
-        transaction2.setDescription("Transaction2");
-        transaction2.setType(TransactionType.INCOME);
+        when(transactionService.getTransactionsById(1)).thenReturn(transaction);
 
-        when(transactionService.getTransactionsByCategoryId(1)).thenReturn(Arrays.asList(transaction1, transaction2));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/category/1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/1"))
                 .andExpect(status().is(200))
-                .andExpect(jsonPath("$[0].description").value("Transaction1"))
-                .andExpect(jsonPath("$[1].description").value("Transaction2"));
+                .andExpect(jsonPath("$.description").value("Test Transaction"));
     }
 
-    @Test
-    void getTransactionsByCategoryId_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new CategoryNotFoundException("Category not found")).when(transactionService).getTransactionsByCategoryId(anyInt());
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/category/1"))
-                .andExpect(status().is(404))
-                .andExpect(content().string("\"Category not found\""));
-    }
 
     @Test
     void getTotalSpentByCategoryId_shouldReturnTotalSpent() throws Exception {
         when(transactionService.getTotalSpentByCategoryId(1)).thenReturn(BigDecimal.valueOf(100));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/category/1/total"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/1/total"))
                 .andExpect(status().is(200))
                 .andExpect(content().string("100"));
     }
@@ -77,7 +62,7 @@ class TransactionControllerTest extends BaseControllerTestRunner {
     void getTotalSpentByCategoryId_shouldReturn404WhenNotFound() throws Exception {
         doThrow(new CategoryNotFoundException("Category not found")).when(transactionService).getTotalSpentByCategoryId(anyInt());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/category/1/total"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/1/total"))
                 .andExpect(status().is(404))
                 .andExpect(content().string("\"Category not found\""));
     }

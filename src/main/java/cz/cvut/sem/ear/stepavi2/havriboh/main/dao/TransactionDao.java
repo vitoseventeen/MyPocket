@@ -78,11 +78,15 @@ public class TransactionDao extends BaseDao<Transaction> {
         }
     }
 
-
-    public List<Transaction> findTransactionsByType(TransactionType type)
-    {
-        return em.createQuery("SELECT t FROM Transaction t WHERE t.type = :type", Transaction.class)
-                .setParameter("type", type)
-                .getResultList();
+    public Optional<Transaction> findById(int id) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT t FROM Transaction t WHERE t.id = :id", Transaction.class)
+                            .setParameter("id", id)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

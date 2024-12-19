@@ -1,6 +1,7 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 
@@ -26,14 +27,17 @@ public class Transaction extends AbstractEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "account_id")
+    @JsonBackReference
     private Account account;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private Category category;
 
     public Transaction() {

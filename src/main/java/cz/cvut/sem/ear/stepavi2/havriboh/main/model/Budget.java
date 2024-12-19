@@ -1,6 +1,8 @@
 package cz.cvut.sem.ear.stepavi2.havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
@@ -22,6 +24,7 @@ public class Budget extends AbstractEntity {
     private String currency;
 
     @OneToOne
+    @JsonBackReference
     private Category category;
 
     public Budget() {
