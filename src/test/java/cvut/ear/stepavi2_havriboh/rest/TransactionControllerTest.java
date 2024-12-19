@@ -33,40 +33,33 @@ class TransactionControllerTest extends BaseControllerTestRunner {
     }
     @Test
     void getTransactionById_shouldReturnTransaction() throws Exception {
-        // Arrange
+        int transactionId = 1;
         Transaction transaction = new Transaction();
         transaction.setAmount(BigDecimal.TEN);
         transaction.setDate(LocalDate.of(2023, 12, 1));
         transaction.setDescription("Test Transaction");
         transaction.setType(TransactionType.EXPENSE);
 
-        when(transactionService.getTransactionById(1)).thenReturn(transaction);
+        // Настройка мока
+        when(transactionService.getTransactionById(transactionId)).thenReturn(transaction);
 
-        // Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions")
-                        .param("id", "1")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/{id}", transactionId))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.amount").value(10))
                 .andExpect(jsonPath("$.date").value("2023-12-01"))
                 .andExpect(jsonPath("$.description").value("Test Transaction"))
                 .andExpect(jsonPath("$.type").value("EXPENSE"));
     }
-
     @Test
     void getTransactionById_shouldReturn404WhenNotFound() throws Exception {
-        // Arrange
-        when(transactionService.getTransactionById(anyInt())).thenThrow(new TransactionNotFoundException("Transaction not found"));
+        int transactionId = 999;
+        doThrow(new TransactionNotFoundException("Transaction not found")).when(transactionService).getTransactionById(transactionId);
 
-        // Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions")
-                        .param("id", "1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("\"Transaction not found\""));
-
-        verify(transactionService, times(1)).getTransactionById(1);
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/{id}", transactionId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("\"Transaction not found with ID: " + transactionId + "\""));  // Ожидаем сообщение об ошибке
     }
+
 
     @Test
     void createTransaction_shouldCreateTransaction() throws Exception {

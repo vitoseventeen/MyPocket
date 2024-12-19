@@ -2,7 +2,9 @@ package cvut.ear.stepavi2_havriboh.main.rest;
 
 
 import cvut.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
+import cvut.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
 import cvut.ear.stepavi2_havriboh.main.model.Transaction;
+import cvut.ear.stepavi2_havriboh.main.model.User;
 import cvut.ear.stepavi2_havriboh.main.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,15 +38,15 @@ public class TransactionController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Object> getTransactionById(@RequestParam("id") int id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getTransactionById(@PathVariable("id") int id) {
+        logger.info("Fetching transaction with ID: {}", id);
         try {
             Transaction transaction = transactionService.getTransactionById(id);
-            logger.info("Found transaction with id: {}", id);
-            return ResponseEntity.ok(transaction);
+            return ResponseEntity.ok().body(transaction);
         } catch (TransactionNotFoundException e) {
-            logger.error("Transaction not found with id: {}", id);
-            return ResponseEntity.status(404).body("Transaction not found");
+            logger.warn("Transaction not found with ID: {}", id);
+            return ResponseEntity.status(404).body("Transaction not found with ID: " + id);
         }
     }
 

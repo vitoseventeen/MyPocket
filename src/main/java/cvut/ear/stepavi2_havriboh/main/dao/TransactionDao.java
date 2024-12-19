@@ -78,7 +78,7 @@ public class TransactionDao extends BaseDao<Transaction> {
 
     public Optional<Transaction> findById(int id) {
         try {
-            return Optional.ofNullable(
+            return Optional.of(
                     em.createQuery("SELECT t FROM Transaction t WHERE t.id = :id", Transaction.class)
                             .setParameter("id", id)
                             .getSingleResult()
