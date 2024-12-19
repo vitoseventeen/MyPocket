@@ -35,7 +35,6 @@ public class UserService {
         User user = new User();
         user.setEmail(email);
         user.setUsername(username);
-        user.setSubscribed(false);
         user.setRole(Role.USER);
 
         user.setPassword(passwordEncoder.encode(password));
@@ -102,7 +101,6 @@ public class UserService {
         } else {
             user.setSubscriptionStartDate(LocalDate.now());
             user.setSubscriptionEndDate(LocalDate.now().plusMonths(months));
-            user.setSubscribed(true);
         }
 
         if (user.isSubscribed()) {
@@ -118,7 +116,6 @@ public class UserService {
             throw new SubscriptionNotActiveException("User is not subscribed");
         }
         user.setSubscriptionEndDate(LocalDate.now());
-        user.setSubscribed(false);
         user.setRole(Role.USER);
         userDao.update(user);
     }

@@ -9,8 +9,10 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "app_user")
+@DiscriminatorValue("USER")
+@Table(name = "users")
 public class User extends AbstractEntity {
+
     @Basic(optional = false)
     @Column(name = "username", nullable = false, unique = true)
     protected String username;
@@ -24,18 +26,15 @@ public class User extends AbstractEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private Role role;
+    @Column(name = "role", nullable = false)
+    private Role role = Role.USER;
 
-    @Basic(optional = false)
-    @Column(name = "is_subscribed")
-    protected boolean isSubscribed;
+    @Column(name = "subscription_start_date", nullable = true)
+    private LocalDate subscriptionStartDate;
 
-    @Column(name = "subscription_start_date")
-    protected LocalDate subscriptionStartDate;
+    @Column(name = "subscription_end_date", nullable = true)
+    private LocalDate subscriptionEndDate;
 
-    @Column(name = "subscription_end_date")
-    protected LocalDate subscriptionEndDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<Report> reports;
@@ -66,12 +65,9 @@ public class User extends AbstractEntity {
         this.username = username;
     }
 
+    @Transient
     public boolean isSubscribed() {
-        return isSubscribed;
-    }
-
-    public void setSubscribed(boolean subscribed) {
-        isSubscribed = subscribed;
+        return subscriptionEndDate != null && subscriptionEndDate.isAfter(LocalDate.now());
     }
 
     public LocalDate getSubscriptionStartDate() {
@@ -123,7 +119,6 @@ public class User extends AbstractEntity {
         return "User{" +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
-                ", isSubscribed=" + isSubscribed +
                 ", subscriptionStartDate=" + subscriptionStartDate +
                 ", subscriptionEndDate=" + subscriptionEndDate +
                 '}';

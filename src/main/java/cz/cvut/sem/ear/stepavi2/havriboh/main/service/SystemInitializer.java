@@ -53,7 +53,6 @@ public class SystemInitializer {
         premium.setEmail("premium@user.com");
         premium.setPassword("premium");
         premium.setRole(Role.PREMIUM);
-        premium.setSubscribed(true);
         premium.setSubscriptionStartDate(LocalDate.now());
         premium.setSubscriptionEndDate(LocalDate.now().plusYears(1));
         LOG.info("Generated premium user with credentials " + premium.getUsername() + "/" + premium.getPassword());
