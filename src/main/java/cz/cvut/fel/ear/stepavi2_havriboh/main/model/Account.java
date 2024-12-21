@@ -3,10 +3,8 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,7 @@ import java.util.List;
 public class Account extends AbstractEntity {
 
     @Column(name = "account_name", nullable = false, length = 100)
-    private String accountName;
+    private String name;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
@@ -28,7 +26,7 @@ public class Account extends AbstractEntity {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
@@ -53,19 +51,19 @@ public class Account extends AbstractEntity {
     @Override
     public String toString() {
         return "Account{" +
-                "accountName='" + accountName + '\'' +
+                "accountName='" + name + '\'' +
                 ", transactions=" + transactions +
                 ", users=" + users +
                 ", budget=" + budget +
                 '}';
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getName() {
+        return name;
     }
 
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<Transaction> getTransactions() {

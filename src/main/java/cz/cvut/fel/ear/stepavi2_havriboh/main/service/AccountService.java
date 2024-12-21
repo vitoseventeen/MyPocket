@@ -4,8 +4,6 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
@@ -34,7 +32,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void createAccountWithBudget(String accountName, String currency, BigDecimal startBalance) {
+    public void createAccountWithBudget(String accountName,BigDecimal startBalance, String currency) {
         if (accountName == null || accountName.trim().isEmpty()) {
             throw new EmptyNameException("Account name cannot be null or empty");
         }
@@ -46,7 +44,7 @@ public class AccountService {
         budget.setBalance(startBalance);
 
         Account account = new Account();
-        account.setAccountName(accountName);
+        account.setName(accountName);
         account.setBudget(budget);
         budget.setAccount(account);
 
@@ -68,8 +66,7 @@ public class AccountService {
         if (!account.getUsers().contains(user)) {
             account.getUsers().add(user);
             accountDao.update(account);
-        }
-        else {
+        } else {
             throw new UserAlreadyInAccountException("User is already in the account");
         }
     }
@@ -106,6 +103,7 @@ public class AccountService {
         }
         return account;
     }
+
 
     @Transactional
     public void deleteAccountById(int id) {

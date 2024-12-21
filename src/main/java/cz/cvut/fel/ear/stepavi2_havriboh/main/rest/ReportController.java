@@ -1,13 +1,11 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NotPremiumUserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -24,15 +22,18 @@ public class ReportController {
         this.reportService = reportService;
     }
 
+
+    // Only PREMIUM users can create reports
+    @PreAuthorize("hasRole('PREMIUM')")
     @PostMapping
     public ResponseEntity<Object> createReport(
-            @RequestParam int userId,
+            @RequestParam int accountId,
             @RequestParam LocalDate fromDate,
             @RequestParam LocalDate toDate) {
         try {
-            reportService.createReport(userId, fromDate, toDate);
+            reportService.createReport(accountId, fromDate, toDate);
             return ResponseEntity.status(201).body("Report created successfully.");
-        } catch (UserNotFoundException | NotPremiumUserException | InvalidDateException e) {
+        } catch (AccountNotFoundException | NotPremiumUserException | InvalidDateException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while creating the report.");

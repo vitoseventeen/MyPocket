@@ -1,11 +1,13 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UsernameAlreadyTakenException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,16 +29,21 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class UserServiceTest {
     @Autowired
-    private AccountDao userService;
+    private UserService userService;
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private AccountDao accountDao;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User testUser;
 
+
+    // CREATING A PREMIUM USER;
     @BeforeEach
     public void setUp() {
         testUser = new User();

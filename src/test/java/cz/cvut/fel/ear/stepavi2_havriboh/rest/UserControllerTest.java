@@ -1,10 +1,11 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.rest;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.rest.UserController;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,11 +22,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class UserControllerTest extends BaseControllerTestRunner {
 
-    private AccountDao userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userService = Mockito.mock(AccountDao.class);
+        userService = Mockito.mock(UserService.class);
         UserController userController = new UserController(userService);
         super.setUp(userController);
     }

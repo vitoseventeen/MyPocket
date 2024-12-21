@@ -33,7 +33,6 @@ public class ReportService {
         this.transactionDao = transactionDao;
     }
 
-    // Only PREMIUM users can create reports
     @Transactional
     public void createReport(int accountId, LocalDate fromDate, LocalDate toDate) {
         Account account = accountDao.find(accountId);

@@ -24,4 +24,17 @@ public class AccountDao extends BaseDao<Account> {
             return Optional.empty();
         }
     }
+
+    public Optional<Account> findByName(String name) {
+        try {
+            return Optional.ofNullable(
+                    em.createQuery("SELECT u FROM Account u WHERE u.name = :name", Account.class)
+                            .setParameter("name", name)
+                            .getSingleResult()
+            );
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 }

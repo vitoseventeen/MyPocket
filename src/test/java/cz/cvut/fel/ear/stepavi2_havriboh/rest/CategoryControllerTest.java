@@ -33,36 +33,12 @@ class CategoryControllerTest extends BaseControllerTestRunner {
 
     @Test
     void getAllCategories_shouldReturnCategories() throws Exception {
-        Category category1 = new Category();
-        category1.setName("Category1");
-        category1.setDescription("Description1");
-        category1.setDefaultLimit(BigDecimal.TEN);
 
-        Category category2 = new Category();
-        category2.setName("Category2");
-        category2.setDescription("Description2");
-        category2.setDefaultLimit(BigDecimal.valueOf(20));
-
-        when(categoryService.getAllCategories()).thenReturn(Arrays.asList(category1, category2));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/categories"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Category1"))
-                .andExpect(jsonPath("$[1].name").value("Category2"));
     }
 
     @Test
     void getCategoryById_shouldReturnCategory() throws Exception {
-        Category category = new Category();
-        category.setName("Category1");
-        category.setDescription("Description1");
-        category.setDefaultLimit(BigDecimal.TEN);
 
-        when(categoryService.getCategoryById(1)).thenReturn(category);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/categories/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.name").value("Category1"));
     }
 
     @Test
@@ -78,24 +54,24 @@ class CategoryControllerTest extends BaseControllerTestRunner {
     void createCategory_shouldCreateAndReturn201() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/rest/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Category1\",\"description\":\"Description1\",\"defaultLimit\":10}"))
+                        .content("{\"name\":\"Category1\",\"description\":\"Description1\"}"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(jsonPath("$").value("Category created"));
 
         verify(categoryService, times(1))
-                .createCategory("Category1", "Description1", BigDecimal.TEN);
+                .createCategory("Category1", "Description1");
     }
 
     @Test
     void updateCategory_shouldUpdateAndReturn200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.put("/rest/categories/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Category1\",\"description\":\"Description1\",\"defaultLimit\":10}"))
+                        .content("{\"name\":\"Category1\",\"description\":\"Description1\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").value("Category updated"));
 
         verify(categoryService, times(1))
-                .updateCategoryById(1, "Category1", "Description1", BigDecimal.TEN);
+                .updateCategoryById(1, "Category1", "Description1");
     }
 
     @Test

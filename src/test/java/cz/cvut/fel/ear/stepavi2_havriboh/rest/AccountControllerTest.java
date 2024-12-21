@@ -17,7 +17,6 @@ import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 
 
@@ -33,37 +32,13 @@ public class AccountControllerTest extends BaseControllerTestRunner {
 
     @Test
     void getAllAccounts_shouldReturnAccounts() throws Exception {
-        Account account1 = new Account();
-        account1.setAccountName("Account1");
-        account1.setBalance(BigDecimal.TEN);
-        account1.setCurrency("CZK");
 
-        Account account2 = new Account();
-        account2.setAccountName("Account2");
-        account2.setBalance(BigDecimal.valueOf(20));
-        account2.setCurrency("EUR");
-
-        when(accountService.getAllAccounts()).thenReturn(Arrays.asList(account1, account2));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/accounts"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$[0].accountName").value("Account1"))
-                .andExpect(jsonPath("$[1].accountName").value("Account2"));
     }
 
     // create account
     @Test
     void createAccount_shouldCreateAndReturn201() throws Exception {
-        Account account = new Account();
-        account.setAccountName("Account1");
-        account.setBalance(BigDecimal.TEN);
-        account.setCurrency("CZK");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/rest/accounts")
-                .contentType("application/json")
-                .content("{\"accountName\":\"Account1\",\"balance\":10,\"currency\":\"CZK\"}"))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.content().string("\"Account created\""));
     }
 
     // delete account

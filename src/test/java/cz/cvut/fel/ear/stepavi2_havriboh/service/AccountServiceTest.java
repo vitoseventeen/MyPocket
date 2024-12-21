@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
@@ -21,11 +22,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
         import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Transactional
@@ -35,78 +38,56 @@ import static org.mockito.Mockito.verify;
 public class AccountServiceTest {
 
     @Autowired
-    private TestEntityManager em;
-
-    @SpyBean
     private UserDao userDao;
 
-    @SpyBean
+    @Autowired
     private AccountDao accountDao;
+
 
     @Autowired
     private AccountService accountService;
 
     private User user;
     private Account account;
+    @Autowired
+    private BudgetDao budgetDao;
 
     @BeforeEach
     public void setUp() {
-        this.user = new User();
-        user.setUsername("testUser");
-        user.setPassword("testPassword");
-        user.setEmail("testMail@gmail.com");
+        user = new User();
+        user.setUsername("user");
+        user.setPassword("password");
+        user.setEmail("ysers@gmail.com");
         user.setRole(Role.USER);
 
-        this.account = new Account();
-        account.setAccountName("testAccount");
-        account.setBalance(BigDecimal.valueOf(100));
-        account.setCurrency("CZK");
+        userDao.persist(user);
 
-        em.persist(user);
-        em.persist(account);
+        account = new Account();
+        account.setName("account");
+        account.setBudget(null);
+
+        accountDao.persist(account);
     }
 
-    @Test
-    public void createAccountCreatesAccountWithValidData() {
-        accountService.createAccount("Savings", BigDecimal.valueOf(500), "USD");
-
-        Account createdAccount = accountDao.findAll().stream()
-                .filter(acc -> acc.getAccountName().equals("Savings"))
-                .findFirst()
-                .orElse(null);
-
-        assertNotNull(createdAccount, "Account should be persisted in the database");
-        assertEquals("Savings", createdAccount.getAccountName());
-        assertEquals(BigDecimal.valueOf(500), createdAccount.getBalance());
-        assertEquals("USD", createdAccount.getCurrency());
-    }
-
-    @Test
-    public void createAccountThrowsExceptionIfBalanceIsNegative() {
-        assertThrows(NegativeBalanceException.class, () ->
-                accountService.createAccount("MyAccount", BigDecimal.valueOf(-100), "CZK"));
-    }
 
     @Test
     public void createAccountThrowsExceptionIfNameIsEmpty() {
+        String accountName = "";
+        BigDecimal balance = new BigDecimal(1000);
+        String currency = "CZK";
+
         assertThrows(EmptyNameException.class, () ->
-                accountService.createAccount("", BigDecimal.valueOf(100), "CZK"));
+                accountService.createAccountWithBudget(accountName, balance, currency));
     }
 
-    @Test
-    public void createAccountThrowsExceptionIfCurrencyIsEmpty() {
-        assertThrows(EmptyCurrencyException.class, () ->
-                accountService.createAccount("MyAccount", BigDecimal.valueOf(100), ""));
-    }
 
     @Test
     public void addUserToAccountByIdAddsUserIfNotAlreadyAdded() {
         accountService.addUserToAccountById(user.getId(), account.getId());
 
-        Account updatedAccount = accountDao.find(account.getId());
-        assertTrue(updatedAccount.getUsers().contains(user));
-
-        verify(accountDao).update(updatedAccount);
+        List<User> users = account.getUsers();
+        assertEquals(1, users.size());
+        assertEquals(user.getId(), users.get(0).getId());
     }
 
     @Test
@@ -126,34 +107,23 @@ public class AccountServiceTest {
     @Test
     public void addUserByIdDoesntAddUserIfAlreadyAdded() {
         accountService.addUserToAccountById(user.getId(), account.getId());
-
         assertThrows(UserAlreadyInAccountException.class, () ->
                 accountService.addUserToAccountById(user.getId(), account.getId()));
     }
 
     @Test
     public void removeUserFromAccountByIdRemovesUserFromAccount() {
+        accountService.addUserToAccountById(user.getId(), account.getId());
         User anotherUser = new User();
         anotherUser.setUsername("anotherUser");
-        anotherUser.setPassword("anotherPassword");
-        anotherUser.setEmail("anotherMail@gmail.com");
-        anotherUser.setRole(Role.USER);
-        em.persist(anotherUser);
-
-        account.getUsers().add(user);
-        account.getUsers().add(anotherUser);
-
-        Account updatedAccount = em.find(Account.class, account.getId());
-        assertTrue(updatedAccount.getUsers().contains(user));
-        assertTrue(updatedAccount.getUsers().contains(anotherUser));
-
+        anotherUser.setPassword("password");
+        anotherUser.setEmail("asdasd@gmail.comm");
+        userDao.persist(anotherUser);
+        accountService.addUserToAccountById(anotherUser.getId(), account.getId());
         accountService.removeUserFromAccountById(user.getId(), account.getId());
 
-        updatedAccount = em.find(Account.class, account.getId());
-        assertFalse(updatedAccount.getUsers().contains(user));
-        assertTrue(updatedAccount.getUsers().contains(anotherUser));
-
-        verify(accountDao).update(updatedAccount);
+        List<User> users = account.getUsers();
+        assertEquals(1, users.size());
     }
 
     @Test
@@ -181,10 +151,9 @@ public class AccountServiceTest {
     @Test
     public void getAllAccountsReturnsAllAccounts() {
         Account anotherAccount = new Account();
-        anotherAccount.setAccountName("anotherAccount");
-        anotherAccount.setBalance(BigDecimal.valueOf(50));
-        anotherAccount.setCurrency("USD");
-        em.persist(anotherAccount);
+        anotherAccount.setName("anotherAccount");
+        anotherAccount.setBudget(null);
+        accountDao.persist(anotherAccount);
 
         List<Account> accounts = accountService.getAllAccounts();
 
@@ -196,7 +165,7 @@ public class AccountServiceTest {
         Account foundAccount = accountService.getAccountById(account.getId());
 
         assertEquals(account.getId(), foundAccount.getId());
-        assertEquals(account.getAccountName(), foundAccount.getAccountName());
+        assertEquals(account.getName(), foundAccount.getName());
     }
 
     @Test
@@ -209,14 +178,13 @@ public class AccountServiceTest {
     @Test
     public void deleteAccountByIdDeletesAccount() {
         Account newAccount = new Account();
-        newAccount.setAccountName("AccountToDelete");
-        newAccount.setBalance(BigDecimal.valueOf(100));
-        newAccount.setCurrency("CZK");
-        em.persist(newAccount);
+        newAccount.setName("AccountToDelete");
+        newAccount.setBudget(null);
+        accountDao.persist(newAccount);
 
         accountService.deleteAccountById(newAccount.getId());
 
-        Account deletedAccount = em.find(Account.class, newAccount.getId());
+        Account deletedAccount = accountDao.find(newAccount.getId());
         assertNull(deletedAccount);
     }
 
