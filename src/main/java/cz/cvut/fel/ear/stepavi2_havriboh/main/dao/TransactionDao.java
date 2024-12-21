@@ -1,5 +1,6 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.dao;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
@@ -26,18 +27,9 @@ public class TransactionDao extends BaseDao<Transaction> {
         }
     }
 
-
     @Override
     public void persist(Transaction transaction) {
         super.persist(transaction);
-    }
-
-    public List<Transaction> findTransactionsByUserAndDateRange(User user, LocalDate fromDate, LocalDate toDate) {
-        return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user AND t.date >= :fromDate AND t.date <= :toDate", Transaction.class)
-                .setParameter("user", user)
-                .setParameter("fromDate", fromDate)
-                .setParameter("toDate", toDate)
-                .getResultList();
     }
 
 
@@ -51,12 +43,6 @@ public class TransactionDao extends BaseDao<Transaction> {
         } catch (NoResultException e) {
             return Optional.empty();
         }
-    }
-
-    public List<Transaction> findTransactionsByUser(User user) {
-        return em.createQuery("SELECT t FROM Transaction t WHERE t.user = :user", Transaction.class)
-                .setParameter("user", user)
-                .getResultList();
     }
 
     public List<Transaction> findTransactionsByCategory(Category category) {
@@ -87,5 +73,13 @@ public class TransactionDao extends BaseDao<Transaction> {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+    public List<Transaction> findTransactionsByAccountAndDateRange(Account account, LocalDate fromDate, LocalDate toDate) {
+        return em.createQuery("SELECT t FROM Transaction t WHERE t.account = :account AND t.date >= :fromDate AND t.date <= :toDate", Transaction.class)
+                .setParameter("account", account)
+                .setParameter("fromDate", fromDate)
+                .setParameter("toDate", toDate)
+                .getResultList();
     }
 }

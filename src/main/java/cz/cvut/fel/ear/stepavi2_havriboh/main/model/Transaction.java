@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+
 @Entity
 @Table(name = "transactions")
 public class Transaction extends AbstractEntity {
@@ -24,11 +26,6 @@ public class Transaction extends AbstractEntity {
     private TransactionType type;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
-
-    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "account_id")
     @JsonIgnore
     private Account account;
@@ -37,7 +34,34 @@ public class Transaction extends AbstractEntity {
     @JoinColumn(name = "category_id")
     @JsonIgnore
     private Category category;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "budget_id")
+    @JsonIgnore
+    private Budget budget;
+
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name = "transaction_report",
+            joinColumns = @JoinColumn(name = "transaction_id"),
+            inverseJoinColumns = @JoinColumn(name = "report_id"))
+    private List<Report> reports;
+
+
     public Transaction() {
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "amount=" + amount +
+                ", date=" + date +
+                ", description='" + description + '\'' +
+                ", type=" + type +
+                ", account=" + account +
+                ", category=" + category +
+                ", budget=" + budget +
+                ", reports=" + reports +
+                '}';
     }
 
     public BigDecimal getAmount() {
@@ -72,38 +96,36 @@ public class Transaction extends AbstractEntity {
         this.type = type;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public Account getAccount() {
         return account;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public void setAccount(Account account) {
         this.account = account;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
     public void setCategory(Category category) {
         this.category = category;
     }
 
-    @Override
-    public String toString() {
-        return "Transaction{" +
-                "amount=" + amount +
-                ", date=" + date +
-                ", description='" + description + '\'' +
-                ", type='" + type + '\'' +
-                '}';
+    public Budget getBudget() {
+        return budget;
+    }
+
+    public void setBudget(Budget budget) {
+        this.budget = budget;
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
     }
 
     public boolean isIncome() {

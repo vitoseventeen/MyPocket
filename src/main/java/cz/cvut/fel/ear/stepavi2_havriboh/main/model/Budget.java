@@ -2,80 +2,74 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "budgets")
 public class Budget extends AbstractEntity {
 
-    @Column(name = "target_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal targetAmount;
+    @Column(name = "balance", nullable = false, precision = 15, scale = 2)
+    private BigDecimal balance;
 
-    @Column(name = "current_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal currentAmount;
-
-    @Column(name = "currency", nullable = false, length = 3)
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false)
+    private Currency currency;
 
     @OneToOne
     @JsonIgnore
-    private Category category;
+    private Account account;
+
+    @OneToMany (mappedBy = "budget")
+    @JsonIgnore
+    private List<Transaction> transactions;
 
     public Budget() {
     }
 
-    public void increaseBudget(BigDecimal amount) {
-        this.currentAmount = this.currentAmount.add(amount);
-    }
-
-    public void decreaseBudget(BigDecimal amount) {
-        this.currentAmount = this.currentAmount.subtract(amount);
-    }
 
     @Override
     public String toString() {
         return "Budget{" +
-                "targetAmount=" + targetAmount +
-                ", currentAmount=" + currentAmount +
-                ", currency='" + currency + '\'' +
-                ", category=" + category +
+                "balance=" + balance +
+                ", currency=" + currency +
+                ", account=" + account +
+                ", transactions=" + transactions +
                 '}';
     }
 
-    public BigDecimal getTargetAmount() {
-        return targetAmount;
+    public BigDecimal getBalance() {
+        return balance;
     }
 
-    public void setTargetAmount(BigDecimal targetAmount) {
-        this.targetAmount = targetAmount;
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
-    public BigDecimal getCurrentAmount() {
-        return currentAmount;
-    }
-
-    public void setCurrentAmount(BigDecimal currentAmount) {
-        this.currentAmount = currentAmount;
-    }
-
-    public String getCurrency() {
+    public Currency getCurrency() {
         return currency;
     }
 
-    public void setCurrency(String currency) {
+    public void setCurrency(Currency currency) {
         this.currency = currency;
     }
 
-    public Category getCategory() {
-        return category;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 }

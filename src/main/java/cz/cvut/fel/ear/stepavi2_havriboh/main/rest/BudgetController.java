@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -48,8 +49,7 @@ public class BudgetController {
     @PostMapping
     public ResponseEntity<Object> createBudget(@RequestBody Budget budget) {
         try {
-            budgetService.createBudgetForCategoryById(budget.getCategory().getId(), budget.getTargetAmount(), budget.getCurrency());
-            logger.info("Created budget for category id: {}", budget.getCategory().getId());
+            budgetService.createBudgetForAccount(budget.getAccount().getId(), budget.getCurrency().toString() ,budget.getBalance());
             return ResponseEntity.status(201).body("Budget created");
         } catch (CategoryNotFoundException | IllegalArgumentException e) {
             logger.error("Error creating budget: {}", e.getMessage());
@@ -57,12 +57,14 @@ public class BudgetController {
         }
     }
 
+
+    //TODO:IMPLEMENT TWO METHODS BELOW
     @PutMapping("/{id}/increase")
-    public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
+    public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
         try {
-            budgetService.increaseBudget(id, budget.getTargetAmount());
-            logger.info("Increased budget with id: {} by amount: {}", id, budget.getTargetAmount());
-            return ResponseEntity.ok("Budget increased successfully");
+            budgetService.increaseBudget(id, BigDecimal.valueOf(amount), currency);
+            logger.info("Increased budget with id: {}", id);
+            return ResponseEntity.ok("Budget increased");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
             logger.error("Error increasing budget: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error increasing budget: " + e.getMessage());
@@ -70,11 +72,11 @@ public class BudgetController {
     }
 
     @PutMapping("/{id}/decrease")
-    public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody Budget budget) {
+    public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
         try {
-            budgetService.decreaseBudget(id, budget.getTargetAmount());
-            logger.info("Decreased budget with id: {} by amount: {}", id, budget.getTargetAmount());
-            return ResponseEntity.ok("Budget decreased successfully");
+            budgetService.decreaseBudget(id, BigDecimal.valueOf(amount), currency);
+            logger.info("Decreased budget with id: {}", id);
+            return ResponseEntity.ok("Budget decreased");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
             logger.error("Error decreasing budget: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error decreasing budget: " + e.getMessage());

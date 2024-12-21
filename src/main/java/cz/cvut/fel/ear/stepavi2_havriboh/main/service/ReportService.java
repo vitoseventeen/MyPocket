@@ -90,8 +90,8 @@ public class ReportService {
     }
 
     private void enrichReportWithTransactions(Report report) {
-        List<Transaction> transactions = transactionDao.findTransactionsByUserAndDateRange(
-                report.getUser(), report.getFromDate(), report.getToDate());
+        List<Transaction> transactions = transactionDao.findTransactionsByAccountAndDateRange(
+                report.getAccount(), report.getFromDate(), report.getToDate());
 
         Map<String, BigDecimal> incomeByCategory = new HashMap<>();
         Map<String, BigDecimal> spendingByCategory = new HashMap<>();
@@ -106,7 +106,6 @@ public class ReportService {
                 spendingByCategory.put(categoryName, spendingByCategory.getOrDefault(categoryName, BigDecimal.ZERO).add(amount));
                 }
         }
-        report.setUser(userService.getUserByUsername(report.getUser().getUsername()));
         report.setIncomeByCategory(incomeByCategory);
         report.setSpendingByCategory(spendingByCategory);
     }

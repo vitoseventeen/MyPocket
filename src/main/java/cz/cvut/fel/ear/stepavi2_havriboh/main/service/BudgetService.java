@@ -1,13 +1,13 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.BudgetNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.EmptyCurrencyException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,21 +18,13 @@ import java.util.List;
 @Service
 public class BudgetService {
     private final BudgetDao budgetDao;
-    private final CategoryDao categoryDao;
+    private final AccountDao accountDao;
+    private final List<Currency> currencies = List.of(Currency.values());
 
     @Autowired
-    public BudgetService(BudgetDao budgetDao, CategoryDao categoryDao) {
+    public BudgetService(BudgetDao budgetDao, AccountDao accountDao) {
         this.budgetDao = budgetDao;
-        this.categoryDao = categoryDao;
-    }
-
-
-    @Transactional(readOnly = true)
-    public BigDecimal getTotalRemainingFunds() {
-        List<Budget> budgets = budgetDao.findAll();
-        return budgets.stream()
-                .map(budget -> budget.getTargetAmount().subtract(budget.getCurrentAmount()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.accountDao = accountDao;
     }
 
     @Transactional(readOnly = true)
@@ -40,63 +32,54 @@ public class BudgetService {
         return budgetDao.findAll();
     }
 
+    private void validBudget(String currency, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Amount must be positive");
+        }
+        if (!currencies.contains(Currency.valueOf(currency))) {
+            throw new UnsupportedCurrencyException("Currency not found");
+        }
+    }
     @Transactional
-    public void createBudgetForCategoryById(int categoryId, BigDecimal targetAmount, String currency) {
-        Category category = categoryDao.find(categoryId);
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found");
+    public void createBudgetForAccount(int accountId, String currency, BigDecimal startBalance) {
+        if (accountDao.find(accountId) == null) {
+            throw new AccountNotFoundException("Account not found");
         }
-
-        if (targetAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Target amount must be positive");
-        }
-
-        if (currency == null) {
-            throw new EmptyCurrencyException("Currency must be specified");
-        }
-
+        validBudget(currency, startBalance);
         Budget budget = new Budget();
-        budget.setTargetAmount(targetAmount);
-        budget.setCurrentAmount(BigDecimal.ZERO);
-        budget.setCurrency(currency);
-        if (category.getBudget() != null) {
-            throw new IllegalArgumentException("Category already has a budget");
-        }
-        budget.setCategory(category);
-
+        budget.setAccount(accountDao.find(accountId));
+        budget.setCurrency(Currency.valueOf(currency));
+        budget.setBalance(startBalance);
         budgetDao.persist(budget);
     }
 
     @Transactional
-    public void increaseBudget(int budgetId, BigDecimal amount) {
+    public void increaseBudget(int budgetId, BigDecimal amount, String currency) {
         Budget budget = budgetDao.find(budgetId);
-        if (budget == null) {
-            throw new BudgetNotFoundException("Budget not found");
+        validBudget(currency, amount);
+        // calculate currency changes
+        if (budget.getCurrency().toString().equals(currency)) {
+            budget.setBalance(budget.getBalance().add(amount));
+        } else {
+            BigDecimal convertedAmount = CurrencyConverter.convert(amount, currency, budget.getCurrency().toString());
+            budget.setBalance(budget.getBalance().add(convertedAmount));
         }
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
-        }
-
-        budget.increaseBudget(amount);
-
         budgetDao.update(budget);
     }
 
     @Transactional
-    public void decreaseBudget(int budgetId, BigDecimal amount) {
+    public void decreaseBudget(int budgetId, BigDecimal amount, String currency) {
         Budget budget = budgetDao.find(budgetId);
-        if (budget == null) {
-            throw new BudgetNotFoundException("Budget not found");
+        validBudget(currency, amount);
+        if (budget.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Budget cannot be negative");
         }
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
+        if (budget.getCurrency().toString().equals(currency)) {
+            budget.setBalance(budget.getBalance().subtract(amount));
+        } else {
+            BigDecimal convertedAmount = CurrencyConverter.convert(amount, currency, budget.getCurrency().toString());
+            budget.setBalance(budget.getBalance().subtract(convertedAmount));
         }
-        if (amount.compareTo(budget.getCurrentAmount()) > 0) {
-            throw new NegativeAmountException("Amount must be less than current amount");
-        }
-
-        budget.decreaseBudget(amount);
-
         budgetDao.update(budget);
     }
 
@@ -108,16 +91,6 @@ public class BudgetService {
         }
         return budget;
     }
-
-    @Transactional(readOnly = true)
-    public BigDecimal getRemainingLimit(int budgetId) {
-        Budget budget = budgetDao.find(budgetId);
-        if (budget == null) {
-            throw new BudgetNotFoundException("Budget not found");
-        }
-        return budget.getTargetAmount().subtract(budget.getCurrentAmount());
-    }
-
 
     @Transactional
     public void deleteBudgetById(int id) {

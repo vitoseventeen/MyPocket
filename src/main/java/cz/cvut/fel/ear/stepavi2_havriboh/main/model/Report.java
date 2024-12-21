@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -19,13 +20,14 @@ public class Report extends AbstractEntity {
     @Column(name = "to_date", nullable = false)
     private LocalDate toDate;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore // Чтобы избежать бесконечных циклов при сериализации
-    private User user;
+    @ManyToMany(mappedBy = "reports")
+    @JoinTable(
+            name = "report_transaction",
+            joinColumns = @JoinColumn(name = "report_id"),
+            inverseJoinColumns = @JoinColumn(name = "transaction_id")
+    )
+    private List<Transaction> transactions;
 
-    @Transient // Не сохраняется в базе данных
-    private String username;
 
     @Transient
     private Map<String, BigDecimal> incomeByCategory;
@@ -33,7 +35,17 @@ public class Report extends AbstractEntity {
     @Transient
     private Map<String, BigDecimal> spendingByCategory;
 
-    // Getters and Setters
+    @Override
+    public String toString() {
+        return "Report{" +
+                "fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                ", transactions=" + transactions +
+                ", incomeByCategory=" + incomeByCategory +
+                ", spendingByCategory=" + spendingByCategory +
+                '}';
+    }
+
     public LocalDate getFromDate() {
         return fromDate;
     }
@@ -50,19 +62,12 @@ public class Report extends AbstractEntity {
         this.toDate = toDate;
     }
 
-    public User getUser() {
-        return user;
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-        if (user != null) {
-            this.username = user.getUsername();
-        }
-    }
-
-    public String getUsername() {
-        return username;
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 
     public Map<String, BigDecimal> getIncomeByCategory() {
@@ -81,15 +86,7 @@ public class Report extends AbstractEntity {
         this.spendingByCategory = spendingByCategory;
     }
 
-    @Override
-    public String toString() {
-        return "Report{" +
-                "id=" + getId() +
-                ", fromDate=" + fromDate +
-                ", toDate=" + toDate +
-                ", username='" + username + '\'' +
-                ", incomeByCategory=" + incomeByCategory +
-                ", spendingByCategory=" + spendingByCategory +
-                '}';
+    public Account getAccount() {
+        return transactions.get(0).getAccount();
     }
 }

@@ -37,27 +37,37 @@ public class User extends AbstractEntity {
     @Column(name = "subscription_end_date", nullable = true)
     private LocalDate subscriptionEndDate;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonIgnore
-    private List<Report> reports;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonIgnore
-    private List<Transaction> transactions;
-
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private List<Account> accounts;
 
     public User() {
     }
-
-    public String getEmail() {
-        return email;
+    @Transient
+    public boolean isSubscribed() {
+        return subscriptionEndDate != null && subscriptionEndDate.isAfter(LocalDate.now());
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+
+    public void encodePassword(PasswordEncoder encoder) {
+        this.password = encoder.encode(password);
+    }
+
+    public void erasePassword() {
+        this.password = null;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", role=" + role +
+                ", subscriptionStartDate=" + subscriptionStartDate +
+                ", subscriptionEndDate=" + subscriptionEndDate +
+                ", accounts=" + accounts +
+                '}';
     }
 
     public String getUsername() {
@@ -68,9 +78,28 @@ public class User extends AbstractEntity {
         this.username = username;
     }
 
-    @Transient
-    public boolean isSubscribed() {
-        return subscriptionEndDate != null && subscriptionEndDate.isAfter(LocalDate.now());
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public LocalDate getSubscriptionStartDate() {
@@ -89,41 +118,11 @@ public class User extends AbstractEntity {
         this.subscriptionEndDate = subscriptionEndDate;
     }
 
-    public String getPassword() {
-        return password;
+    public List<Account> getAccounts() {
+        return accounts;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void encodePassword(PasswordEncoder encoder) {
-        this.password = encoder.encode(password);
-    }
-
-    public void erasePassword() {
-        this.password = null;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public boolean isPremium() {
-        return role == Role.PREMIUM;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", subscriptionStartDate=" + subscriptionStartDate +
-                ", subscriptionEndDate=" + subscriptionEndDate +
-                '}';
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 }

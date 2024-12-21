@@ -12,17 +12,4 @@ public class ReportDao extends BaseDao<Report> {
         super(Report.class);
     }
 
-    public List<Report> findReportsByUserId(int userId) {
-        return em.createQuery(
-                        "SELECT r FROM Report r JOIN FETCH r.user WHERE r.user.id = :userId", Report.class)
-                .setParameter("userId", userId)
-                .getResultList();
-    }
-
-    public Report findWithUser(int reportId) {
-        return em.createQuery("SELECT r FROM Report r JOIN FETCH r.user WHERE r.id = :reportId", Report.class)
-                .setParameter("reportId", reportId)
-                .getSingleResult();
-    }
-
 }

@@ -5,6 +5,8 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +28,9 @@ public class AccountService {
         this.userDao = userDao;
     }
 
+    //TODO: Implement the following methods
     @Transactional
-    public void createAccount(String name, BigDecimal balance, String currency) {
-
-        Account account = new Account();
-        if (balance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeBalanceException("Balance cannot be negative");
-        }
-        if (name.isBlank()) {
-            throw new EmptyNameException("Name cannot be empty");
-        }
-        if (currency.isBlank()) {
-            throw new EmptyCurrencyException("Currency cannot be empty");
-        }
-        account.setAccountName(name);
-        account.setCurrency(currency);
-        account.setBalance(balance);
-        accountDao.persist(account);
+    public void createAccount() {
     }
 
     @Transactional

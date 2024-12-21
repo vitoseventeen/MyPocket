@@ -1,7 +1,9 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -16,12 +18,6 @@ public class Account extends AbstractEntity {
     @Column(name = "account_name", nullable = false, length = 100)
     private String accountName;
 
-    @Column(name = "balance", nullable = false, precision = 15, scale = 2)
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    @Column(name = "currency", nullable = false, length = 3)
-    private String currency;
-
     @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
@@ -32,10 +28,36 @@ public class Account extends AbstractEntity {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    private List<User> users;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
-    private List<User> users = new ArrayList<>();
+    private Budget budget;
+
+
+
+    @JsonGetter("members")
+    public List<String> getMemberUsernames() {
+        List<String> usernames = new ArrayList<>();
+        for (User user : users) {
+            usernames.add(user.getUsername());
+        }
+        return usernames;
+    }
+
+
 
     public Account() {
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "accountName='" + accountName + '\'' +
+                ", transactions=" + transactions +
+                ", users=" + users +
+                ", budget=" + budget +
+                '}';
     }
 
     public String getAccountName() {
@@ -44,22 +66,6 @@ public class Account extends AbstractEntity {
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
     }
 
     public List<Transaction> getTransactions() {
@@ -78,29 +84,11 @@ public class Account extends AbstractEntity {
         this.users = users;
     }
 
-    public void increaseBalance(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Deposit amount must be positive");
-        }
-        balance = balance.add(amount);
+    public Budget getBudget() {
+        return budget;
     }
 
-    public void decreaseBalance(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0 || balance.compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Withdrawal amount must be positive and less than balance");
-        }
-        balance = balance.subtract(amount);
-    }
-
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "accountName='" + accountName + '\'' +
-                ", balance=" + balance +
-                ", currency='" + currency + '\'' +
-                ", transactions=" + transactions +
-                ", users=" + users +
-                '}';
+    public void setBudget(Budget budget) {
+        this.budget = budget;
     }
 }
