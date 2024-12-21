@@ -41,7 +41,7 @@ public class UserController {
             User user = userService.getUserById(id);
             return ResponseEntity.ok().body(user);
         } catch (UserNotFoundException e) {
-            logger.warn("User not found with ID: {}", id);
+            logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
         }
     }
@@ -68,7 +68,7 @@ public class UserController {
             userService.updateUser(existingUser);
             return ResponseEntity.ok("User with ID " + id + " updated successfully");
         } catch (UserNotFoundException e) {
-            logger.warn("User not found with ID: {}", id);
+            logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
         }
     }
@@ -80,7 +80,7 @@ public class UserController {
             userService.deleteUserById(id);
             return ResponseEntity.ok().body("User with ID " + id + " deleted successfully");
         } catch (UserNotFoundException e) {
-            logger.warn("User not found with ID: {}", id);
+            logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
         } catch (Exception e) {
             logger.error("Error deleting user with ID: {}: {}", id, e.getMessage());
@@ -96,7 +96,7 @@ public class UserController {
             userService.activateSubscription(user, months);
             return ResponseEntity.ok().body("Subscription activated for user with ID: " + id + " for " + months + " month(s)");
         } catch (UserNotFoundException e) {
-            logger.warn("User not found with ID: {}", id);
+            logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
         }
     }
@@ -109,10 +109,10 @@ public class UserController {
             userService.cancelSubscription(user);
             return ResponseEntity.ok().body("Subscription cancelled for user with ID: " + id);
         } catch (UserNotFoundException e) {
-            logger.warn("User not found with ID: {}", id);
+            logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
         } catch (SubscriptionNotActiveException e) {
-            logger.warn("Subscription not active for user with ID: {}", id);
+            logger.error("Subscription not active for user with ID: {}", id);
             return ResponseEntity.status(400).body("Subscription is not active for user with ID: " + id);
         }
     }

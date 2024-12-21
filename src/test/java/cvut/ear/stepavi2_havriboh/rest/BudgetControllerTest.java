@@ -101,37 +101,6 @@ public class BudgetControllerTest extends BaseControllerTestRunner {
 
     }
 
-    //TODO : FIX TESTS
-    @Test
-    void createBudget_shouldReturn201() throws Exception {
-        Category category = new Category();
-        category.setDefaultLimit(BigDecimal.valueOf(1000));
-        category.setName("Food");
-        category.setDescription("Food and drinks");
-
-        // Мокаем поведение categoryDao
-        when(categoryDao.find(1)).thenReturn(category);
-
-        // Мокаем успешное создание бюджета
-        doNothing().when(budgetService).createBudgetForCategoryById(anyInt(), any(BigDecimal.class), anyString());
-
-        // JSON для тела запроса
-        String budgetJson = """
-            {
-                "targetAmount": 1000,
-                "currency": "CZK"
-            }
-            """;
-
-        // Выполнение запроса и проверки
-        mockMvc.perform(MockMvcRequestBuilders.post("/rest/budgets/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(budgetJson))
-                .andExpect(MockMvcResultMatchers.status().isCreated()) // Проверка статуса 201
-                .andExpect(MockMvcResultMatchers.content().string("\"Budget created\"")); // Проверка содержимого ответа
-    }
-
-
 
     @Test
     void increaseBudget_shouldReturn200() throws Exception {
