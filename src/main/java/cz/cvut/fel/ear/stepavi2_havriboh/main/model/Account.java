@@ -21,6 +21,7 @@ public class Account extends AbstractEntity {
     private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "account_user",
             joinColumns = @JoinColumn(name = "account_id"),

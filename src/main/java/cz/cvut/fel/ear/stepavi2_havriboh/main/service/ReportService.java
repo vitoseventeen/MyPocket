@@ -24,13 +24,11 @@ public class ReportService {
 
     private final ReportDao reportDao;
     private final AccountDao accountDao;
-    private final TransactionDao transactionDao;
 
     @Autowired
-    public ReportService(ReportDao reportDao, AccountDao userService, TransactionDao transactionDao) {
+    public ReportService(ReportDao reportDao, AccountDao accountDao) {
         this.reportDao = reportDao;
-        this.accountDao = userService;
-        this.transactionDao = transactionDao;
+        this.accountDao = accountDao;
     }
 
     @Transactional
@@ -53,9 +51,6 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<Report> getAllReports() {
         List<Report> reports = reportDao.findAll();
-        for (Report report : reports) {
-            enrichReportWithTransactions(report);
-        }
         return reports;
     }
 
@@ -65,7 +60,6 @@ public class ReportService {
         if (report == null) {
             throw new ReportNotFoundException("Report not found with ID: " + reportId);
         }
-        enrichReportWithTransactions(report);
         return report;
     }
 
@@ -86,24 +80,4 @@ public class ReportService {
         reportDao.update(report);
     }
 
-    private void enrichReportWithTransactions(Report report) {
-        List<Transaction> transactions = transactionDao.findTransactionsByAccountAndDateRange(
-                report.getAccount(), report.getFromDate(), report.getToDate());
-
-        Map<String, BigDecimal> incomeByCategory = new HashMap<>();
-        Map<String, BigDecimal> spendingByCategory = new HashMap<>();
-
-        for (Transaction transaction : transactions) {
-            String categoryName = transaction.getCategory().getName();
-            BigDecimal amount = transaction.getAmount();
-
-            if (transaction.isIncome()) {
-                incomeByCategory.put(categoryName, incomeByCategory.getOrDefault(categoryName, BigDecimal.ZERO).add(amount));
-            } else {
-                spendingByCategory.put(categoryName, spendingByCategory.getOrDefault(categoryName, BigDecimal.ZERO).add(amount));
-                }
-        }
-        report.setIncomeByCategory(incomeByCategory);
-        report.setSpendingByCategory(spendingByCategory);
-    }
 }
