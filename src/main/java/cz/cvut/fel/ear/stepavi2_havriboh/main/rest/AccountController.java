@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -46,7 +47,7 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         try {
-            accountService.createAccount(account.getAccountName(), account.getBalance(), account.getCurrency());
+            accountService.createAccountWithBudget(account.getAccountName(), account.getBudget().getCurrency().toString(), account.getBudget().getBalance());
             logger.info("Created account with name: {}", account.getAccountName());
             return ResponseEntity.status(201).body("Account created");
         } catch (Exception e) {

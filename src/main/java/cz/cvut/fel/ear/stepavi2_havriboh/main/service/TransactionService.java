@@ -3,7 +3,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
@@ -100,7 +99,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public void updateTransaction(int transactionId, BigDecimal amount, LocalDate date, String description,
+    public void updateTransaction(int transactionId, BigDecimal amount, Currency currency, LocalDate date, String description,
                                   TransactionType type, int accountId, int categoryId) {
         Transaction transaction = transactionDao.find(transactionId);
         if (transaction == null) {

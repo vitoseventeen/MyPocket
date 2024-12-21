@@ -5,7 +5,7 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveExc
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UsernameAlreadyTakenException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountDao;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class UserServiceTest {
     @Autowired
-    private UserService userService;
+    private AccountDao userService;
 
     @Autowired
     private UserDao userDao;

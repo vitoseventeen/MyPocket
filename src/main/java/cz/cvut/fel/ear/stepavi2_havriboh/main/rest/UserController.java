@@ -1,5 +1,6 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;

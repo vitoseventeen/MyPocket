@@ -46,19 +46,6 @@ public class BudgetController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Object> createBudget(@RequestBody Budget budget) {
-        try {
-            budgetService.createBudgetForAccount(budget.getAccount().getId(), budget.getCurrency().toString() ,budget.getBalance());
-            return ResponseEntity.status(201).body("Budget created");
-        } catch (CategoryNotFoundException | IllegalArgumentException e) {
-            logger.error("Error creating budget: {}", e.getMessage());
-            return ResponseEntity.status(400).body("Error creating budget: " + e.getMessage());
-        }
-    }
-
-
-    //TODO:IMPLEMENT TWO METHODS BELOW
     @PutMapping("/{id}/increase")
     public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
         try {

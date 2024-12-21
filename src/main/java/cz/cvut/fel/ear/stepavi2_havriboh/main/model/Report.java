@@ -21,11 +21,6 @@ public class Report extends AbstractEntity {
     private LocalDate toDate;
 
     @ManyToMany(mappedBy = "reports")
-    @JoinTable(
-            name = "report_transaction",
-            joinColumns = @JoinColumn(name = "report_id"),
-            inverseJoinColumns = @JoinColumn(name = "transaction_id")
-    )
     private List<Transaction> transactions;
 
 
@@ -89,4 +84,9 @@ public class Report extends AbstractEntity {
     public Account getAccount() {
         return transactions.get(0).getAccount();
     }
+
+    public void setAccount(Account account) {
+        transactions.forEach(t -> t.setAccount(account));
+    }
+
 }

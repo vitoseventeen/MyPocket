@@ -46,7 +46,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<Object> createCategory(@RequestBody Category category) {
         try {
-            categoryService.createCategory(category.getName(), category.getDescription(), category.getDefaultLimit());
+            categoryService.createCategory(category.getName(), category.getDescription());
             logger.info("Created category: {}", category.getName());
             return ResponseEntity.status(201).body("Category created");
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCategory(@PathVariable("id") int id, @RequestBody Category category) {
         try {
-            categoryService.updateCategoryById(id, category.getName(), category.getDescription(), category.getDefaultLimit());
+            categoryService.updateCategoryById(id, category.getName(), category.getDescription());
             logger.info("Updated category with id: {}", id);
             return ResponseEntity.ok("Category updated");
         } catch (CategoryNotFoundException e) {

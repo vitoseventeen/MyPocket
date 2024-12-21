@@ -32,25 +32,18 @@ public class BudgetService {
         return budgetDao.findAll();
     }
 
-    private void validBudget(String currency, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Amount must be positive");
+    protected void validBudget(String currency, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NegativeAmountException("Amount must be positive and non-null");
         }
-        if (!currencies.contains(Currency.valueOf(currency))) {
-            throw new UnsupportedCurrencyException("Currency not found");
+        if (currency == null || currency.isEmpty()) {
+            throw new UnsupportedCurrencyException("Currency cannot be null or empty");
         }
-    }
-    @Transactional
-    public void createBudgetForAccount(int accountId, String currency, BigDecimal startBalance) {
-        if (accountDao.find(accountId) == null) {
-            throw new AccountNotFoundException("Account not found");
+        try {
+            Currency.fromString(currency);
+        } catch (IllegalArgumentException e) {
+            throw new UnsupportedCurrencyException("Currency not found: " + currency);
         }
-        validBudget(currency, startBalance);
-        Budget budget = new Budget();
-        budget.setAccount(accountDao.find(accountId));
-        budget.setCurrency(Currency.valueOf(currency));
-        budget.setBalance(startBalance);
-        budgetDao.persist(budget);
     }
 
     @Transactional

@@ -35,9 +35,11 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<Object> createTransaction(@RequestBody Transaction transaction) {
         try {
-            transactionService.createTransaction(transaction.getAmount(), transaction.getDate(), transaction.getDescription(),
-                    transaction.getType(), transaction.getUser().getId(), transaction.getAccount().getId(), transaction.getCategory().getId());
-            logger.info("Created transaction for user id: {}", transaction.getUser().getId());
+            transactionService.createTransaction(
+                    transaction.getAmount(), transaction.getBudget().getCurrency(), transaction.getDate(),
+                    transaction.getDescription(),transaction.getType(),transaction.getAccount().getId(),
+                    transaction.getCategory().getId());
+            logger.info("Created transaction for account id: {}", transaction.getAccount().getId());
             return ResponseEntity.status(201).body("Transaction created");
         } catch (Exception e) {
             logger.error("Error creating transaction: {}", e.getMessage());
@@ -77,10 +79,9 @@ public class TransactionController {
         try {
             transactionService.updateTransaction(
                     id,
-                    transaction.getAmount(),
-                    transaction.getDate(),
-                    transaction.getDescription(),
-                    transaction.getType()
+                    transaction.getAmount(), transaction.getBudget().getCurrency(), transaction.getDate(),
+                    transaction.getDescription(),transaction.getType(),transaction.getAccount().getId(),
+                    transaction.getCategory().getId()
             );
             logger.info("Updated transaction with id: {}", id);
             return ResponseEntity.ok("Transaction updated");

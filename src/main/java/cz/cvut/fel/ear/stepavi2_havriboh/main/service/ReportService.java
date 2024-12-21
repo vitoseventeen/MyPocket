@@ -1,15 +1,15 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.ReportDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NotPremiumUserException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,24 +23,22 @@ import java.util.Map;
 public class ReportService {
 
     private final ReportDao reportDao;
-    private final UserService userService;
+    private final AccountDao accountDao;
     private final TransactionDao transactionDao;
 
     @Autowired
-    public ReportService(ReportDao reportDao, UserService userService, TransactionDao transactionDao) {
+    public ReportService(ReportDao reportDao, AccountDao userService, TransactionDao transactionDao) {
         this.reportDao = reportDao;
-        this.userService = userService;
+        this.accountDao = userService;
         this.transactionDao = transactionDao;
     }
 
+    // Only PREMIUM users can create reports
     @Transactional
-    public void createReport(int userId, LocalDate fromDate, LocalDate toDate) {
-        User user = userService.getUserById(userId);
-        if (user == null) {
-            throw new UserNotFoundException("User not found with ID: " + userId);
-        }
-        if (!user.isSubscribed()) {
-            throw new NotPremiumUserException("User is not subscribed");
+    public void createReport(int accountId, LocalDate fromDate, LocalDate toDate) {
+        Account account = accountDao.find(accountId);
+        if (account == null) {
+            throw new ReportNotFoundException("Account not found with ID: " + accountId);
         }
         if (fromDate.isAfter(toDate)) {
             throw new InvalidDateException("From date must be before to date");
@@ -49,7 +47,7 @@ public class ReportService {
         Report report = new Report();
         report.setFromDate(fromDate);
         report.setToDate(toDate);
-        report.setUser(user);
+        report.setAccount(account);
         reportDao.persist(report);
     }
 

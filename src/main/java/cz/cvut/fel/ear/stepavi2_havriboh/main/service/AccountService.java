@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
@@ -21,17 +22,38 @@ public class AccountService {
 
     private final AccountDao accountDao;
     private final UserDao userDao;
+    private final BudgetDao budgetDao;
+    private final BudgetService budgetService;
 
     @Autowired
-    public AccountService(AccountDao accountDao, UserDao userDao) {
+    public AccountService(AccountDao accountDao, UserDao userDao, BudgetDao budgetDao, BudgetService budgetService) {
         this.accountDao = accountDao;
         this.userDao = userDao;
+        this.budgetDao = budgetDao;
+        this.budgetService = budgetService;
     }
 
-    //TODO: Implement the following methods
     @Transactional
-    public void createAccount() {
+    public void createAccountWithBudget(String accountName, String currency, BigDecimal startBalance) {
+        if (accountName == null || accountName.trim().isEmpty()) {
+            throw new EmptyNameException("Account name cannot be null or empty");
+        }
+        Budget budget = new Budget();
+
+        budgetService.validBudget(currency, startBalance);
+
+        budget.setCurrency(Currency.valueOf(currency));
+        budget.setBalance(startBalance);
+
+        Account account = new Account();
+        account.setAccountName(accountName);
+        account.setBudget(budget);
+        budget.setAccount(account);
+
+        accountDao.persist(account);
     }
+
+
 
     @Transactional
     public void addUserToAccountById(int userId, int accountId) {

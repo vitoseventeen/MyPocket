@@ -14,7 +14,7 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountDao;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class ReportServiceTest {
     private ReportService reportService;
 
     @Autowired
-    private UserService userService;
+    private AccountDao userService;
 
     @Autowired
     private TransactionDao transactionDao;
