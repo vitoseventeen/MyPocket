@@ -22,21 +22,20 @@ public class CategoryService {
         this.categoryDao = categoryDao;
     }
 
-    @Transactional
-    public void createCategory(String name, String description, BigDecimal defaultLimit) {
-        Category category = new Category();
+    private void validateCategory(String name, String description) {
         if (name.isBlank()) {
             throw new EmptyNameException("Name cannot be empty");
         }
         if (description.isBlank()) {
             throw new EmptyDescriptionException("Description cannot be empty");
         }
-        if (defaultLimit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeCategoryLimitException("Limit cannot be negative");
-        }
+    }
+    @Transactional
+    public void createCategory(String name, String description) {
+        Category category = new Category();
+        validateCategory(name, description);
         category.setName(name);
         category.setDescription(description);
-        category.setDefaultLimit(defaultLimit);
 
         categoryDao.persist(category);
     }
@@ -51,23 +50,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategoryById(int categoryId, String name, String description, BigDecimal defaultLimit) {
+    public void updateCategoryById(int categoryId, String name, String description) {
         Category category = getCategoryById(categoryId);
-        if (name.isBlank()) {
-            throw new EmptyNameException("Name cannot be empty");
-        }
-        if (description.isBlank()) {
-            throw new EmptyDescriptionException("Description cannot be empty");
-        }
-        if (defaultLimit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeCategoryLimitException("Limit cannot be negative");
-        }
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found");
-        }
+        validateCategory(name, description);
         category.setName(name);
         category.setDescription(description);
-        category.setDefaultLimit(defaultLimit);
 
         categoryDao.update(category);
     }
@@ -84,13 +71,6 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public BigDecimal getCategoryLimitById(int categoryId) {
-        Category category = getCategoryById(categoryId);
-        return category.getDefaultLimit();
-    }
-
-
-    @Transactional(readOnly = true)
     public String getCategoryNameById(int categoryId) {
         Category category = getCategoryById(categoryId);
         return category.getName();
@@ -102,26 +82,11 @@ public class CategoryService {
         return category.getDescription();
     }
 
-    @Transactional
-    public void updateCategoryLimitById(int categoryId, BigDecimal newLimit) {
-        if (newLimit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeCategoryLimitException("Limit cannot be negative");
-        }
-        Category category = getCategoryById(categoryId);
-        category.setDefaultLimit(newLimit);
-        categoryDao.update(category);
-    }
-
 
     @Transactional
     public void updateCategoryNameById(int categoryId, String newName) {
         Category category = getCategoryById(categoryId);
-        if (newName.isBlank()) {
-            throw new EmptyNameException("Name cannot be empty");
-        }
-        if (category == null) {
-            throw new CategoryNotFoundException("Category not found");
-        }
+        validateCategory(newName, category.getDescription());
         category.setName(newName);
         categoryDao.update(category);
     }
@@ -129,10 +94,7 @@ public class CategoryService {
     @Transactional
     public void updateCategoryDescriptionById(int categoryId, String newDescription) {
         Category category = getCategoryById(categoryId);
-        if (newDescription.isBlank()) {
-            throw new EmptyDescriptionException("Description cannot be empty");
-        }
-
+        validateCategory(category.getName(), newDescription);
         category.setDescription(newDescription);
         categoryDao.update(category);
     }
@@ -140,11 +102,9 @@ public class CategoryService {
     @Transactional
     public void deleteCategoryById(int categoryId) {
         Category category = getCategoryById(categoryId);
-
         if (!category.getTransactions().isEmpty()) {
             throw new CategoryHasTransactionsException("Category has associated transactions, cannot delete");
         }
-
         categoryDao.remove(category);
     }
 
