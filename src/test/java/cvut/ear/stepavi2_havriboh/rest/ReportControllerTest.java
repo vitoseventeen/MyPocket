@@ -55,29 +55,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
     }
 
     @Test
-    void getReportsByUserId_shouldReturnReports() throws Exception {
-        Report report = new Report();
-        report.setFromDate(LocalDate.of(2023, 1, 1));
-        report.setToDate(LocalDate.of(2023, 12, 31));
-
-        when(reportService.getReportsByUserId(1)).thenReturn(Collections.singletonList(report));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/user/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fromDate").value("2023-01-01"))
-                .andExpect(jsonPath("$[0].toDate").value("2023-12-31"));
-    }
-
-    @Test
-    void getReportsByUserId_shouldReturnEmptyList() throws Exception {
-        when(reportService.getReportsByUserId(1)).thenReturn(Collections.emptyList());
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/user/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    @Test
     void getReportById_shouldReturnReportWhenFound() throws Exception {
         Report report = new Report();
         report.setFromDate(LocalDate.of(2023, 1, 1));
@@ -122,23 +99,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
                         .param("toDate", "2023-01-01"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("\"From date must be before to date\""));
-    }
-
-    @Test
-    void getReportsByUserIdAndDateRange_shouldReturnReports() throws Exception {
-        Report report = new Report();
-        report.setFromDate(LocalDate.of(2023, 1, 1));
-        report.setToDate(LocalDate.of(2023, 12, 31));
-
-        when(reportService.getReportsByUserIdAndDateRange(1, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31)))
-                .thenReturn(Collections.singletonList(report));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/user/1/date-range")
-                        .param("fromDate", "2023-01-01")
-                        .param("toDate", "2023-12-31"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fromDate").value("2023-01-01"))
-                .andExpect(jsonPath("$[0].toDate").value("2023-12-31"));
     }
 
     @Test

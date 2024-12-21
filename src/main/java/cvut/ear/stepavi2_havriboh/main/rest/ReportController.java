@@ -39,29 +39,6 @@ public class ReportController {
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<Object> getReportsByUserId(@PathVariable int userId) {
-        try {
-            List<Report> reports = reportService.getReportsByUserId(userId);
-            return ResponseEntity.ok(reports);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while retrieving reports.");
-        }
-    }
-
-    @GetMapping("/user/{userId}/date-range")
-    public ResponseEntity<Object> getReportsByUserIdAndDateRange(
-            @PathVariable int userId,
-            @RequestParam LocalDate fromDate,
-            @RequestParam LocalDate toDate) {
-        try {
-            List<Report> reports = reportService.getReportsByUserIdAndDateRange(userId, fromDate, toDate);
-            return ResponseEntity.ok(reports);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while retrieving reports.");
-        }
-    }
-
     @GetMapping("/{reportId}")
     public ResponseEntity<Object> getReportById(@PathVariable int reportId) {
         try {

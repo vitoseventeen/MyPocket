@@ -64,20 +64,7 @@ public class ReportService {
             }
         }
 
-        StringBuilder reportContent = new StringBuilder();
-        reportContent.append("Financial Report (").append(")\n");
-        reportContent.append("Period: ").append(fromDate).append(" - ").append(toDate).append("\n\n");
-
-        reportContent.append("Income by Category:\n");
-        incomeByCategory.forEach((category, total) ->
-                reportContent.append("  Category: ").append(category)
-                        .append(", Total Income: ").append(total).append("\n"));
-
-        reportContent.append("\nSpending by Category:\n");
-        spendingByCategory.forEach((category, total) ->
-                reportContent.append("  Category: ").append(category)
-                        .append(", Total Spending: ").append(total).append("\n"));
-
+        // Create the report object
         Report report = new Report();
         report.setFromDate(fromDate);
         report.setToDate(toDate);
@@ -90,16 +77,6 @@ public class ReportService {
     @Transactional(readOnly = true)
     public List<Report> getAllReports() {
         return reportDao.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public List<Report> getReportsByUserId(int userId) {
-        return reportDao.findReportsByUserId(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Report> getReportsByUserIdAndDateRange(int userId, LocalDate fromDate, LocalDate toDate) {
-        return reportDao.findReportsByUserIdAndDateRange(userId, fromDate, toDate);
     }
 
     @Transactional(readOnly = true)
