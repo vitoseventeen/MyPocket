@@ -7,6 +7,7 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +24,18 @@ public class TransactionService {
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     private final TransactionDao transactionDao;
-    private final UserDao userDao;
     private final CategoryDao categoryDao;
     private final AccountDao accountDao;
 
     @Autowired
-    public TransactionService(TransactionDao transactionDao, UserDao userDao, CategoryDao categoryDao, AccountDao accountDao) {
+    public TransactionService(TransactionDao transactionDao, CategoryDao categoryDao, AccountDao accountDao) {
         this.transactionDao = transactionDao;
-        this.userDao = userDao;
         this.categoryDao = categoryDao;
         this.accountDao = accountDao;
     }
 
     @Transactional
-    protected boolean isValidData(BigDecimal amount, LocalDate date, String description, TransactionType type, int userId, int accountId, int categoryId) {
-        if (userDao.find(userId) == null) {
-            throw new UserNotFoundException("User not found with ID: " + userId);
-        }
+    protected boolean isValidData(BigDecimal amount, LocalDate date, String description, TransactionType type, int accountId, int categoryId) {
         if (categoryDao.find(categoryId) == null) {
             throw new CategoryNotFoundException("Category not found with ID: " + categoryId);
         }
@@ -58,8 +54,8 @@ public class TransactionService {
         if (description == null || description.isEmpty()) {
             throw new EmptyDescriptionException("Description cannot be null or empty");
         }
-        if (categoryDao.find(categoryId).getBudget() == null) {
-            throw new BudgetNotFoundException("Category budget is null");
+        if (accountDao.find(accountId).getBudget() == null) {
+            throw new BudgetNotFoundException("Budget not found for account with ID: " + accountId);
         }
         return true;
     }
@@ -67,33 +63,29 @@ public class TransactionService {
 
 
     @Transactional
-    public void createTransaction(BigDecimal amount, LocalDate date, String description,
-                                  TransactionType type, int userId, int accountId, int categoryId) {
-        User user = userDao.find(userId);
+    public void createTransaction(BigDecimal amount, Currency currency, LocalDate date, String description,
+                                  TransactionType type, int accountId, int categoryId) {
         Category category = categoryDao.find(categoryId);
         Account account = accountDao.find(accountId);
-        Budget budget = category.getBudget();
+        Budget budget = account.getBudget();
 
-        if (!isValidData(amount, date, description, type, userId, accountId, categoryId)) {
+        if (!isValidData(amount, date, description, type, accountId, categoryId)) {
             throw new InvalidDataException("Invalid data");
         }
 
-        if (type == TransactionType.EXPENSE) {
-            account.decreaseBalance(amount);
+        if (!budget.getCurrency().equals(currency)) {
+            amount = CurrencyConverter.convert(amount, currency.toString(), budget.getCurrency().toString());
         }
-        if (type == TransactionType.INCOME) {
-            account.increaseBalance(amount);
-        }
-
-        BigDecimal totalSpent = transactionDao.getTotalSpentByCategory(category).orElse(BigDecimal.ZERO);
-        BigDecimal newTotal = totalSpent.add(amount);
-
-        if (newTotal.compareTo(category.getDefaultLimit()) > 0) {
-            String message = "Transaction exceeds category limit! Category limit is exceeded by " +
-                    newTotal.subtract(category.getDefaultLimit()) + ". Category budget is now negative.";
-            logger.warn(message);
-
-            budget.decreaseBudget(amount.subtract(category.getDefaultLimit()));
+       switch (type) {
+            case INCOME -> {
+                budget.addBalance(amount);
+            }
+            case EXPENSE -> {
+                if (budget.getBalance().compareTo(amount) < 0) {
+                    throw new NegativeBalanceException("Insufficient funds in account with ID: " + accountId);
+                }
+                budget.subtractBalance(amount);
+            }
         }
 
         Transaction transaction = new Transaction();
@@ -101,7 +93,6 @@ public class TransactionService {
         transaction.setDate(date);
         transaction.setDescription(description);
         transaction.setType(type);
-        transaction.setUser(user);
         transaction.setCategory(category);
         transaction.setAccount(account);
 
@@ -110,22 +101,41 @@ public class TransactionService {
 
     @Transactional
     public void updateTransaction(int transactionId, BigDecimal amount, LocalDate date, String description,
-                                  TransactionType type) {
-
-        Optional<Transaction> transaction = transactionDao.findTransactionById(transactionId);
-        if (transaction.isEmpty()) {
+                                  TransactionType type, int accountId, int categoryId) {
+        Transaction transaction = transactionDao.find(transactionId);
+        if (transaction == null) {
             throw new TransactionNotFoundException("Transaction not found with ID: " + transactionId);
         }
-        Transaction t = transaction.get();
 
-        if (!isValidData(amount, date, description, type, t.getUser().getId(), t.getAccount().getId(), t.getCategory().getId())) {
+        if (!isValidData(amount, date, description, type, accountId, categoryId)) {
             throw new InvalidDataException("Invalid data");
         }
-        t.setAmount(amount);
-        t.setDate(date);
-        t.setDescription(description);
-        t.setType(type);
-        transactionDao.update(t);
+
+        Category category = categoryDao.find(categoryId);
+        Account account = accountDao.find(accountId);
+        Budget budget = account.getBudget();
+
+        if (transaction.getType() == TransactionType.INCOME) {
+            budget.addBalance(transaction.getAmount().negate());
+        } else {
+            budget.addBalance(transaction.getAmount());
+        }
+
+        if (type == TransactionType.INCOME) {
+            budget.addBalance(amount);
+        } else {
+            if (budget.getBalance().compareTo(amount) < 0) {
+                throw new NegativeBalanceException("Insufficient funds in account with ID: " + accountId);
+            }
+            budget.subtractBalance(amount);
+        }
+
+        transaction.setAmount(amount);
+        transaction.setDate(date);
+        transaction.setDescription(description);
+        transaction.setType(type);
+        transaction.setCategory(category);
+        transaction.setAccount(account);
     }
 
     @Transactional
@@ -140,19 +150,19 @@ public class TransactionService {
     }
 
     @Transactional
-    public void createRecurringTransaction(BigDecimal amount, LocalDate date, String description,
-                                           TransactionType type, int userId, int categoryId, int accountId, int interval, TransactionIntervalType intervalUnit) {
+    public void createRecurringTransaction(BigDecimal amount, Currency currency, LocalDate date, String description,
+                                           TransactionType type, int accountId, int categoryId, int interval, TransactionIntervalType intervalUnit) {
 
         if (interval <= 0) {
             throw new NegativeIntervalException("The interval 'days' must be a positive number.");
         }
 
-        createTransaction(amount, date, description, type, userId, accountId, categoryId);
+        createTransaction(amount, currency, date, description, type,accountId, categoryId);
 
         LocalDate nextDate = calculateNextDate(date, interval, intervalUnit);
 
         for (int i = 1; i < interval; i++) {
-            createTransaction(amount, nextDate, description, type, userId, accountId, categoryId);
+            createTransaction(amount, currency, nextDate, description, type, accountId, categoryId);
             nextDate = calculateNextDate(nextDate, 1, intervalUnit);
         }
     }

@@ -49,6 +49,14 @@ public class Budget extends AbstractEntity {
         this.balance = balance;
     }
 
+    public void addBalance(BigDecimal balance) {
+        this.balance = this.balance.add(balance);
+    }
+
+    public void subtractBalance(BigDecimal balance) {
+        this.balance = this.balance.subtract(balance);
+    }
+
     public Currency getCurrency() {
         return currency;
     }
