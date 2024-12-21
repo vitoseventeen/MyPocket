@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -40,6 +41,7 @@ public class Transaction extends AbstractEntity {
     @JsonIgnore
     private Budget budget;
 
+    @JsonBackReference
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "transaction_report",
             joinColumns = @JoinColumn(name = "transaction_id"),
