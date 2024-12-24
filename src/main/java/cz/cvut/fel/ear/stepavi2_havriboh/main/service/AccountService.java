@@ -8,6 +8,7 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,8 +112,21 @@ public class AccountService {
         if (account == null) {
             throw new AccountNotFoundException("Account not found");
         }
+
+        // Получаем текущего пользователя
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new UnauthorizedActionException("You must be logged in to delete the account");
+        }
+
+        // Проверяем, что текущий пользователь создал этот аккаунт
+        if (!account.getCreator().equals(currentUser)) {
+            throw new UnauthorizedActionException("Only the creator of the account can delete it");
+        }
+
         accountDao.remove(account);
     }
+
 
 
 }

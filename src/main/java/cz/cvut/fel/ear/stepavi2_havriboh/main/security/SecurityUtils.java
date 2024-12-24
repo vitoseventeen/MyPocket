@@ -17,6 +17,7 @@ public class SecurityUtils {
         return ud != null ? ud.getUser() : null;
     }
 
+
     /**
      * Gets details of the currently authenticated user.
      *

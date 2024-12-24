@@ -2,15 +2,21 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/rest/transactions")
@@ -24,14 +30,14 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }
 
-
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping
     public ResponseEntity<Object> createTransaction(@RequestBody Transaction transaction) {
         try {
@@ -47,10 +53,47 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
+    @PostMapping("/recurring")
+    public ResponseEntity<Object> createRecurringTransaction(@RequestParam BigDecimal amount,
+                                                             @RequestParam Currency currency,
+                                                             @RequestParam LocalDate date,
+                                                             @RequestParam String description,
+                                                             @RequestParam TransactionType type,
+                                                             @RequestParam int accountId,
+                                                             @RequestParam int categoryId,
+                                                             @RequestParam int interval,
+                                                             @RequestParam TransactionIntervalType intervalUnit) {
+        try {
+            transactionService.createRecurringTransaction(amount, currency, date, description, type, accountId, categoryId, interval, intervalUnit);
+            logger.info("Created recurring transaction for account id: {}", accountId);
+            return ResponseEntity.status(201).body("Recurring transactions created");
+        } catch (Exception e) {
+            logger.error("Error creating recurring transaction: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Error creating recurring transaction: " + e.getMessage());
+        }
+    }
+
+
+    private void checkTransactionPerms(int id) {
+        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
+
+        boolean isOwnerOrAdmin = transactionService.getTransactionById(id)
+                .getAccount()
+                .getUsers()
+                .contains(currentUser) || currentUser.isAdmin();
+
+        if (!isOwnerOrAdmin) {
+            throw new AccessDeniedException("Forbidden");
+        }
+    }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getTransactionById(@PathVariable("id") int id) {
         logger.info("Fetching transaction with ID: {}", id);
         try {
+            checkTransactionPerms(id);
             Transaction transaction = transactionService.getTransactionById(id);
             return ResponseEntity.ok().body(transaction);
         } catch (TransactionNotFoundException e) {
@@ -60,6 +103,7 @@ public class TransactionController {
     }
 
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTransaction(@PathVariable("id") int id) {
         try {
@@ -72,6 +116,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateTransaction(
             @PathVariable("id") int id,

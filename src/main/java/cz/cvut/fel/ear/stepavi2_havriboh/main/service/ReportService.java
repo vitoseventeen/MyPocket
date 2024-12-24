@@ -31,6 +31,7 @@ public class ReportService {
         this.accountDao = accountDao;
     }
 
+
     @Transactional
     public void createReport(int accountId, LocalDate fromDate, LocalDate toDate) {
         Account account = accountDao.find(accountId);
@@ -50,8 +51,8 @@ public class ReportService {
 
     @Transactional(readOnly = true)
     public List<Report> getAllReports() {
-        List<Report> reports = reportDao.findAll();
-        return reports;
+        return reportDao.findAll();
+
     }
 
     @Transactional(readOnly = true)

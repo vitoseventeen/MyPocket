@@ -1,13 +1,11 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 @Table(name = "accounts")
@@ -33,7 +31,15 @@ public class Account extends AbstractEntity {
     @JsonIgnore
     private Budget budget;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    @JsonIgnore
+    private User creator;
 
+    @JsonGetter("creator")
+    public String getCreatorUsername() {
+        return creator != null ? creator.getUsername() : null;
+    }
 
     @JsonGetter("members")
     public List<String> getMemberUsernames() {
@@ -44,9 +50,12 @@ public class Account extends AbstractEntity {
         return usernames;
     }
 
-
-
     public Account() {
+    }
+
+    public Account(String name, User creator) {
+        this.name = name;
+        this.creator = creator;
     }
 
     @Override
@@ -56,6 +65,7 @@ public class Account extends AbstractEntity {
                 ", transactions=" + transactions +
                 ", users=" + users +
                 ", budget=" + budget +
+                ", creator=" + (creator != null ? creator.getUsername() : "null") +
                 '}';
     }
 
@@ -89,5 +99,17 @@ public class Account extends AbstractEntity {
 
     public void setBudget(Budget budget) {
         this.budget = budget;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public boolean isCreatedBy(User user) {
+        return creator != null && creator.equals(user);
     }
 }
