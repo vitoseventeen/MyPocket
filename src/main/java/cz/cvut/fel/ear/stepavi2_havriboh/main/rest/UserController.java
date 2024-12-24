@@ -67,7 +67,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("(!#user.isAdmin() && anonymous) || hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(!#user.isAdmin() && anonymous) || hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createUser(@RequestBody User user) {
         logger.info("Creating user: {}", user.getUsername());
