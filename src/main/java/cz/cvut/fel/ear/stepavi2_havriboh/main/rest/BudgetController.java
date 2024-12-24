@@ -44,11 +44,14 @@ public class BudgetController {
         Budget budget = budgetService.getBudgetById(budgetId);
 
         boolean isMember = budget.getAccount().getUsers().contains(currentUser);
+        assert currentUser != null;
+        boolean isAdmin = currentUser.isAdmin();
 
-        if (!isMember) {
+        if (!isMember && !isAdmin) {
             throw new AccessDeniedException("User does not have permission to access or modify this budget");
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getBudgetById(@PathVariable("id") int id) {
