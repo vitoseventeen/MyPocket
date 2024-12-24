@@ -3,14 +3,20 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/rest/users")
@@ -24,6 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
         logger.info("Fetching all users");
@@ -35,10 +42,23 @@ public class UserController {
         }
     }
 
+    private void checkUserPerms(int userId) {
+        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
+
+        boolean isOwner = currentUser.getId().equals(userId);
+        boolean isAdmin = currentUser.isAdmin();
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("You do not have permission to access this resource.");
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") int id) {
         logger.info("Fetching user with ID: {}", id);
         try {
+            checkUserPerms(id);
             User user = userService.getUserById(id);
             return ResponseEntity.ok().body(user);
         } catch (UserNotFoundException e) {
@@ -47,6 +67,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("(!#user.isAdmin() && anonymous) || hasRole('ROLE_ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createUser(@RequestBody User user) {
         logger.info("Creating user: {}", user.getUsername());
@@ -59,10 +80,12 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable("id") int id, @RequestBody User user) {
         logger.info("Updating user with ID: {}", id);
         try {
+            checkUserPerms(id);
             User existingUser = userService.getUserById(id);
             existingUser.setUsername(user.getUsername());
             existingUser.setEmail(user.getEmail());
@@ -74,6 +97,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable("id") int id) {
         logger.info("Deleting user with ID: {}", id);
@@ -89,6 +113,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @PostMapping("/{id}/activate-subscription")
     public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id, @RequestParam(value = "months", defaultValue = "1") int months) {
         logger.info("Activating subscription for user with ID: {} for {} month(s)", id, months);
@@ -102,10 +127,12 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @PostMapping("/{id}/cancel-subscription")
     public ResponseEntity<Object> cancelSubscription(@PathVariable("id") int id) {
         logger.info("Cancelling subscription for user with ID: {}", id);
         try {
+            checkUserPerms(id);
             User user = userService.getUserById(id);
             userService.cancelSubscription(user);
             return ResponseEntity.ok().body("Subscription cancelled for user with ID: " + id);

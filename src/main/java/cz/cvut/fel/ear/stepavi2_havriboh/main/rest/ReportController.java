@@ -72,10 +72,18 @@ public class ReportController {
     }
 
     private void checkReportPerms(int reportId) {
-        if (!reportService.getReportById(reportId).getAccount().getUsers().contains(SecurityUtils.getCurrentUser())
-                || !Objects.requireNonNull(SecurityUtils.getCurrentUser()).getRole().equals(Role.ADMIN))
+        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
+
+        boolean isOwnerOrAdmin = reportService.getReportById(reportId)
+                .getAccount()
+                .getUsers()
+                .contains(currentUser) || currentUser.isAdmin();
+
+        if (!isOwnerOrAdmin) {
             throw new AccessDeniedException("Forbidden");
+        }
     }
+
 
     @PreAuthorize("hasAnyRole('ADMIN','PREMIUM')")
     @DeleteMapping("/{reportId}")

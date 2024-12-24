@@ -101,6 +101,9 @@ public class User extends AbstractEntity {
     public void setRole(Role role) {
         this.role = role;
     }
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
 
     public LocalDate getSubscriptionStartDate() {
         return subscriptionStartDate;
