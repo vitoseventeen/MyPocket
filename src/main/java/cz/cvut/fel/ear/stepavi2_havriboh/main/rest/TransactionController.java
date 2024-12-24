@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,14 +25,14 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }
 
-
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @PostMapping
     public ResponseEntity<Object> createTransaction(@RequestBody Transaction transaction) {
         try {
@@ -47,6 +48,7 @@ public class TransactionController {
         }
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getTransactionById(@PathVariable("id") int id) {
         logger.info("Fetching transaction with ID: {}", id);
@@ -60,6 +62,7 @@ public class TransactionController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTransaction(@PathVariable("id") int id) {
         try {
@@ -72,6 +75,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateTransaction(
             @PathVariable("id") int id,
