@@ -1,7 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 public enum Role {
-    USER("USER"), PREMIUM("PREMIUM"), ADMIN("ADMIN");
+    USER("ROLE_USER"), PREMIUM("ROLE_PREMIUM"), ADMIN("ROLE_ADMIN");
 
     private final String name;
 

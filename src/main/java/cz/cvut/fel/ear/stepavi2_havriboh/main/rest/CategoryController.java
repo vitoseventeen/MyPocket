@@ -44,7 +44,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<Object> createCategory(@RequestBody Category category) {
         try {
@@ -57,7 +57,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCategory(@PathVariable("id") int id, @RequestBody Category category) {
         try {
@@ -73,7 +73,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteCategory(@PathVariable("id") int id) {
         try {

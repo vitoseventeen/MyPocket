@@ -30,7 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
         logger.info("Fetching all users");
@@ -53,7 +53,6 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") int id) {
         logger.info("Fetching user with ID: {}", id);
@@ -67,7 +66,6 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("(!#user.isAdmin() && anonymous) || hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createUser(@RequestBody User user) {
         logger.info("Creating user: {}", user.getUsername());
@@ -80,7 +78,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable("id") int id, @RequestBody User user) {
         logger.info("Updating user with ID: {}", id);
@@ -97,7 +95,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable("id") int id) {
         logger.info("Deleting user with ID: {}", id);
@@ -113,7 +111,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping("/{id}/activate-subscription")
     public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id, @RequestParam(value = "months", defaultValue = "1") int months) {
         logger.info("Activating subscription for user with ID: {} for {} month(s)", id, months);
@@ -127,7 +125,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping("/{id}/cancel-subscription")
     public ResponseEntity<Object> cancelSubscription(@PathVariable("id") int id) {
         logger.info("Cancelling subscription for user with ID: {}", id);

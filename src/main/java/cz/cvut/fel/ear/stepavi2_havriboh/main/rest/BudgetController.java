@@ -31,7 +31,7 @@ public class BudgetController {
         this.budgetService = budgetService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllBudgets() {
         List<Budget> budgets = budgetService.getAllBudgets();
@@ -92,7 +92,7 @@ public class BudgetController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBudget(@PathVariable("id") int id) {
         try {

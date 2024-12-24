@@ -51,8 +51,8 @@ public class ReportService {
 
     @Transactional(readOnly = true)
     public List<Report> getAllReports() {
-        List<Report> reports = reportDao.findAll();
-        return reports;
+        return reportDao.findAll();
+
     }
 
     @Transactional(readOnly = true)

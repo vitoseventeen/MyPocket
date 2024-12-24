@@ -6,7 +6,6 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.SystemInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,23 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    private void checkAccountPermsForAll(int accountId) {
+        if (!accountService.getAccountById(accountId).getUsers().contains(SecurityUtils.getCurrentUser())) {
+            throw new SecurityException("User does not have permission to access this account");
+        }
+    }
+
+    private void checkAccountPermsForOwner(int accountId) {
+        if (!accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())
+            || !SecurityUtils.getCurrentUser().isAdmin()
+        ) {
+            throw new SecurityException("User does not have permission to access or modify this account");
+        }
+    }
+
+
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllAccounts() {
         List<Account> accounts = accountService.getAllAccounts();
@@ -39,6 +54,7 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
+            checkAccountPermsForAll(id);
             if (!accountService.getAccountById(id).getUsers().contains(SecurityUtils.getCurrentUser())) {
                 return ResponseEntity.status(403).body("Forbidden");
             }
@@ -51,7 +67,7 @@ public class AccountController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('USER','PREMIUM')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_PREMIUM','ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         try {
@@ -70,6 +86,7 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
+            checkAccountPermsForOwner(id);
             if (accountService.getAccountById(id).getCreator().equals(SecurityUtils.getCurrentUser())) {
                 accountService.deleteAccountById(id);
                 logger.info("Deleted account with id: {}", id);
@@ -85,12 +102,11 @@ public class AccountController {
     @PostMapping("/{accountId}/addUser/{userId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())) {
-                accountService.addUserToAccountById(userId, accountId);
-                logger.info("Added user {} to account {}", userId, accountId);
-                return ResponseEntity.ok("User added to account");
-            }
-            return ResponseEntity.status(403).body("Forbidden");
+            checkAccountPermsForOwner(accountId);
+            accountService.addUserToAccountById(userId, accountId);
+            logger.info("Added user {} to account {}", userId, accountId);
+            return ResponseEntity.ok("User added to account");
+
         } catch (AccountNotFoundException | UserNotFoundException | UserAlreadyInAccountException e) {
             logger.error("Error adding user to account: {}", e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
@@ -100,12 +116,10 @@ public class AccountController {
     @DeleteMapping("/{accountId}/removeUser/{userId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())) {
-                accountService.removeUserFromAccountById(userId, accountId);
-                logger.info("Removed user {} from account {}", userId, accountId);
-                return ResponseEntity.ok("User removed from account");
-            }
-            return ResponseEntity.status(403).body("Forbidden");
+            checkAccountPermsForOwner(accountId);
+            accountService.removeUserFromAccountById(userId, accountId);
+            logger.info("Removed user {} from account {}", userId, accountId);
+            return ResponseEntity.ok("User removed from account");
         } catch (AccountNotFoundException | UserNotFoundException e) {
             logger.error("Error removing user from account: {}", e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
