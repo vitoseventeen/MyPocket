@@ -1,6 +1,5 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
@@ -21,7 +20,7 @@ public class SystemInitializer {
     /**
      * Default admin username
      */
-    private static final String PREMIUM_USERNAME = "secret_premium_user";
+    private static final String ADMIN_USERNAME = "admin07";
 
     private final UserService userService;
 
@@ -40,23 +39,23 @@ public class SystemInitializer {
     private void initSystem() {
         TransactionTemplate txTemplate = new TransactionTemplate(txManager);
         txTemplate.execute((status) -> {
-            generatePremium();
+            generateAdmin();
             return null;
         });
     }
 
-    private void generatePremium() {
-        if (userService.exists(PREMIUM_USERNAME)) {
+    private void generateAdmin() {
+        if (userService.exists(ADMIN_USERNAME)) {
             return;
         }
-        final User premium = new User();
-        premium.setUsername(PREMIUM_USERNAME);
-        premium.setEmail("premium@user.com");
-        premium.setPassword("premium");
-        premium.setRole(Role.PREMIUM);
-        premium.setSubscriptionStartDate(LocalDate.now());
-        premium.setSubscriptionEndDate(LocalDate.now().plusYears(1));
-        LOG.info("Generated premium user with credentials " + premium.getUsername() + "/" + premium.getPassword());
-        userDao.persist(premium);
+        final User admin = new User();
+        admin.setUsername(ADMIN_USERNAME);
+        admin.setEmail("admin@gmail.com");
+        admin.setPassword("admin123");
+        admin.setRole(Role.ADMIN);
+        admin.setSubscriptionStartDate(LocalDate.now());
+        admin.setSubscriptionEndDate(LocalDate.now().plusYears(15));
+        LOG.info("Generated admin user with credentials " + admin.getUsername() + "/" + admin.getPassword());
+        userDao.persist(admin);
     }
 }

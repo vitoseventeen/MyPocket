@@ -23,12 +23,9 @@ public class AccountController {
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     private final AccountService accountService;
-    private final SystemInitializer systemInitializer;
-
     @Autowired
-    public AccountController(AccountService accountService, SystemInitializer systemInitializer) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.systemInitializer = systemInitializer;
     }
 
     @GetMapping
@@ -41,6 +38,9 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
+            if (!accountService.getAccountById(id).getUsers().contains(SecurityUtils.getCurrentUser())) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             Account account = accountService.getAccountById(id);
             logger.info("Fetched account with id: {}", id);
             return ResponseEntity.ok(account);
@@ -50,6 +50,7 @@ public class AccountController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('USER','PREMIUM')")
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         try {
@@ -68,7 +69,7 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
-            if (accountService.getAccountById(id).getCreator() == SecurityUtils.getCurrentUser()) {
+            if (accountService.getAccountById(id).getCreator().equals(SecurityUtils.getCurrentUser())) {
                 accountService.deleteAccountById(id);
                 logger.info("Deleted account with id: {}", id);
                 return ResponseEntity.ok("Account deleted");
@@ -83,7 +84,7 @@ public class AccountController {
     @PostMapping("/{accountId}/addUser/{userId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (accountService.getAccountById(accountId).getCreator() == SecurityUtils.getCurrentUser()) {
+            if (accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())) {
                 accountService.addUserToAccountById(userId, accountId);
                 logger.info("Added user {} to account {}", userId, accountId);
                 return ResponseEntity.ok("User added to account");
@@ -98,7 +99,7 @@ public class AccountController {
     @DeleteMapping("/{accountId}/removeUser/{userId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (accountService.getAccountById(accountId).getCreator() == SecurityUtils.getCurrentUser()) {
+            if (accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())) {
                 accountService.removeUserFromAccountById(userId, accountId);
                 logger.info("Removed user {} from account {}", userId, accountId);
                 return ResponseEntity.ok("User removed from account");
