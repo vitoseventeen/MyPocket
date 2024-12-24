@@ -28,6 +28,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllAccounts() {
         List<Account> accounts = accountService.getAllAccounts();
