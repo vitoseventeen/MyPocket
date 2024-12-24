@@ -2,7 +2,10 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.TransactionIntervalType;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.TransactionType;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -45,6 +50,27 @@ public class TransactionController {
         } catch (Exception e) {
             logger.error("Error creating transaction: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error creating transaction: " + e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'PREMIUM')")
+    @PostMapping("/recurring")
+    public ResponseEntity<Object> createRecurringTransaction(@RequestParam BigDecimal amount,
+                                                             @RequestParam Currency currency,
+                                                             @RequestParam LocalDate date,
+                                                             @RequestParam String description,
+                                                             @RequestParam TransactionType type,
+                                                             @RequestParam int accountId,
+                                                             @RequestParam int categoryId,
+                                                             @RequestParam int interval,
+                                                             @RequestParam TransactionIntervalType intervalUnit) {
+        try {
+            transactionService.createRecurringTransaction(amount, currency, date, description, type, accountId, categoryId, interval, intervalUnit);
+            logger.info("Created recurring transaction for account id: {}", accountId);
+            return ResponseEntity.status(201).body("Recurring transactions created");
+        } catch (Exception e) {
+            logger.error("Error creating recurring transaction: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Error creating recurring transaction: " + e.getMessage());
         }
     }
 

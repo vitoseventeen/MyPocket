@@ -33,16 +33,16 @@ public class TransactionService {
         this.accountDao = accountDao;
     }
 
-    @Transactional
     protected boolean isValidData(BigDecimal amount, LocalDate date, String description, TransactionType type, int accountId, int categoryId) {
+        Account account = accountDao.find(accountId);
+        if (account == null) {
+            throw new AccountNotFoundException("Account not found with ID: " + accountId);
+        }
         if (categoryDao.find(categoryId) == null) {
             throw new CategoryNotFoundException("Category not found with ID: " + categoryId);
         }
         if (type == null) {
             throw new InvalidTransactionTypeException("Transaction type cannot be null");
-        }
-        if (accountDao.find(accountId) == null) {
-            throw new AccountNotFoundException("Account not found with ID: " + accountId);
         }
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new NegativeAmountException("Amount must be a positive number");
@@ -53,7 +53,7 @@ public class TransactionService {
         if (description == null || description.isEmpty()) {
             throw new EmptyDescriptionException("Description cannot be null or empty");
         }
-        if (accountDao.find(accountId).getBudget() == null) {
+        if (account.getBudget() == null) {
             throw new BudgetNotFoundException("Budget not found for account with ID: " + accountId);
         }
         return true;
@@ -106,13 +106,16 @@ public class TransactionService {
             throw new TransactionNotFoundException("Transaction not found with ID: " + transactionId);
         }
 
-        if (!isValidData(amount, date, description, type, accountId, categoryId)) {
-            throw new InvalidDataException("Invalid data");
-        }
-
         Category category = categoryDao.find(categoryId);
         Account account = accountDao.find(accountId);
         Budget budget = account.getBudget();
+
+        if (!isValidData(amount, date, description, type, accountId, categoryId)) {
+            throw new InvalidDataException("Invalid data");
+        }
+        if (!budget.getCurrency().equals(currency)) {
+            amount = CurrencyConverter.convert(amount, currency.toString(), budget.getCurrency().toString());
+        }
 
         if (transaction.getType() == TransactionType.INCOME) {
             budget.addBalance(transaction.getAmount().negate());
@@ -160,7 +163,7 @@ public class TransactionService {
 
         LocalDate nextDate = calculateNextDate(date, interval, intervalUnit);
 
-        for (int i = 1; i < interval; i++) {
+        for (int i = 0; i < interval; i++) {
             createTransaction(amount, currency, nextDate, description, type, accountId, categoryId);
             nextDate = calculateNextDate(nextDate, 1, intervalUnit);
         }
