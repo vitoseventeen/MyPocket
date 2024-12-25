@@ -43,6 +43,8 @@ public class User extends AbstractEntity {
 
     public User() {
     }
+
+    @JsonIgnore
     @Transient
     public boolean isSubscribed() {
         return subscriptionEndDate != null && subscriptionEndDate.isAfter(LocalDate.now());
@@ -101,6 +103,8 @@ public class User extends AbstractEntity {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    @JsonIgnore
     public boolean isAdmin() {
         return role == Role.ADMIN;
     }

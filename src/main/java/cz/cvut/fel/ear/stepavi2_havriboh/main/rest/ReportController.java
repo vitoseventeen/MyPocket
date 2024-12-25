@@ -1,10 +1,13 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,11 +18,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+
 @RestController
 @RequestMapping("/rest/reports")
 public class ReportController {
 
     private final ReportService reportService;
+    private static final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     @Autowired
     public ReportController(ReportService reportService) {
@@ -27,7 +32,7 @@ public class ReportController {
     }
 
     // Only PREMIUM users can create reports
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
     @PostMapping
     public ResponseEntity<Object> createReport(
             @RequestParam int accountId,
@@ -36,7 +41,7 @@ public class ReportController {
         try {
             reportService.createReport(accountId, fromDate, toDate);
             return ResponseEntity.status(201).body("Report created successfully.");
-        } catch (AccountNotFoundException | NotPremiumUserException | InvalidDateException e) {
+        } catch (AccountNotFoundException | InvalidDateException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while creating the report.");
@@ -44,10 +49,9 @@ public class ReportController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getReportById(@PathVariable int id) {
+    public ResponseEntity<Object> getReportById(@PathVariable("id") int id) {
         try {
             Report report = reportService.getReportById(id);
-            checkReportPerms(id);
             return ResponseEntity.ok(report);
         } catch (ReportNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
@@ -56,36 +60,18 @@ public class ReportController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Object> getAllReports() {
-        try {
-            List<Report> reports = reportService.getAllReports();
-            return ResponseEntity.ok(reports);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while retrieving all reports.");
-        }
+        List<Report> reports = reportService.getAllReports();
+        logger.info("Fetched {} reports", reports.size());
+        return ResponseEntity.ok(reports);
     }
 
-    private void checkReportPerms(int id) {
-        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
-
-        boolean isOwnerOrAdmin = reportService.getReportById(id)
-                .getAccount()
-                .getUsers()
-                .contains(currentUser) || currentUser.isAdmin();
-
-        if (!isOwnerOrAdmin) {
-            throw new AccessDeniedException("Forbidden");
-        }
-    }
-
-
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
+    //    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteReportById(@PathVariable int id) {
         try {
-            checkReportPerms(id);
             reportService.deleteReportById(id);
             return ResponseEntity.ok("Report deleted successfully.");
         } catch (ReportNotFoundException e) {
@@ -95,14 +81,13 @@ public class ReportController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_PREMIUM','ROLE_ADMIN')")
+//    @PreAuthorize("hasAnyRole('ROLE_PREMIUM','ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateReportDateById(
             @PathVariable int id,
             @RequestParam LocalDate fromDate,
             @RequestParam LocalDate toDate) {
         try {
-            checkReportPerms(id);
             reportService.updateReportDateById(id, fromDate, toDate);
             return ResponseEntity.ok("Report dates updated successfully.");
         } catch (ReportNotFoundException | InvalidDateException e) {

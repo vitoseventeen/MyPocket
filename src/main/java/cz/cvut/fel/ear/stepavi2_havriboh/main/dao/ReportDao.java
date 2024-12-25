@@ -12,4 +12,8 @@ public class ReportDao extends BaseDao<Report> {
         super(Report.class);
     }
 
+    public List<Report> findAll() {
+        return em.createQuery("SELECT r FROM Report r", Report.class).getResultList();
+    }
+
 }

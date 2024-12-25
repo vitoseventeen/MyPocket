@@ -1,13 +1,16 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "reports")
@@ -20,8 +23,16 @@ public class Report extends AbstractEntity {
     @Column(name = "to_date", nullable = false)
     private LocalDate toDate;
 
-    @ManyToMany(mappedBy = "reports")
-    private List<Transaction> transactions;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @JsonProperty("account_id")
+    public Integer getAccountId() {
+        return account != null ? account.getId() : null;
+    }
+
 
 
     @Transient
@@ -30,12 +41,13 @@ public class Report extends AbstractEntity {
     @Transient
     private Map<String, BigDecimal> spendingByCategory;
 
+
     @Override
     public String toString() {
         return "Report{" +
                 "fromDate=" + fromDate +
                 ", toDate=" + toDate +
-                ", transactions=" + transactions +
+                ", account=" + account +
                 ", incomeByCategory=" + incomeByCategory +
                 ", spendingByCategory=" + spendingByCategory +
                 '}';
@@ -57,14 +69,6 @@ public class Report extends AbstractEntity {
         this.toDate = toDate;
     }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-
     public Map<String, BigDecimal> getIncomeByCategory() {
         return incomeByCategory;
     }
@@ -82,11 +86,11 @@ public class Report extends AbstractEntity {
     }
 
     public Account getAccount() {
-        return transactions.get(0).getAccount();
+        return account;
     }
 
     public void setAccount(Account account) {
-        transactions.forEach(t -> t.setAccount(account));
+        this.account = account;
     }
-
 }
+
