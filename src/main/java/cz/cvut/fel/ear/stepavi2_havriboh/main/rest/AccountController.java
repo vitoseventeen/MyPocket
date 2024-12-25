@@ -27,21 +27,6 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    private void checkAccountPermsForAll(int accountId) {
-        if (!accountService.getAccountById(accountId).getUsers().contains(SecurityUtils.getCurrentUser())) {
-            throw new SecurityException("User does not have permission to access this account");
-        }
-    }
-
-    private void checkAccountPermsForOwner(int accountId) {
-        if (!accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())
-            || !SecurityUtils.getCurrentUser().isAdmin()
-        ) {
-            throw new SecurityException("User does not have permission to access or modify this account");
-        }
-    }
-
-
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -54,10 +39,6 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
-            checkAccountPermsForAll(id);
-            if (!accountService.getAccountById(id).getUsers().contains(SecurityUtils.getCurrentUser())) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
             Account account = accountService.getAccountById(id);
             logger.info("Fetched account with id: {}", id);
             return ResponseEntity.ok(account);
@@ -86,7 +67,6 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
-            checkAccountPermsForOwner(id);
             if (accountService.getAccountById(id).getCreator().equals(SecurityUtils.getCurrentUser())) {
                 accountService.deleteAccountById(id);
                 logger.info("Deleted account with id: {}", id);
@@ -99,10 +79,9 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/{accountId}/addUser/{userId}")
+    @PostMapping("/addUser/{accountId}/to/{userId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            checkAccountPermsForOwner(accountId);
             accountService.addUserToAccountById(userId, accountId);
             logger.info("Added user {} to account {}", userId, accountId);
             return ResponseEntity.ok("User added to account");
@@ -113,10 +92,9 @@ public class AccountController {
         }
     }
 
-    @DeleteMapping("/{accountId}/removeUser/{userId}")
+    @DeleteMapping("/removeUser/{accountId}/from/{userId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            checkAccountPermsForOwner(accountId);
             accountService.removeUserFromAccountById(userId, accountId);
             logger.info("Removed user {} from account {}", userId, accountId);
             return ResponseEntity.ok("User removed from account");
