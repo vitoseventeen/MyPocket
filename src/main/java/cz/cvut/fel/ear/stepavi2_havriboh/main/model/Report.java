@@ -8,8 +8,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -34,24 +33,58 @@ public class Report extends AbstractEntity {
     }
 
 
-
-    @Transient
-    private Map<String, BigDecimal> incomeByCategory;
-
-    @Transient
-    private Map<String, BigDecimal> spendingByCategory;
-
-
     @Override
     public String toString() {
         return "Report{" +
                 "fromDate=" + fromDate +
                 ", toDate=" + toDate +
                 ", account=" + account +
-                ", incomeByCategory=" + incomeByCategory +
-                ", spendingByCategory=" + spendingByCategory +
                 '}';
     }
+
+    @JsonProperty("expenses")
+    public Map<String, String> getExpensesByCategories() {
+        if (account == null) {
+            return Map.of();
+        }
+        String currency = account.getBudget() != null ? String.valueOf(account.getBudget().getCurrency()) : "USD";
+        return account.getTransactions().stream()
+                .filter(t -> t.getType() == TransactionType.EXPENSE &&
+                        !t.getDate().isBefore(fromDate) &&
+                        !t.getDate().isAfter(toDate))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory() != null ? t.getCategory().getName() : "Uncategorized",
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                ))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue() + " " + currency
+                ));
+    }
+
+    @JsonProperty("incomes")
+    public Map<String, String> getIncomesByCategories() {
+        if (account == null) {
+            return Map.of();
+        }
+        String currency = account.getBudget() != null ? String.valueOf(account.getBudget().getCurrency()) : "USD";
+        return account.getTransactions().stream()
+                .filter(t -> t.getType() == TransactionType.INCOME &&
+                        !t.getDate().isBefore(fromDate) &&
+                        !t.getDate().isAfter(toDate))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory() != null ? t.getCategory().getName() : "Uncategorized",
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                ))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue() + " " + currency
+                ));
+    }
+
+
 
     public LocalDate getFromDate() {
         return fromDate;
@@ -69,22 +102,6 @@ public class Report extends AbstractEntity {
         this.toDate = toDate;
     }
 
-    public Map<String, BigDecimal> getIncomeByCategory() {
-        return incomeByCategory;
-    }
-
-    public void setIncomeByCategory(Map<String, BigDecimal> incomeByCategory) {
-        this.incomeByCategory = incomeByCategory;
-    }
-
-    public Map<String, BigDecimal> getSpendingByCategory() {
-        return spendingByCategory;
-    }
-
-    public void setSpendingByCategory(Map<String, BigDecimal> spendingByCategory) {
-        this.spendingByCategory = spendingByCategory;
-    }
-
     public Account getAccount() {
         return account;
     }
@@ -92,5 +109,5 @@ public class Report extends AbstractEntity {
     public void setAccount(Account account) {
         this.account = account;
     }
-}
 
+}
