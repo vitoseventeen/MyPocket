@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -27,13 +28,13 @@ public class Account extends AbstractEntity {
     )
     private List<User> users = new ArrayList<>();
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonIgnore
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonProperty("budget")
     private Budget budget;
+
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
-    @JsonIgnore
     private User creator;
 
     @JsonGetter("creator")
@@ -51,11 +52,6 @@ public class Account extends AbstractEntity {
     }
 
     public Account() {
-    }
-
-    public Account(String name, User creator) {
-        this.name = name;
-        this.creator = creator;
     }
 
     @Override

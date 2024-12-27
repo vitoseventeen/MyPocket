@@ -1,9 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
@@ -16,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -42,22 +41,22 @@ public class UserController {
         }
     }
 
-    private void checkUserPerms(int userId) {
+    private boolean checkUserPerms(int userId) {
         User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
 
         boolean isOwner = currentUser.getId().equals(userId);
         boolean isAdmin = currentUser.isAdmin();
 
-        if (!isOwner && !isAdmin) {
-            throw new AccessDeniedException("You do not have permission to access this resource.");
-        }
+        return !isOwner && !isAdmin;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") int id) {
         logger.info("Fetching user with ID: {}", id);
         try {
-            checkUserPerms(id);
+            if (checkUserPerms(id)) {
+                throw new AccessDeniedException("Access denied");
+            }
             User user = userService.getUserById(id);
             return ResponseEntity.ok().body(user);
         } catch (UserNotFoundException e) {
@@ -83,17 +82,21 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@PathVariable("id") int id, @RequestBody User user) {
         logger.info("Updating user with ID: {}", id);
         try {
-            checkUserPerms(id);
+            if (checkUserPerms(id)) {
+                throw new AccessDeniedException("Access denied");
+            }
             User existingUser = userService.getUserById(id);
-            existingUser.setUsername(user.getUsername());
-            existingUser.setEmail(user.getEmail());
-            userService.updateUser(existingUser);
+            userService.updateUser(existingUser, user);
             return ResponseEntity.ok("User with ID " + id + " updated successfully");
         } catch (UserNotFoundException e) {
             logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
+        } catch (Exception e) {
+            logger.error("Error updating user with ID: {}: {}", id, e.getMessage());
+            return ResponseEntity.status(400).body("Error updating user: " + e.getMessage());
         }
     }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
@@ -113,7 +116,8 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping("/{id}/activate-subscription")
-    public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id, @RequestParam(value = "months", defaultValue = "1") int months) {
+    public ResponseEntity<Object> activateSubscription(@PathVariable("id") int id, @RequestBody Map<String, Integer> requestBody) {
+        int months = requestBody.getOrDefault("months", 1);
         logger.info("Activating subscription for user with ID: {} for {} month(s)", id, months);
         try {
             User user = userService.getUserById(id);
@@ -130,7 +134,9 @@ public class UserController {
     public ResponseEntity<Object> cancelSubscription(@PathVariable("id") int id) {
         logger.info("Cancelling subscription for user with ID: {}", id);
         try {
-            checkUserPerms(id);
+            if (checkUserPerms(id)) {
+                throw new AccessDeniedException("Access denied");
+            }
             User user = userService.getUserById(id);
             userService.cancelSubscription(user);
             return ResponseEntity.ok().body("Subscription cancelled for user with ID: " + id);

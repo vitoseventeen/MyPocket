@@ -4,7 +4,6 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UsernameAlreadyTakenException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
@@ -59,7 +58,7 @@ public class UserServiceTest {
     void updatePasswordSuccessfullyUpdatesPassword() {
         String newPassword = "newPassword123";
 
-        userService.updatePassword(testUser.getId(), newPassword);
+        userService.updatePasswordById(testUser.getId(), newPassword);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
 

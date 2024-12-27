@@ -48,10 +48,6 @@ public class UserService {
         return userDao.findByUsername(username).isPresent();
     }
 
-    @Transactional(readOnly = true)
-    public User getUserByUsername(String username) {
-        return userDao.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
-    }
 
     @Transactional(readOnly = true)
     public User getUserById(int id) {
@@ -62,32 +58,6 @@ public class UserService {
     public void deleteUserById(int userId) {
         User user = getUserById(userId);
         userDao.remove(user);
-    }
-
-    @Transactional
-    public void deleteUserByUsername(String username) {
-        User user = getUserByUsername(username);
-        userDao.remove(user);
-    }
-
-    @Transactional
-    public void updateUsernameById(int userId, String newUsername) {
-        User user = getUserById(userId);
-        if (userDao.findByUsername(newUsername).isPresent()) {
-            throw new UsernameAlreadyTakenException("This username is already taken.");
-        }
-        user.setUsername(newUsername);
-        userDao.update(user);
-    }
-
-    @Transactional
-    public void updateEmailById(int userId, String newEmail) {
-        User user = getUserById(userId);
-        if (userDao.findByEmail(newEmail).isPresent()) {
-            throw new EmailAlreadyTakenException("This email is already taken.");
-        }
-        user.setEmail(newEmail);
-        userDao.update(user);
     }
 
     @Transactional
@@ -109,7 +79,6 @@ public class UserService {
         userDao.update(user);
     }
 
-
     @Transactional
     public void cancelSubscription(User user) {
         if (!user.isSubscribed()) {
@@ -120,19 +89,29 @@ public class UserService {
         userDao.update(user);
     }
 
-    @Transactional(readOnly = true)
-    public boolean isSubscribed(User user) {
-        return user.isSubscribed() && !user.getSubscriptionEndDate().isBefore(LocalDate.now());
+    @Transactional
+    public void updateUser(User existingUser, User newUser) {
+        if (newUser.getUsername() != null && !newUser.getUsername().equals(existingUser.getUsername())) {
+            if (userDao.findByUsername(newUser.getUsername()).isPresent()) {
+                throw new UsernameAlreadyTakenException("This username is already taken.");
+            }
+            existingUser.setUsername(newUser.getUsername());
+        }
+        if (newUser.getEmail() != null && !newUser.getEmail().equals(existingUser.getEmail())) {
+            if (userDao.findByEmail(newUser.getEmail()).isPresent()) {
+                throw new EmailAlreadyTakenException("This email is already taken.");
+            }
+            existingUser.setEmail(newUser.getEmail());
+        }
+
+        if (newUser.getPassword() != null && !newUser.getPassword().equals(existingUser.getPassword())) {
+            existingUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        }
+
+        userDao.update(existingUser);
     }
 
-    // Method to update the password
-    // pridat kontrolu autorizace
-    @Transactional
-    public void updatePassword(int userId, String newPassword) {
-        User user = getUserById(userId);
-        user.setPassword(passwordEncoder.encode(newPassword)); // Encode new password
-        userDao.update(user);
-    }
+
 
     // pridat kontrolu
     @Transactional(readOnly = true)
