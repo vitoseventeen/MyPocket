@@ -20,9 +20,10 @@ public class Transaction extends AbstractEntity {
     private BigDecimal amount;
 
     @JsonProperty("currency")
-    public String getBudgetCurrency() {
+    public String getCurrency() {
         return budget != null ? budget.getCurrency().toString() : null;
     }
+
 
     @Column(name = "date", nullable = false)
     private LocalDate date;

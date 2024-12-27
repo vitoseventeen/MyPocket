@@ -68,10 +68,16 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         try {
-            accountService.createAccountWithBudget(account.getName(), account.getBudget().getBalance(), account.getBudget().getCurrency().toString());
+            accountService.createAccountWithBudget(
+                    account.getName(),
+                    account.getBudget().getBalance(),
+                    account.getBudget().getCurrency().toString()
+            );
             logger.info("Created account with name: {}", account.getName());
             return ResponseEntity.status(201).body("Account created");
-
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid currency provided: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Invalid currency: " + e.getMessage());
         } catch (Exception e) {
             logger.error("Error creating account: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error creating account");
@@ -95,7 +101,7 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/addUser/{accountId}/to/{userId}")
+    @PostMapping("/addUser/{userId}/to/{accountId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
             if (isOwnerOrAdmin(accountId)) {
@@ -111,7 +117,7 @@ public class AccountController {
         }
     }
 
-    @DeleteMapping("/removeUser/{accountId}/from/{userId}")
+    @DeleteMapping("/removeUser/{userId}/from/{accountId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
             if (isOwnerOrAdmin(accountId)) {

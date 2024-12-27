@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
@@ -14,20 +15,19 @@ import java.util.List;
 public class Budget extends AbstractEntity {
 
     @Column(name = "balance", nullable = false, precision = 15, scale = 2)
+    @JsonProperty("balance")
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
+    @JsonProperty("currency")
     private Currency currency;
 
     @OneToOne
-    @JsonIgnore
+    @JsonBackReference
     private Account account;
 
-    @JsonProperty("account_id")
-    public Integer getAccountId() {
-        return account != null ? account.getId() : null;
-    }
+
 
     @OneToMany (mappedBy = "budget")
     @JsonIgnore

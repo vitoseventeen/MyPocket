@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -72,14 +73,17 @@ public class BudgetController {
             return ResponseEntity.status(404).body("Budget not found");
         }
     }
-
     @PutMapping("/{id}/increase")
-    public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
+    public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody Map<String, Object> request) {
         try {
+            BigDecimal amount = new BigDecimal(request.get("amount").toString());
+            String currency = (String) request.get("currency");
+
             if (checkIsMemberOrAdmin(id)) {
                 throw new AccessDeniedException("You do not have permission to access this resource.");
             }
-            budgetService.increaseBudget(id, BigDecimal.valueOf(amount), currency);
+
+            budgetService.increaseBudget(id, amount, currency);
             logger.info("Increased budget with id: {}", id);
             return ResponseEntity.ok("Budget increased");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
@@ -89,33 +93,21 @@ public class BudgetController {
     }
 
     @PutMapping("/{id}/decrease")
-    public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
+    public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody Map<String, Object> request) {
         try {
+            BigDecimal amount = new BigDecimal(request.get("amount").toString());
+            String currency = (String) request.get("currency");
+
             if (checkIsMemberOrAdmin(id)) {
                 throw new AccessDeniedException("You do not have permission to access this resource.");
             }
-            budgetService.decreaseBudget(id, BigDecimal.valueOf(amount), currency);
+
+            budgetService.decreaseBudget(id, amount, currency);
             logger.info("Decreased budget with id: {}", id);
             return ResponseEntity.ok("Budget decreased");
         } catch (BudgetNotFoundException | NegativeAmountException e) {
             logger.error("Error decreasing budget: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error decreasing budget: " + e.getMessage());
-        }
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteBudget(@PathVariable("id") int id) {
-        try {
-            if (checkIsOwnerOrAdmin(id)) {
-                throw new AccessDeniedException("You do not have permission to access this resource.");
-            }
-            budgetService.deleteBudgetById(id);
-            logger.info("Deleted budget with id: {}", id);
-            return ResponseEntity.ok("Budget deleted");
-        } catch (BudgetNotFoundException e) {
-            logger.error("Budget not found with id: {}", id);
-            return ResponseEntity.status(404).body("Budget not found");
         }
     }
 }

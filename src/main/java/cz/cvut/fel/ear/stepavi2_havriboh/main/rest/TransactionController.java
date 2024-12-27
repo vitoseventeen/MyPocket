@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -39,13 +40,20 @@ public class TransactionController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping
-    public ResponseEntity<Object> createTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<Object> createTransaction(
+            @RequestBody Map<String, Object> request) {
         try {
-            transactionService.createTransaction(
-                    transaction.getAmount(), transaction.getBudget().getCurrency(), transaction.getDate(),
-                    transaction.getDescription(),transaction.getType(),transaction.getAccount().getId(),
-                    transaction.getCategory().getId());
-            logger.info("Created transaction for account id: {}", transaction.getAccount().getId());
+            BigDecimal amount = new BigDecimal(request.get("amount").toString());
+            String currencyStr = (String) request.get("currency");
+            Currency currency = Currency.valueOf(currencyStr);
+            LocalDate date = LocalDate.parse(request.get("date").toString());
+            String description = (String) request.get("description");
+            TransactionType type = TransactionType.valueOf((String) request.get("type"));
+            int accountId = Integer.parseInt(request.get("accountId").toString());
+            int categoryId = Integer.parseInt(request.get("categoryId").toString());
+
+            transactionService.createTransaction(amount, currency, date, description, type, accountId, categoryId);
+            logger.info("Created transaction for account id: {}", accountId);
             return ResponseEntity.status(201).body("Transaction created");
         } catch (Exception e) {
             logger.error("Error creating transaction: {}", e.getMessage());
@@ -53,19 +61,23 @@ public class TransactionController {
         }
     }
 
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER', 'ROLE_PREMIUM')")
     @PostMapping("/recurring")
-    public ResponseEntity<Object> createRecurringTransaction(@RequestParam BigDecimal amount,
-                                                             @RequestParam Currency currency,
-                                                             @RequestParam LocalDate date,
-                                                             @RequestParam String description,
-                                                             @RequestParam TransactionType type,
-                                                             @RequestParam int accountId,
-                                                             @RequestParam int categoryId,
-                                                             @RequestParam int interval,
-                                                             @RequestParam TransactionIntervalType intervalUnit) {
+    public ResponseEntity<Object> createRecurringTransaction(@RequestBody Map<String, Object> rawParams) {
         try {
+            BigDecimal amount = new BigDecimal((String) rawParams.get("amount"));
+            Currency currency = Currency.valueOf((String) rawParams.get("currency"));
+            LocalDate date = LocalDate.parse((String) rawParams.get("date"));
+            String description = (String) rawParams.get("description");
+            TransactionType type = TransactionType.valueOf((String) rawParams.get("type"));
+            int accountId = Integer.parseInt((String) rawParams.get("accountId"));
+            int categoryId = Integer.parseInt((String) rawParams.get("categoryId"));
+            int interval = Integer.parseInt((String) rawParams.get("interval"));
+            TransactionIntervalType intervalUnit = TransactionIntervalType.valueOf((String) rawParams.get("intervalUnit"));
+
             transactionService.createRecurringTransaction(amount, currency, date, description, type, accountId, categoryId, interval, intervalUnit);
+
             logger.info("Created recurring transaction for account id: {}", accountId);
             return ResponseEntity.status(201).body("Recurring transactions created");
         } catch (Exception e) {
@@ -73,6 +85,7 @@ public class TransactionController {
             return ResponseEntity.status(400).body("Error creating recurring transaction: " + e.getMessage());
         }
     }
+
 
 
     private boolean checkTransactionPerms(int id) {
@@ -116,19 +129,31 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateTransaction(
-            @PathVariable("id") int id,
-            @RequestBody Transaction transaction) {
+    @PostMapping
+    public ResponseEntity<Object> updateTransaction( @PathVariable("id") int id,
+            @RequestBody Map<String, Object> request) {
         try {
-            if (!checkTransactionPerms(id)) {
-                throw new AccessDeniedException("You do not have permission to access this resource.");
-            }
+            checkTransactionPerms(id);
+            BigDecimal amount = new BigDecimal(request.get("amount").toString());
+            String currencyStr = (String) request.get("currency");
+            Currency currency = Currency.valueOf(currencyStr);
+            LocalDate date = LocalDate.parse(request.get("date").toString());
+            String description = (String) request.get("description");
+            TransactionType type = TransactionType.valueOf((String) request.get("type"));
+            int accountId = Integer.parseInt(request.get("accountId").toString());
+            int categoryId = Integer.parseInt(request.get("categoryId").toString());
+
             transactionService.updateTransaction(
                     id,
-                    transaction.getAmount(), transaction.getBudget().getCurrency(), transaction.getDate(),
-                    transaction.getDescription(),transaction.getType(),transaction.getAccount().getId(),
-                    transaction.getCategory().getId()
+                    amount,
+                    currency,
+                    date,
+                    description,
+                    type,
+                    accountId,
+                    categoryId
             );
+
             logger.info("Updated transaction with id: {}", id);
             return ResponseEntity.ok("Transaction updated");
         } catch (TransactionNotFoundException e) {
@@ -139,5 +164,7 @@ public class TransactionController {
             return ResponseEntity.status(400).body("Error updating transaction: " + e.getMessage());
         }
     }
+
+
 
 }
