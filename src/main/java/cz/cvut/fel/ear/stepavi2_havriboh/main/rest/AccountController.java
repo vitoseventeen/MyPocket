@@ -27,6 +27,19 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    private boolean isOwnerOrAdmin(int accountId) {
+        Account account = accountService.getAccountById(accountId);
+        boolean isOwner = account.getCreator().equals(SecurityUtils.getCurrentUser());
+        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
+        return !isOwner && !isAdmin;
+    }
+
+    private boolean isMemberOrAdmin(int accountId) {
+        Account account = accountService.getAccountById(accountId);
+        boolean isMember = account.getUsers().contains(SecurityUtils.getCurrentUser());
+        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
+        return !isMember && !isAdmin;
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -39,6 +52,9 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
+            if (isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             Account account = accountService.getAccountById(id);
             logger.info("Fetched account with id: {}", id);
             return ResponseEntity.ok(account);
@@ -67,12 +83,12 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
-            if (accountService.getAccountById(id).getCreator().equals(SecurityUtils.getCurrentUser())) {
-                accountService.deleteAccountById(id);
-                logger.info("Deleted account with id: {}", id);
-                return ResponseEntity.ok("Account deleted");
+            if (isOwnerOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Forbidden");
             }
-            return ResponseEntity.status(403).body("Forbidden");
+            accountService.deleteAccountById(id);
+            logger.info("Deleted account with id: {}", id);
+            return ResponseEntity.ok("Account deleted");
         } catch (AccountNotFoundException e) {
             logger.error("Account not found with id: {}", id);
             return ResponseEntity.status(404).body("Account not found");
@@ -82,6 +98,9 @@ public class AccountController {
     @PostMapping("/addUser/{accountId}/to/{userId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
+            if (isOwnerOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             accountService.addUserToAccountById(userId, accountId);
             logger.info("Added user {} to account {}", userId, accountId);
             return ResponseEntity.ok("User added to account");
@@ -95,6 +114,9 @@ public class AccountController {
     @DeleteMapping("/removeUser/{accountId}/from/{userId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
+            if (isOwnerOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             accountService.removeUserFromAccountById(userId, accountId);
             logger.info("Removed user {} from account {}", userId, accountId);
             return ResponseEntity.ok("User removed from account");

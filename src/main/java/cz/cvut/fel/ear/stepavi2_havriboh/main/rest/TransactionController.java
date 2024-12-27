@@ -75,17 +75,13 @@ public class TransactionController {
     }
 
 
-    private void checkTransactionPerms(int id) {
+    private boolean checkTransactionPerms(int id) {
         User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
 
-        boolean isOwnerOrAdmin = transactionService.getTransactionById(id)
+        return transactionService.getTransactionById(id)
                 .getAccount()
                 .getUsers()
                 .contains(currentUser) || currentUser.isAdmin();
-
-        if (!isOwnerOrAdmin) {
-            throw new AccessDeniedException("Forbidden");
-        }
     }
 
 
@@ -93,7 +89,9 @@ public class TransactionController {
     public ResponseEntity<Object> getTransactionById(@PathVariable("id") int id) {
         logger.info("Fetching transaction with ID: {}", id);
         try {
-            checkTransactionPerms(id);
+            if (!checkTransactionPerms(id)) {
+                throw new AccessDeniedException("You do not have permission to access this resource.");
+            }
             Transaction transaction = transactionService.getTransactionById(id);
             return ResponseEntity.ok().body(transaction);
         } catch (TransactionNotFoundException e) {
@@ -107,6 +105,7 @@ public class TransactionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTransaction(@PathVariable("id") int id) {
         try {
+
             transactionService.deleteTransactionById(id);
             logger.info("Deleted transaction with id: {}", id);
             return ResponseEntity.ok("Transaction deleted");
@@ -116,12 +115,14 @@ public class TransactionController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateTransaction(
             @PathVariable("id") int id,
             @RequestBody Transaction transaction) {
         try {
+            if (!checkTransactionPerms(id)) {
+                throw new AccessDeniedException("You do not have permission to access this resource.");
+            }
             transactionService.updateTransaction(
                     id,
                     transaction.getAmount(), transaction.getBudget().getCurrency(), transaction.getDate(),

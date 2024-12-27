@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/rest/budgets")
@@ -39,24 +40,30 @@ public class BudgetController {
         return ResponseEntity.ok(budgets);
     }
 
-    private void checkBudgetPerms(int budgetId) {
-        User currentUser = SecurityUtils.getCurrentUser();
+    private boolean checkIsOwnerOrAdmin (int budgetId) {
+        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
+        Budget budget = budgetService.getBudgetById(budgetId);
+
+        boolean isOwner = currentUser.getId().equals(budget.getAccount().getCreator().getId());
+        boolean isAdmin = currentUser.isAdmin();
+
+        return !isOwner && !isAdmin;
+    }
+
+    private boolean checkIsMemberOrAdmin (int budgetId) {
+        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
         Budget budget = budgetService.getBudgetById(budgetId);
 
         boolean isMember = budget.getAccount().getUsers().contains(currentUser);
-        assert currentUser != null;
         boolean isAdmin = currentUser.isAdmin();
 
-        if (!isMember && !isAdmin) {
-            throw new AccessDeniedException("User does not have permission to access or modify this budget");
-        }
+        return !isMember && !isAdmin;
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getBudgetById(@PathVariable("id") int id) {
         try {
-            checkBudgetPerms(id);
             Budget budget = budgetService.getBudgetById(id);
             logger.info("Fetched budget with id: {}", id);
             return ResponseEntity.ok(budget);
@@ -69,7 +76,9 @@ public class BudgetController {
     @PutMapping("/{id}/increase")
     public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
         try {
-            checkBudgetPerms(id);
+            if (checkIsMemberOrAdmin(id)) {
+                throw new AccessDeniedException("You do not have permission to access this resource.");
+            }
             budgetService.increaseBudget(id, BigDecimal.valueOf(amount), currency);
             logger.info("Increased budget with id: {}", id);
             return ResponseEntity.ok("Budget increased");
@@ -82,7 +91,9 @@ public class BudgetController {
     @PutMapping("/{id}/decrease")
     public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody double amount, @RequestBody String currency) {
         try {
-            checkBudgetPerms(id);
+            if (checkIsMemberOrAdmin(id)) {
+                throw new AccessDeniedException("You do not have permission to access this resource.");
+            }
             budgetService.decreaseBudget(id, BigDecimal.valueOf(amount), currency);
             logger.info("Decreased budget with id: {}", id);
             return ResponseEntity.ok("Budget decreased");
@@ -96,6 +107,9 @@ public class BudgetController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBudget(@PathVariable("id") int id) {
         try {
+            if (checkIsOwnerOrAdmin(id)) {
+                throw new AccessDeniedException("You do not have permission to access this resource.");
+            }
             budgetService.deleteBudgetById(id);
             logger.info("Deleted budget with id: {}", id);
             return ResponseEntity.ok("Budget deleted");
