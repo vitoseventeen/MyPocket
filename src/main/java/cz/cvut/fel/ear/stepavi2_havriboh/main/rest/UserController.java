@@ -86,15 +86,17 @@ public class UserController {
                 throw new AccessDeniedException("Access denied");
             }
             User existingUser = userService.getUserById(id);
-            existingUser.setUsername(user.getUsername());
-            existingUser.setEmail(user.getEmail());
-            userService.updateUser(existingUser);
+            userService.updateUser(existingUser, user);
             return ResponseEntity.ok("User with ID " + id + " updated successfully");
         } catch (UserNotFoundException e) {
             logger.error("User not found with ID: {}", id);
             return ResponseEntity.status(404).body("User not found with ID: " + id);
+        } catch (Exception e) {
+            logger.error("Error updating user with ID: {}: {}", id, e.getMessage());
+            return ResponseEntity.status(400).body("Error updating user: " + e.getMessage());
         }
     }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
