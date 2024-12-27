@@ -171,9 +171,9 @@ public class TransactionService {
 
     @Transactional
     public void deleteTransactionById(int transactionId) {
-        Optional<Transaction> transaction = transactionDao.findTransactionById(transactionId);
-        if (transaction.isPresent()) {
-            transactionDao.remove(transaction.get());
+        Transaction transaction = transactionDao.find(transactionId);
+        if (transaction != null) {
+            transactionDao.remove(transaction);
         } else {
             throw new TransactionNotFoundException("Transaction with ID " + transactionId + " not found");
         }
@@ -181,7 +181,7 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Transaction getTransactionById(int id) {
-        return transactionDao.findById(id).orElseThrow(() -> new TransactionNotFoundException("Transaction not found with ID: " + id));
+        return transactionDao.find(id);
     }
 
     public List<Transaction> getAllTransactions() {

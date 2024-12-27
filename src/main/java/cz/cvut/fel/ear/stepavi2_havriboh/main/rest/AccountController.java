@@ -27,21 +27,19 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    private void checkAccountPermsForAll(int accountId) {
-        if (!accountService.getAccountById(accountId).getUsers().contains(SecurityUtils.getCurrentUser())) {
-            throw new SecurityException("User does not have permission to access this account");
-        }
+    private boolean isOwnerOrAdmin(int accountId) {
+        Account account = accountService.getAccountById(accountId);
+        boolean isOwner = account.getCreator().equals(SecurityUtils.getCurrentUser());
+        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
+        return !isOwner && !isAdmin;
     }
 
-    private void checkAccountPermsForOwner(int accountId) {
-        if (!accountService.getAccountById(accountId).getCreator().equals(SecurityUtils.getCurrentUser())
-            || !SecurityUtils.getCurrentUser().isAdmin()
-        ) {
-            throw new SecurityException("User does not have permission to access or modify this account");
-        }
+    private boolean isMemberOrAdmin(int accountId) {
+        Account account = accountService.getAccountById(accountId);
+        boolean isMember = account.getUsers().contains(SecurityUtils.getCurrentUser());
+        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
+        return !isMember && !isAdmin;
     }
-
-
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -54,8 +52,7 @@ public class AccountController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
-            checkAccountPermsForAll(id);
-            if (!accountService.getAccountById(id).getUsers().contains(SecurityUtils.getCurrentUser())) {
+            if (isMemberOrAdmin(id)) {
                 return ResponseEntity.status(403).body("Forbidden");
             }
             Account account = accountService.getAccountById(id);
@@ -71,10 +68,16 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         try {
-            accountService.createAccountWithBudget(account.getName(), account.getBudget().getBalance(), account.getBudget().getCurrency().toString());
+            accountService.createAccountWithBudget(
+                    account.getName(),
+                    account.getBudget().getBalance(),
+                    account.getBudget().getCurrency().toString()
+            );
             logger.info("Created account with name: {}", account.getName());
             return ResponseEntity.status(201).body("Account created");
-
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid currency provided: {}", e.getMessage());
+            return ResponseEntity.status(400).body("Invalid currency: " + e.getMessage());
         } catch (Exception e) {
             logger.error("Error creating account: {}", e.getMessage());
             return ResponseEntity.status(400).body("Error creating account");
@@ -86,23 +89,24 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
-            checkAccountPermsForOwner(id);
-            if (accountService.getAccountById(id).getCreator().equals(SecurityUtils.getCurrentUser())) {
-                accountService.deleteAccountById(id);
-                logger.info("Deleted account with id: {}", id);
-                return ResponseEntity.ok("Account deleted");
+            if (isOwnerOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Forbidden");
             }
-            return ResponseEntity.status(403).body("Forbidden");
+            accountService.deleteAccountById(id);
+            logger.info("Deleted account with id: {}", id);
+            return ResponseEntity.ok("Account deleted");
         } catch (AccountNotFoundException e) {
             logger.error("Account not found with id: {}", id);
             return ResponseEntity.status(404).body("Account not found");
         }
     }
 
-    @PostMapping("/{accountId}/addUser/{userId}")
+    @PostMapping("/addUser/{userId}/to/{accountId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            checkAccountPermsForOwner(accountId);
+            if (isOwnerOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             accountService.addUserToAccountById(userId, accountId);
             logger.info("Added user {} to account {}", userId, accountId);
             return ResponseEntity.ok("User added to account");
@@ -113,10 +117,12 @@ public class AccountController {
         }
     }
 
-    @DeleteMapping("/{accountId}/removeUser/{userId}")
+    @DeleteMapping("/removeUser/{userId}/from/{accountId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            checkAccountPermsForOwner(accountId);
+            if (isOwnerOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             accountService.removeUserFromAccountById(userId, accountId);
             logger.info("Removed user {} from account {}", userId, accountId);
             return ResponseEntity.ok("User removed from account");

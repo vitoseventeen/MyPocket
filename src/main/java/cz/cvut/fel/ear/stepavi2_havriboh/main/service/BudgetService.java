@@ -64,9 +64,6 @@ public class BudgetService {
     public void decreaseBudget(int budgetId, BigDecimal amount, String currency) {
         Budget budget = budgetDao.find(budgetId);
         validBudget(currency, amount);
-        if (budget.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeAmountException("Budget cannot be negative");
-        }
         if (budget.getCurrency().toString().equals(currency)) {
             budget.setBalance(budget.getBalance().subtract(amount));
         } else {
@@ -84,17 +81,5 @@ public class BudgetService {
         }
         return budget;
     }
-
-    @Transactional
-    public void deleteBudgetById(int id) {
-        Budget budget = budgetDao.find(id);
-        if (budget == null) {
-            throw new BudgetNotFoundException("Budget not found");
-        }
-
-        budgetDao.remove(budget);
-    }
-
-
 
 }

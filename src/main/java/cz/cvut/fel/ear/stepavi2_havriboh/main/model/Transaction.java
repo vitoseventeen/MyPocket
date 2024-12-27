@@ -3,6 +3,8 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -11,10 +13,17 @@ import java.util.List;
 
 @Entity
 @Table(name = "transactions")
+@JsonPropertyOrder({"id","amount", "currency", "date", "description", "type", "account_id"})
 public class Transaction extends AbstractEntity {
 
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
+
+    @JsonProperty("currency")
+    public String getCurrency() {
+        return budget != null ? budget.getCurrency().toString() : null;
+    }
+
 
     @Column(name = "date", nullable = false)
     private LocalDate date;
@@ -31,6 +40,11 @@ public class Transaction extends AbstractEntity {
     @JsonIgnore
     private Account account;
 
+    @JsonProperty("account_id")
+    public Integer getAccountId() {
+        return account != null ? account.getId() : null;
+    }
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     @JsonIgnore
@@ -40,14 +54,6 @@ public class Transaction extends AbstractEntity {
     @JoinColumn(name = "budget_id")
     @JsonIgnore
     private Budget budget;
-
-    @JsonBackReference
-    @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(name = "transaction_report",
-            joinColumns = @JoinColumn(name = "transaction_id"),
-            inverseJoinColumns = @JoinColumn(name = "report_id"))
-    private List<Report> reports;
-
 
     public Transaction() {
     }
@@ -62,7 +68,6 @@ public class Transaction extends AbstractEntity {
                 ", account=" + account +
                 ", category=" + category +
                 ", budget=" + budget +
-                ", reports=" + reports +
                 '}';
     }
 
@@ -122,14 +127,7 @@ public class Transaction extends AbstractEntity {
         this.budget = budget;
     }
 
-    public List<Report> getReports() {
-        return reports;
-    }
-
-    public void setReports(List<Report> reports) {
-        this.reports = reports;
-    }
-
+    @JsonIgnore
     public boolean isIncome() {
         return type == TransactionType.INCOME;
     }

@@ -1,13 +1,15 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "reports")
@@ -20,26 +22,69 @@ public class Report extends AbstractEntity {
     @Column(name = "to_date", nullable = false)
     private LocalDate toDate;
 
-    @ManyToMany(mappedBy = "reports")
-    private List<Transaction> transactions;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
+    @JsonProperty("account_id")
+    public Integer getAccountId() {
+        return account != null ? account.getId() : null;
+    }
 
-    @Transient
-    private Map<String, BigDecimal> incomeByCategory;
-
-    @Transient
-    private Map<String, BigDecimal> spendingByCategory;
 
     @Override
     public String toString() {
         return "Report{" +
                 "fromDate=" + fromDate +
                 ", toDate=" + toDate +
-                ", transactions=" + transactions +
-                ", incomeByCategory=" + incomeByCategory +
-                ", spendingByCategory=" + spendingByCategory +
+                ", account=" + account +
                 '}';
     }
+
+    @JsonProperty("expenses")
+    public Map<String, String> getExpensesByCategories() {
+        if (account == null) {
+            return Map.of();
+        }
+        String currency = account.getBudget() != null ? String.valueOf(account.getBudget().getCurrency()) : "USD";
+        return account.getTransactions().stream()
+                .filter(t -> t.getType() == TransactionType.EXPENSE &&
+                        !t.getDate().isBefore(fromDate) &&
+                        !t.getDate().isAfter(toDate))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory() != null ? t.getCategory().getName() : "Uncategorized",
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                ))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue() + " " + currency
+                ));
+    }
+
+    @JsonProperty("incomes")
+    public Map<String, String> getIncomesByCategories() {
+        if (account == null) {
+            return Map.of();
+        }
+        String currency = account.getBudget() != null ? String.valueOf(account.getBudget().getCurrency()) : "USD";
+        return account.getTransactions().stream()
+                .filter(t -> t.getType() == TransactionType.INCOME &&
+                        !t.getDate().isBefore(fromDate) &&
+                        !t.getDate().isAfter(toDate))
+                .collect(Collectors.groupingBy(
+                        t -> t.getCategory() != null ? t.getCategory().getName() : "Uncategorized",
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                ))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue() + " " + currency
+                ));
+    }
+
+
 
     public LocalDate getFromDate() {
         return fromDate;
@@ -57,36 +102,12 @@ public class Report extends AbstractEntity {
         this.toDate = toDate;
     }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-
-    public Map<String, BigDecimal> getIncomeByCategory() {
-        return incomeByCategory;
-    }
-
-    public void setIncomeByCategory(Map<String, BigDecimal> incomeByCategory) {
-        this.incomeByCategory = incomeByCategory;
-    }
-
-    public Map<String, BigDecimal> getSpendingByCategory() {
-        return spendingByCategory;
-    }
-
-    public void setSpendingByCategory(Map<String, BigDecimal> spendingByCategory) {
-        this.spendingByCategory = spendingByCategory;
-    }
-
     public Account getAccount() {
-        return transactions.get(0).getAccount();
+        return account;
     }
 
     public void setAccount(Account account) {
-        transactions.forEach(t -> t.setAccount(account));
+        this.account = account;
     }
 
 }

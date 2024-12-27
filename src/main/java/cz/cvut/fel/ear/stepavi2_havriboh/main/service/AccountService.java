@@ -33,14 +33,20 @@ public class AccountService {
     }
 
     @Transactional
-    public void createAccountWithBudget(String accountName,BigDecimal startBalance, String currency) {
+    public void createAccountWithBudget(String accountName, BigDecimal startBalance, String currency) {
         if (accountName == null || accountName.trim().isEmpty()) {
             throw new EmptyNameException("Account name cannot be null or empty");
         }
-        Budget budget = new Budget();
+        if (startBalance == null || startBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Start balance cannot be null or negative");
+        }
+        if (currency == null || currency.trim().isEmpty()) {
+            throw new IllegalArgumentException("Currency cannot be null or empty");
+        }
 
         budgetService.validBudget(currency, startBalance);
 
+        Budget budget = new Budget();
         budget.setCurrency(Currency.valueOf(currency));
         budget.setBalance(startBalance);
 
@@ -48,9 +54,16 @@ public class AccountService {
         account.setName(accountName);
         account.setBudget(budget);
         budget.setAccount(account);
-
+        User currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new UnauthorizedActionException("You must be logged in to create an account");
+        }
+        account.setCreator(currentUser);
         accountDao.persist(account);
+
+        addUserToAccountById(currentUser.getId(), account.getId());
     }
+
 
 
 
@@ -112,18 +125,6 @@ public class AccountService {
         if (account == null) {
             throw new AccountNotFoundException("Account not found");
         }
-
-        // Получаем текущего пользователя
-        User currentUser = SecurityUtils.getCurrentUser();
-        if (currentUser == null) {
-            throw new UnauthorizedActionException("You must be logged in to delete the account");
-        }
-
-        // Проверяем, что текущий пользователь создал этот аккаунт
-        if (!account.getCreator().equals(currentUser)) {
-            throw new UnauthorizedActionException("Only the creator of the account can delete it");
-        }
-
         accountDao.remove(account);
     }
 
