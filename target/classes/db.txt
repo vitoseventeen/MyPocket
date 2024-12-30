@@ -1,0 +1,94 @@
+-- USERS
+INSERT INTO users ("EMAIL", "PASSWORD", "USERNAME", "ROLE", "SUBSCRIPTION_START_DATE", "SUBSCRIPTION_END_DATE")
+VALUES
+('alice@example.com', 'password123', 'alice', 'USER', NULL, NULL),
+('bob@example.com', 'password456', 'bob', 'PREMIUM', DATE '2024-01-01', DATE '2025-01-01'),
+('carol@example.com', 'password789', 'carol', 'USER', NULL, NULL),
+('dave@example.com', 'password101', 'dave', 'PREMIUM', DATE '2024-02-01', DATE '2025-02-01'),
+('eve@example.com', 'password202', 'eve', 'PREMIUM', DATE '2024-03-01', DATE '2025-03-01'),
+('frank@example.com', 'password303', 'frank', 'USER', NULL, NULL),
+('grace@example.com', 'password404', 'grace', 'PREMIUM', DATE '2024-04-01', DATE '2025-04-01'),
+('hank@example.com', 'password505', 'hank', 'USER', NULL, NULL),
+('ivy@example.com', 'password606', 'ivy', 'USER', NULL, NULL),
+('jack@example.com', 'password707', 'jack', 'PREMIUM', DATE '2024-05-01', DATE '2025-05-01');
+
+-- ACCOUNTS
+INSERT INTO accounts ("ACCOUNT_NAME", "CREATOR_ID")
+VALUES
+('Techies', 2),  -- bob is the creator
+('Travelers', 3),  -- carol is the creator
+('Foodies', 4),  -- dave is the creator
+('Investors', 5),  -- eve is the creator
+('Entrepreneurs', 6),  -- frank is the creator
+('Health Enthusiasts', 7),  -- grace is the creator
+('Gamers', 8),  -- hank is the creator
+('Photographers', 9),  -- ivy is the creator
+('Writers', 10);  -- jack is the creator
+
+-- ACCOUNT_USER
+INSERT INTO account_user ("ACCOUNT_ID", "USER_ID")
+VALUES
+(1, 2), (1, 3), (1, 4), -- Users in Techies
+(2, 3), (2, 5), (2, 6), -- Users in Travelers
+(3, 4), (3, 7), -- Users in Foodies
+(4, 5), (4, 8), (4, 9), -- Users in Investors
+(5, 6), (5, 7), (5, 10), -- Users in Entrepreneurs
+(6, 7), (6, 10), -- Users in Health Enthusiasts
+(7, 8), (7, 9), -- Users in Gamers
+(8, 9), (8, 10); -- Users in Photographers
+
+-- BUDGETS
+INSERT INTO budgets ("ACCOUNT_ID", "BALANCE", "CURRENCY")
+VALUES
+(1, 5000.00, 'USD'),
+(2, 3000.00, 'CZK'),
+(3, 1200.00, 'EUR'),
+(4, 8000.00, 'USD'),
+(5, 2000.00, 'CZK'),
+(6, 1500.00, 'USD'),
+(7, 2500.00, 'EUR'),
+(8, 4000.00, 'USD'),
+(9, 3500.00, 'CZK');
+
+-- CATEGORIES
+INSERT INTO CATEGORIES ("NAME", "DESCRIPTION")
+VALUES
+('Food', 'Expenses for groceries, dining, etc.'),
+('Travel', 'Travel-related expenses including flights, hotels, etc.'),
+('Entertainment', 'Expenses for movies, events, gaming, etc.'),
+('Utilities', 'Monthly bills for electricity, internet, etc.'),
+('Healthcare', 'Medical expenses, insurance, prescriptions, etc.'),
+('Education', 'Tuition fees, online courses, books, etc.'),
+('Shopping', 'Purchases of clothes, gadgets, etc.'),
+('Housing', 'Rent, mortgages, and home-related expenses');
+
+-- TRANSACTIONS
+INSERT INTO transactions ("ACCOUNT_ID", "AMOUNT", "BUDGET_ID", "CATEGORY_ID", "DATE", "DESCRIPTION", "TYPE")
+VALUES
+(1, 100.00, 1, 1, DATE '2024-12-20', 'Grocery shopping', 'EXPENSE'),
+(1, 200.00, 1, NULL, DATE '2024-12-19', 'Freelance income', 'INCOME'),
+(1, 50.00, 2, 2, DATE '2024-12-18', 'Bus ticket', 'EXPENSE'),
+(1, 300.00, 2, 3, DATE '2024-12-17', 'Movie night', 'EXPENSE'),
+(3, 150.00, 3, 4, DATE '2024-12-16', 'Electricity bill', 'EXPENSE'),
+(3, 100.00, 3, NULL, DATE '2024-12-15', 'Salary payment', 'INCOME'),
+(1, 50.00, 4, 5, DATE '2024-12-14', 'Medical check-up', 'EXPENSE'),
+(4, 400.00, 4, NULL, DATE '2024-12-13', 'Bonus payment', 'INCOME'),
+(1, 250.00, 5, 1, DATE '2024-12-12', 'Lunch with clients', 'EXPENSE'),
+(5, 350.00, 5, 2, DATE '2024-12-11', 'Flight tickets', 'EXPENSE'),
+(6, 100.00, 6, 3, DATE '2024-12-10', 'Concert tickets', 'EXPENSE'),
+(6, 150.00, 6, NULL, DATE '2024-12-09', 'Gift sale', 'INCOME'),
+(7, 200.00, 7, 4, DATE '2024-12-08', 'Internet bill', 'EXPENSE'),
+(7, 450.00, 7, NULL, DATE '2024-12-07', 'Sold stocks', 'INCOME'),
+(8, 300.00, 8, 5, DATE '2024-12-06', 'Medicine purchase', 'EXPENSE'),
+(8, 250.00, 8, NULL, DATE '2024-12-05', 'Freelance project', 'INCOME'),
+(9, 150.00, 9, 6, DATE '2024-12-04', 'Online course fee', 'EXPENSE'),
+(9, 400.00, 9, NULL, DATE '2024-12-03', 'Side job payment', 'INCOME');
+
+INSERT INTO reports (from_date, to_date, account_id) VALUES
+('2000-01-01', '2024-12-31', 1),
+('2000-01-01', '2024-12-31', 2),
+('2000-01-01', '2024-12-31', 3),
+('2000-01-01', '2024-12-31', 4),
+('2000-01-01', '2024-12-31', 5),
+('2000-01-01', '2024-12-31', 6);
+

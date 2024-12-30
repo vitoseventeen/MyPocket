@@ -181,7 +181,11 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Transaction getTransactionById(int id) {
-        return transactionDao.find(id);
+        Transaction transaction = transactionDao.find(id);
+        if (transaction == null) {
+            throw new TransactionNotFoundException("Transaction with ID " + id + " not found");
+        }
+        return transaction;
     }
 
     public List<Transaction> getAllTransactions() {

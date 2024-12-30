@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: cz.cvut.sem.ear.stepavi2.havriboh.main.dao.GroupDaoTest
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.251 s -- in cz.cvut.sem.ear.stepavi2.havriboh.main.dao.GroupDaoTest

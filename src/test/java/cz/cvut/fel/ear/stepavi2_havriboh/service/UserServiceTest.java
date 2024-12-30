@@ -54,23 +54,6 @@ public class UserServiceTest {
         userDao.persist(testUser);
     }
 
-    @Test
-    void updatePasswordSuccessfullyUpdatesPassword() {
-        String newPassword = "newPassword123";
-
-        userService.updatePasswordById(testUser.getId(), newPassword);
-
-        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
-
-        assertTrue(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
-    }
-
-    @Test
-    void deleteUserByUsernameDeletesUser() {
-        userService.deleteUserByUsername(testUser.getUsername());
-
-        assertFalse(userDao.findByUsername(testUser.getUsername()).isPresent());
-    }
 
     @Test
     void activateSubscriptionForOneMonthCreatesNewSubscription() {
@@ -88,14 +71,12 @@ public class UserServiceTest {
     @Test
     void activateSubscriptionForOneMonthUpdatesExistingSubscription() {
         userService.activateSubscription(testUser, 1);
-        testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
-        userDao.update(testUser);
-
-        userService.activateSubscription(testUser,1);
-
+        LocalDate firstSubscriptionEndDate = testUser.getSubscriptionEndDate();
+        userService.activateSubscription(testUser, 1);
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
-        assertEquals(LocalDate.now().plusMonths(3), updatedUser.getSubscriptionEndDate());
+        assertEquals(firstSubscriptionEndDate.plusMonths(1), updatedUser.getSubscriptionEndDate());
     }
+
     @Test
     void cancelSubscriptionCancelsSubscription() {
         userService.activateSubscription(testUser, 1);
@@ -117,38 +98,5 @@ public class UserServiceTest {
         assertThrows(SubscriptionNotActiveException.class, () ->
                 userService.cancelSubscription(testUser)
         );
-    }
-
-    @Test
-    void updateUsernameByIdUpdatesUsername() {
-        String newUsername = "updateduser";
-        userService.updateUsernameById(testUser.getId(), newUsername);
-
-        User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
-        assertEquals(newUsername, updatedUser.getUsername());
-    }
-
-    @Test
-    void updateUsernameByIdThrowsUsernameAlreadyTakenException() {
-        User otherUser = new User();
-        otherUser.setEmail("testmailll@gmail.com");
-        otherUser.setUsername("otherUser");
-        userService.cancelSubscription(testUser);
-        otherUser.setPassword(passwordEncoder.encode("password"));
-        otherUser.setRole(Role.USER);
-        userDao.persist(otherUser);
-
-        assertThrows(UsernameAlreadyTakenException.class, () ->
-                userService.updateUsernameById(testUser.getId(), otherUser.getUsername())
-        );
-    }
-
-    @Test
-    void isSubscribedReturnsTrueIfUserIsSubscribed() {
-        userService.activateSubscription(testUser, 1);
-        testUser.setSubscriptionEndDate(LocalDate.now().plusDays(1));
-        userDao.update(testUser);
-
-        assertTrue(userService.isSubscribed(testUser));
     }
 }

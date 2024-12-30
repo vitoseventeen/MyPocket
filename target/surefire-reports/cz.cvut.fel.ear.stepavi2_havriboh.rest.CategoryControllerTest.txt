@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cz.cvut.fel.ear.stepavi2_havriboh.rest.CategoryControllerTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.390 s -- in cz.cvut.fel.ear.stepavi2_havriboh.rest.CategoryControllerTest

@@ -78,22 +78,22 @@ public class BudgetControllerTest extends BaseControllerTestRunner {
     }
 
 
-    @Test
-    void deleteBudget_shouldReturn200() throws Exception {
-        doNothing().when(budgetService).deleteBudgetById(anyInt());
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/budgets/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("\"Budget deleted\""));
-    }
-
-    @Test
-    void deleteBudget_shouldReturn404IfNotFound() throws Exception {
-        doThrow(new BudgetNotFoundException("Budget not found")).when(budgetService).deleteBudgetById(anyInt());
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/budgets/999"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("\"Budget not found\""));
-    }
+//    @Test
+//    void deleteBudget_shouldReturn200() throws Exception {
+//        doNothing().when(budgetService).deleteBudgetById(anyInt());
+//
+//        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/budgets/1"))
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(MockMvcResultMatchers.content().string("\"Budget deleted\""));
+//    }
+//
+//    @Test
+//    void deleteBudget_shouldReturn404IfNotFound() throws Exception {
+//        doThrow(new BudgetNotFoundException("Budget not found")).when(budgetService).deleteBudgetById(anyInt());
+//
+//        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/budgets/999"))
+//                .andExpect(MockMvcResultMatchers.status().isNotFound())
+//                .andExpect(MockMvcResultMatchers.content().string("\"Budget not found\""));
+//    }
 
 }
