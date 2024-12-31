@@ -109,7 +109,7 @@ public class TransactionController {
             return ResponseEntity.ok().body(transaction);
         } catch (TransactionNotFoundException e) {
             logger.error("Transaction not found with ID: {}", id);
-            return ResponseEntity.status(404).body("Transaction not found with ID: " + id);
+            return ResponseEntity.status(404).body("Transaction not found");
         }
     }
 

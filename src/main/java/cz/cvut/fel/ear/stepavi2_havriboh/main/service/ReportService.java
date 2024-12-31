@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.ReportDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.AccountNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
@@ -34,7 +35,7 @@ public class ReportService {
         logger.debug("Creating report for account ID: {} from date: {} to date: {}", accountId, fromDate, toDate);
         Account account = accountDao.find(accountId);
         if (account == null) {
-            throw new ReportNotFoundException("Account not found with ID: " + accountId);
+            throw new AccountNotFoundException("Account not found with ID: " + accountId);
         }
         if (fromDate.isAfter(toDate)) {
             throw new InvalidDateException("From date must be before to date");

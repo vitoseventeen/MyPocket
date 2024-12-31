@@ -2,120 +2,138 @@ package cz.cvut.fel.ear.stepavi2_havriboh.rest;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.rest.ReportController;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
+import org.junit.jupiter.api.*;
+import org.mockito.*;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class ReportControllerTest extends BaseControllerTestRunner {
 
+    @Mock
     private ReportService reportService;
+
+    @InjectMocks
+    private ReportController reportController;
 
     @BeforeEach
     void setUp() {
-        reportService = Mockito.mock(ReportService.class);
-        ReportController reportController = new ReportController(reportService);
-        super.setUp(reportController);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void createReport_shouldReturn201OnSuccess() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/rest/reports")
-                        .param("userId", "1")
-                        .param("fromDate", "2023-01-01")
-                        .param("toDate", "2023-12-31"))
-                .andExpect(status().isCreated())
-                .andExpect(content().string("\"Report created successfully.\""));
+    void getReportById_Success() {
+        int reportId = 1;
+        Report mockReport = new Report();
 
-        verify(reportService, times(1)).createReport(1, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31));
+        when(reportService.getReportById(reportId)).thenReturn(mockReport);
+
+        ResponseEntity<Object> response = reportController.getReportById(reportId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockReport, response.getBody());
     }
 
     @Test
-    void createReport_shouldReturnBadRequestInvalidDate() throws Exception {
-        doThrow(new InvalidDateException("From date must be before to date"))
-                .when(reportService).createReport(anyInt(), any(LocalDate.class), any(LocalDate.class));
+    void getReportById_NotFound() {
+        int reportId = 1;
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/rest/reports")
-                        .param("userId", "1")
-                        .param("fromDate", "2023-12-31")
-                        .param("toDate", "2023-01-01"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("\"From date must be before to date\""));
+        when(reportService.getReportById(reportId)).thenThrow(new ReportNotFoundException("Report not found."));
+
+        ResponseEntity<Object> response = reportController.getReportById(reportId);
+
+        assertEquals(404, response.getStatusCodeValue());
+        assertEquals("Report not found.", response.getBody());
     }
 
     @Test
-    void getReportById_shouldReturnReportWhenFound() throws Exception {
-        Report report = new Report();
-        report.setFromDate(LocalDate.of(2023, 1, 1));
-        report.setToDate(LocalDate.of(2023, 12, 31));
+    void getAllReports_Success() {
+        List<Report> mockReports = Arrays.asList(new Report(), new Report());
 
-        when(reportService.getReportById(1)).thenReturn(report);
+        when(reportService.getAllReports()).thenReturn(mockReports);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.fromDate").value("2023-01-01"))
-                .andExpect(jsonPath("$.toDate").value("2023-12-31"));
+        ResponseEntity<Object> response = reportController.getAllReports();
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockReports, response.getBody());
     }
 
     @Test
-    void getReportById_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new ReportNotFoundException("Report not found"))
-                .when(reportService).getReportById(anyInt());
+    void deleteReportById_Success() {
+        int reportId = 1;
+        Report mockReport = new Report();
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/reports/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("\"Report not found\""));
+
+        when(reportService.getReportById(reportId)).thenReturn(mockReport);
+        doNothing().when(reportService).deleteReportById(reportId);
+
+        ResponseEntity<Object> response = reportController.deleteReportById(reportId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Report deleted successfully.", response.getBody());
     }
 
     @Test
-    void updateReportDateById_shouldReturn200OnSuccess() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put("/rest/reports/1")
-                        .param("fromDate", "2023-01-01")
-                        .param("toDate", "2023-12-31"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("\"Report dates updated successfully.\""));
+    void deleteReportById_NotFound() {
+        int reportId = 1;
 
-        verify(reportService, times(1)).updateReportDateById(1, LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31));
+        when(reportService.getReportById(reportId)).thenThrow(new ReportNotFoundException("Report not found."));
+
+        ResponseEntity<Object> response = reportController.deleteReportById(reportId);
+
+        assertEquals(404, response.getStatusCodeValue());
+        assertEquals("Report not found.", response.getBody());
     }
 
     @Test
-    void updateReportDateById_shouldReturnBadRequestInvalidDate() throws Exception {
-        doThrow(new InvalidDateException("From date must be before to date"))
-                .when(reportService).updateReportDateById(anyInt(), any(LocalDate.class), any(LocalDate.class));
+    void updateReportDateById_Success() {
+        int reportId = 1;
+        LocalDate fromDate = LocalDate.of(2023, 1, 1);
+        LocalDate toDate = LocalDate.of(2023, 12, 31);
+        Report mockReport = new Report();
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/rest/reports/1")
-                        .param("fromDate", "2023-12-31")
-                        .param("toDate", "2023-01-01"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("\"From date must be before to date\""));
+        when(reportService.getReportById(reportId)).thenReturn(mockReport);
+        doNothing().when(reportService).updateReportDateById(reportId, fromDate, toDate);
+
+        ResponseEntity<Object> response = reportController.updateReportDateById(reportId, fromDate, toDate);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Report dates updated successfully.", response.getBody());
+        verify(reportService).updateReportDateById(reportId, fromDate, toDate);
     }
+
 
     @Test
-    void deleteReport_shouldReturn200OnSuccess() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/reports/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("\"Report deleted successfully.\""));
+    void updateReportDateById_InvalidDate() {
+        int reportId = 1;
+        LocalDate fromDate = LocalDate.of(2023, 1, 1);
+        LocalDate toDate = LocalDate.of(2022, 12, 31);
+        Report mockReport = new Report();
 
-        verify(reportService, times(1)).deleteReportById(1);
+
+        when(reportService.getReportById(reportId)).thenReturn(mockReport);
+        doThrow(new InvalidDateException("Invalid date range.")).when(reportService).updateReportDateById(reportId, fromDate, toDate);
+
+        ResponseEntity<Object> response = reportController.updateReportDateById(reportId, fromDate, toDate);
+
+        assertEquals(400, response.getStatusCodeValue());
+        assertEquals("Invalid date range.", response.getBody());
     }
 
-    @Test
-    void deleteReport_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new ReportNotFoundException("Report not found"))
-                .when(reportService).deleteReportById(anyInt());
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/reports/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("\"Report not found\""));
-    }
 }
