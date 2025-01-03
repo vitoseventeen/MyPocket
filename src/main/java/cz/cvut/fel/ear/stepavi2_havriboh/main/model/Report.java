@@ -24,13 +24,16 @@ public class Report extends AbstractEntity {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = true)
+    @OrderBy("id ASC")
     private Account account;
 
     @JsonProperty("account_id")
     public Integer getAccountId() {
         return account != null ? account.getId() : null;
     }
+
+
 
 
     @Override

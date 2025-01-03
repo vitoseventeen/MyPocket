@@ -39,6 +39,7 @@ public class User extends AbstractEntity {
 
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
+    @OrderBy("id ASC")
     private List<Account> accounts;
 
     public User() {

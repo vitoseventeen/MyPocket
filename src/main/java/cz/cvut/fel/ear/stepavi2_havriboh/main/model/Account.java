@@ -15,9 +15,14 @@ public class Account extends AbstractEntity {
     @Column(name = "account_name", nullable = false, length = 100)
     private String name;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     @JsonIgnore
+    @OrderBy("date DESC")
     private List<Transaction> transactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("fromDate DESC")
+    private List<Report> reports;
 
     @ManyToMany
     @JsonIgnore
@@ -107,5 +112,13 @@ public class Account extends AbstractEntity {
 
     public boolean isCreatedBy(User user) {
         return creator != null && creator.equals(user);
+    }
+
+    public List<Report> getReports() {
+        return reports;
+    }
+
+    public void setReports(List<Report> reports) {
+        this.reports = reports;
     }
 }

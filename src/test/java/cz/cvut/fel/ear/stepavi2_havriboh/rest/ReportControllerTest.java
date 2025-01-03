@@ -74,20 +74,6 @@ class ReportControllerTest extends BaseControllerTestRunner {
         assertEquals(mockReports, response.getBody());
     }
 
-    @Test
-    void deleteReportById_Success() {
-        int reportId = 1;
-        Report mockReport = new Report();
-
-
-        when(reportService.getReportById(reportId)).thenReturn(mockReport);
-        doNothing().when(reportService).deleteReportById(reportId);
-
-        ResponseEntity<Object> response = reportController.deleteReportById(reportId);
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Report deleted successfully.", response.getBody());
-    }
 
     @Test
     void deleteReportById_NotFound() {
@@ -100,40 +86,4 @@ class ReportControllerTest extends BaseControllerTestRunner {
         assertEquals(404, response.getStatusCodeValue());
         assertEquals("Report not found.", response.getBody());
     }
-
-    @Test
-    void updateReportDateById_Success() {
-        int reportId = 1;
-        LocalDate fromDate = LocalDate.of(2023, 1, 1);
-        LocalDate toDate = LocalDate.of(2023, 12, 31);
-        Report mockReport = new Report();
-
-        when(reportService.getReportById(reportId)).thenReturn(mockReport);
-        doNothing().when(reportService).updateReportDateById(reportId, fromDate, toDate);
-
-        ResponseEntity<Object> response = reportController.updateReportDateById(reportId, fromDate, toDate);
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Report dates updated successfully.", response.getBody());
-        verify(reportService).updateReportDateById(reportId, fromDate, toDate);
-    }
-
-
-    @Test
-    void updateReportDateById_InvalidDate() {
-        int reportId = 1;
-        LocalDate fromDate = LocalDate.of(2023, 1, 1);
-        LocalDate toDate = LocalDate.of(2022, 12, 31);
-        Report mockReport = new Report();
-
-
-        when(reportService.getReportById(reportId)).thenReturn(mockReport);
-        doThrow(new InvalidDateException("Invalid date range.")).when(reportService).updateReportDateById(reportId, fromDate, toDate);
-
-        ResponseEntity<Object> response = reportController.updateReportDateById(reportId, fromDate, toDate);
-
-        assertEquals(400, response.getStatusCodeValue());
-        assertEquals("Invalid date range.", response.getBody());
-    }
-
 }

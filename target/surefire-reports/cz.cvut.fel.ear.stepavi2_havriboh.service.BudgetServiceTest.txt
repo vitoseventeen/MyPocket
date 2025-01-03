@@ -1,26 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: cz.cvut.fel.ear.stepavi2_havriboh.service.BudgetServiceTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.160 s <<< FAILURE! -- in cz.cvut.fel.ear.stepavi2_havriboh.service.BudgetServiceTest
-cz.cvut.fel.ear.stepavi2_havriboh.service.BudgetServiceTest.decreaseBudgetDecreasesBudget -- Time elapsed: 0.047 s <<< ERROR!
-cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UnauthorizedActionException: You must be logged in to create an account
-	at cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService.createAccountWithBudget(AccountService.java:59)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:355)
-	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
-	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
-	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
-	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:379)
-	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
-	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
-	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
-	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720)
-	at cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService$$SpringCGLIB$$0.createAccountWithBudget(<generated>)
-	at cz.cvut.fel.ear.stepavi2_havriboh.service.BudgetServiceTest.decreaseBudgetDecreasesBudget(BudgetServiceTest.java:97)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.226 s -- in cz.cvut.fel.ear.stepavi2_havriboh.service.BudgetServiceTest

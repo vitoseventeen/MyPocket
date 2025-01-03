@@ -1,15 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: cz.cvut.fel.ear.stepavi2_havriboh.service.TransactionServiceTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.055 s <<< FAILURE! -- in cz.cvut.fel.ear.stepavi2_havriboh.service.TransactionServiceTest
-cz.cvut.fel.ear.stepavi2_havriboh.service.TransactionServiceTest.getTransactionByIdThrowsTransactionNotFoundException -- Time elapsed: 0.010 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: Expected cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException to be thrown, but nothing was thrown.
-	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
-	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:73)
-	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
-	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3115)
-	at cz.cvut.fel.ear.stepavi2_havriboh.service.TransactionServiceTest.getTransactionByIdThrowsTransactionNotFoundException(TransactionServiceTest.java:105)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.228 s -- in cz.cvut.fel.ear.stepavi2_havriboh.service.TransactionServiceTest
