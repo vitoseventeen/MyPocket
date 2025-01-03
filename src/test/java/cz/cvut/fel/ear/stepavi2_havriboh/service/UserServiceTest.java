@@ -59,6 +59,8 @@ public class UserServiceTest {
         user.setEmail("userserser@gmail.com");
         user.setUsername("userwqeqwe");
         user.setPassword(passwordEncoder.encode("password"));
+        userDao.persist(user);
+
         userService.activateSubscription(user.getId(), 1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();

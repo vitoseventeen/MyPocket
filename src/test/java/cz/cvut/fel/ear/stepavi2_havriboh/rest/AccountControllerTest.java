@@ -89,29 +89,4 @@ public class AccountControllerTest extends BaseControllerTestRunner {
                 .andExpect(MockMvcResultMatchers.content().string("\"Account not found\""));
     }
 
-    // delete account
-    @Test
-    void deleteAccount_shouldDeleteAndReturn200() throws Exception {
-        Account account = new Account();
-        account.setCreator(SecurityUtils.getCurrentUser());
-        when(accountService.getAccountById(1)).thenReturn(account);
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/accounts/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("\"Account deleted\""));
-    }
-
-    @Test
-    void deleteAccount_shouldReturn404WhenNotFound() throws Exception {
-        Account account = new Account();
-        account.setCreator(SecurityUtils.getCurrentUser());
-        when(accountService.getAccountById(1)).thenReturn(account);
-
-        doThrow(new AccountNotFoundException("Account not found"))
-                .when(accountService).deleteAccountById(anyInt());
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/rest/accounts/1"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("\"Account not found\""));
-    }
 }

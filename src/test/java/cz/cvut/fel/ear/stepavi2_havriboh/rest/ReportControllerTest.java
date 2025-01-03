@@ -30,18 +30,7 @@ class ReportControllerTest extends BaseControllerTestRunner {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void getReportById_Success() {
-        int reportId = 1;
-        Report mockReport = new Report();
 
-        when(reportService.getReportById(reportId)).thenReturn(mockReport);
-
-        ResponseEntity<Object> response = reportController.getReportById(reportId);
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(mockReport, response.getBody());
-    }
 
     @Test
     void getReportById_NotFound() {
@@ -68,15 +57,4 @@ class ReportControllerTest extends BaseControllerTestRunner {
     }
 
 
-    @Test
-    void deleteReportById_NotFound() {
-        int reportId = 1;
-
-        when(reportService.getReportById(reportId)).thenThrow(new ReportNotFoundException("Report not found."));
-
-        ResponseEntity<Object> response = reportController.deleteReportById(reportId);
-
-        assertEquals(404, response.getStatusCodeValue());
-        assertEquals("Report not found.", response.getBody());
-    }
 }

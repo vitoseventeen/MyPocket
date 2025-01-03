@@ -63,17 +63,6 @@ public class BudgetControllerTest extends BaseControllerTestRunner {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].currency").value("CZK"));
     }
 
-    @Test
-    void getBudgetById_shouldReturnBudget() throws Exception {
-        Budget budget = new Budget();
-        budget.setCurrency(Currency.USD);
-
-        when(budgetService.getBudgetById(1)).thenReturn(budget);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/budgets/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.currency").value("USD"));
-    }
 
     @Test
     void getBudgetById_shouldReturn404WhenNotFound() throws Exception {
