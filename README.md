@@ -35,7 +35,7 @@ Pro testování lze využít nástroj Postman.
 Importujte soubor SCENARIES.json, který najdete v projektu.
 Po importu spusťte připravené scénáře ve složce "Scenarios", abyste ověřili funkčnost aplikace
 
-##Feedback:
+## Feedback:
 #### Vitalii Stepaniuk: 
 Největší problémy jsem měl s řešením závislostí v REST API a s nastavením HTTP požadavků v Postmanu. I přes tyto těžkosti byla práce na semestrálním projektu zajímavá a užitečná. Na cvičeních jsme dostali hotovou aplikaci, kterou jsme mohli použít jako příklad, a to mi hodně pomohlo. Díky tomuto projektu jsem lépe pochopil, jak funguje REST API, Spring Boot a jak používat Postman. Naučil jsem se také lépe organizovat kód a řešit problémy se závislostmi. Celkově to byla dobrá zkušenost, která mi pomohla zlepšit mé dovednosti v programování.
 
