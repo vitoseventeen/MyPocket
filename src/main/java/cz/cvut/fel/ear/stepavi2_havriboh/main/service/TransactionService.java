@@ -187,7 +187,7 @@ public class TransactionService {
         }
         return transaction;
     }
-
+    @Transactional(readOnly = true)
     public List<Transaction> getAllTransactions() {
         return transactionDao.findAll();
     }

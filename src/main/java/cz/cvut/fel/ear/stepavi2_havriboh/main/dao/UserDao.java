@@ -4,6 +4,7 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,7 +20,7 @@ public class UserDao extends BaseDao<User> {
     public Optional<User> findByEmail(String email) {
         try {
             return Optional.ofNullable(
-                    em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                    em.createNamedQuery("User.findByEmail", User.class)
                             .setParameter("email", email)
                             .getSingleResult()
             );
@@ -31,7 +32,7 @@ public class UserDao extends BaseDao<User> {
     public Optional<User> findById(int id) {
         try {
             return Optional.ofNullable(
-                    em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
+                    em.createNamedQuery("User.findById", User.class)
                             .setParameter("id", id)
                             .getSingleResult()
             );
@@ -40,11 +41,10 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-
     public Optional<User> findByUsername(String username) {
         try {
             return Optional.ofNullable(
-                    em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                    em.createNamedQuery("User.findByUsername", User.class)
                             .setParameter("username", username)
                             .getSingleResult()
             );
@@ -53,5 +53,7 @@ public class UserDao extends BaseDao<User> {
         }
     }
 
-
+    public List<User> findAll() {
+        return em.createNamedQuery("User.findAll", User.class).getResultList();
+    }
 }

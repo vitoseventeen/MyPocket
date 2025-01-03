@@ -10,6 +10,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "categories")
+@NamedQueries({
+        @NamedQuery(name = "Category.findByName", query = "SELECT c FROM Category c WHERE c.name = :name"),
+})
 public class Category extends AbstractEntity {
 
     @Column(name = "name", nullable = false, length = 100)

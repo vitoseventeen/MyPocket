@@ -111,9 +111,6 @@ public class UserService {
         userDao.update(existingUser);
     }
 
-
-
-    // pridat kontrolu
     @Transactional(readOnly = true)
     public List<User> findAll() {
         return userDao.findAll();

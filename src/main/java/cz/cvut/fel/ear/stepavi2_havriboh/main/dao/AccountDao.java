@@ -5,8 +5,8 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
-
 @Repository
 public class AccountDao extends BaseDao<Account> {
     public AccountDao() {
@@ -16,7 +16,7 @@ public class AccountDao extends BaseDao<Account> {
     public Optional<Account> findById(int id) {
         try {
             return Optional.ofNullable(
-                    em.createQuery("SELECT u FROM Account u WHERE u.id = :id", Account.class)
+                    em.createNamedQuery("Account.findById", Account.class)
                             .setParameter("id", id)
                             .getSingleResult()
             );
@@ -28,7 +28,7 @@ public class AccountDao extends BaseDao<Account> {
     public Optional<Account> findByName(String name) {
         try {
             return Optional.ofNullable(
-                    em.createQuery("SELECT u FROM Account u WHERE u.name = :name", Account.class)
+                    em.createNamedQuery("Account.findByName", Account.class)
                             .setParameter("name", name)
                             .getSingleResult()
             );
@@ -37,4 +37,9 @@ public class AccountDao extends BaseDao<Account> {
         }
     }
 
+    public List<Account> findByCreatorId(int creatorId) {
+        return em.createNamedQuery("Account.findByCreatorId", Account.class)
+                .setParameter("creatorId", creatorId)
+                .getResultList();
+    }
 }

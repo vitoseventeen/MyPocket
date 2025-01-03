@@ -13,6 +13,20 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "reports")
+@NamedQueries({
+        @NamedQuery(
+                name = "Report.findByAccountId",
+                query = "SELECT r FROM Report r WHERE r.account.id = :accountId"
+        ),
+        @NamedQuery(
+                name = "Report.findByDateRange",
+                query = "SELECT r FROM Report r WHERE r.fromDate >= :fromDate AND r.toDate <= :toDate"
+        ),
+        @NamedQuery(
+                name = "Report.findByAccountAndDateRange",
+                query = "SELECT r FROM Report r WHERE r.account.id = :accountId AND r.fromDate >= :fromDate AND r.toDate <= :toDate"
+        )
+})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Report extends AbstractEntity {
 
@@ -32,9 +46,6 @@ public class Report extends AbstractEntity {
     public Integer getAccountId() {
         return account != null ? account.getId() : null;
     }
-
-
-
 
     @Override
     public String toString() {

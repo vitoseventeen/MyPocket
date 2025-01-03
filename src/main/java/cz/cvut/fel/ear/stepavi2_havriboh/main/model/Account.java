@@ -10,6 +10,20 @@ import java.util.List;
 
 @Entity
 @Table(name = "accounts")
+@NamedQueries({
+        @NamedQuery(
+                name = "Account.findById",
+                query = "SELECT a FROM Account a WHERE a.id = :id"
+        ),
+        @NamedQuery(
+                name = "Account.findByName",
+                query = "SELECT a FROM Account a WHERE a.name = :name"
+        ),
+        @NamedQuery(
+                name = "Account.findByCreatorId",
+                query = "SELECT a FROM Account a WHERE a.creator.id = :creatorId"
+        )
+})
 public class Account extends AbstractEntity {
 
     @Column(name = "account_name", nullable = false, length = 100)

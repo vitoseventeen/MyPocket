@@ -14,6 +14,12 @@ import java.util.List;
 @Entity
 @Table(name = "transactions")
 @JsonPropertyOrder({"id","amount", "currency", "date", "description", "type", "account_id"})
+@NamedQueries({
+        @NamedQuery(name = "Transaction.findByAccount", query = "SELECT t FROM Transaction t WHERE t.account.id = :accountId"),
+        @NamedQuery(name = "Transaction.findByDateRange", query = "SELECT t FROM Transaction t WHERE t.date BETWEEN :startDate AND :endDate"),
+        @NamedQuery(name = "Transaction.findByCategory", query = "SELECT t FROM Transaction t WHERE t.category.id = :categoryId"),
+        @NamedQuery(name = "Transaction.findByBudget", query = "SELECT t FROM Transaction t WHERE t.budget.id = :budgetId")
+})
 public class Transaction extends AbstractEntity {
 
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
