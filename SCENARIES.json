@@ -1,0 +1,1317 @@
+{
+	"info": {
+		"_postman_id": "ccbe16a5-00c0-4647-825e-d90f8b06e028",
+		"name": "EAR",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39541583"
+	},
+	"item": [
+		{
+			"name": "SCENARIES",
+			"item": [
+				{
+					"name": "Category scenario",
+					"item": [
+						{
+							"name": "Auth Admin",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/login"
+							},
+							"response": []
+						},
+						{
+							"name": "Create category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Food\",\r\n    \"description\": \"For grocery expenses\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Create 2nd category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Food\",\r\n    \"description\": \"For grocery expenses\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Create 3nd category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Online expenses\",\r\n    \"description\": \"For all online expenses\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Update category",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Income category\",\r\n    \"description\": \"Category for incomes\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories/1"
+							},
+							"response": []
+						}
+					],
+					"description": "admin creates category and update it."
+				},
+				{
+					"name": "User scenario",
+					"item": [
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"scenarioUser\",\r\n  \"email\": \"scenarioUser@example.com\",\r\n  \"password\": \"scenarioUser123\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users"
+							},
+							"response": []
+						},
+						{
+							"name": "Auth User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "scenarioUser",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "scenarioUser123",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/login"
+							},
+							"response": []
+						},
+						{
+							"name": "UpdateEmailUsernamePassword Copy",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\" : \"updatedUsername\",\r\n    \"email\" : \"newMail111@gmail.com\",\r\n    \"password\": \"knedlik123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users/2"
+							},
+							"response": []
+						},
+						{
+							"name": "Activate Subscription",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"months\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users/2/activate-subscription"
+							},
+							"response": []
+						},
+						{
+							"name": "Cancel Subscription",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "http://localhost:8080/rest/users/2/cancel-subscription"
+							},
+							"response": []
+						}
+					],
+					"description": "create user, auth, update user information, activate and cancel subscription."
+				},
+				{
+					"name": "Account scenario",
+					"item": [
+						{
+							"name": "Auth User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "updatedUsername",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "knedlik123",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/login"
+							},
+							"response": []
+						},
+						{
+							"name": "Create account",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"my family\",\r\n    \"budget\": {\r\n        \"balance\": 0.00,\r\n        \"currency\": \"CZK\"\r\n    }\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/accounts"
+							},
+							"response": []
+						},
+						{
+							"name": "Create another User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"scenarioUser2\",\r\n  \"email\": \"scenarioUser2@example.com\",\r\n  \"password\": \"scenarioUser2\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users"
+							},
+							"response": []
+						},
+						{
+							"name": "Add another user to account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "http://localhost:8080/rest/accounts/addUser/3/to/1"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Budget scenario",
+					"item": [
+						{
+							"name": "Auth User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "updatedUsername",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "knedlik123",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/login"
+							},
+							"response": []
+						},
+						{
+							"name": "Increase budget in account currency",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"100.00\",\r\n    \"currency\": \"CZK\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/1/increase"
+							},
+							"response": []
+						},
+						{
+							"name": "Increase budget in NOT account currency Copy",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"100.00\",\r\n    \"currency\": \"USD\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/1/increase"
+							},
+							"response": []
+						},
+						{
+							"name": "Decrease budget in account currency",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"100.00\",\r\n    \"currency\": \"CZK\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/1/decrease"
+							},
+							"response": []
+						},
+						{
+							"name": "Decrease budget in NOT account currency",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"100.00\",\r\n    \"currency\": \"USD\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/1/decrease"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Transaction scenario",
+					"item": [
+						{
+							"name": "Create Income transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 100.00,\r\n    \"currency\": \"EUR\",\r\n    \"date\": \"2024-12-31\",\r\n    \"description\": \"gift from grandparents\",\r\n    \"type\": \"INCOME\",\r\n    \"accountId\": 1,\r\n    \"categoryId\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Expense transaction Copy",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 25.00,\r\n    \"currency\": \"EUR\",\r\n    \"date\": \"2025-01-01\",\r\n    \"description\": \"knedliky,rohliky,maso\",\r\n    \"type\": \"EXPENSE\",\r\n    \"accountId\": 1,\r\n    \"categoryId\": 2\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Create recursive transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"5.00\",\r\n    \"currency\": \"USD\",\r\n    \"date\": \"2025-01-01\",\r\n    \"description\": \"spotify subscription\",\r\n    \"type\": \"EXPENSE\",\r\n    \"accountId\": \"1\",\r\n    \"categoryId\": \"3\",\r\n    \"interval\": \"1\",\r\n    \"intervalUnit\": \"MONTH\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Report scenario",
+					"item": [
+						{
+							"name": "Auth User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "updatedUsername",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "knedlik123",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/login"
+							},
+							"response": []
+						},
+						{
+							"name": "Activate Subscription",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"months\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users/2/activate-subscription"
+							},
+							"response": []
+						},
+						{
+							"name": "Create report",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "accountId",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "fromDate",
+											"value": "2024-01-01",
+											"type": "text"
+										},
+										{
+											"key": "toDate",
+											"value": "2025-01-03",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/rest/reports"
+							},
+							"response": []
+						},
+						{
+							"name": "Get report",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/reports/1"
+							},
+							"response": []
+						},
+						{
+							"name": "Update report",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "fromDate",
+											"value": "2011-11-11",
+											"type": "text"
+										},
+										{
+											"key": "toDate",
+											"value": "2012-12-12",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/rest/reports/1"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "CRUD",
+			"item": [
+				{
+					"name": "USERS",
+					"item": [
+						{
+							"name": "Get Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/users"
+							},
+							"response": []
+						},
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"premium\",\r\n  \"email\": \"premium@example.com\",\r\n  \"password\": \"premium\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users"
+							},
+							"response": []
+						},
+						{
+							"name": "UpdateEmailUsernamePassword",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\" : \"bobik777\",\r\n    \"email\" : \"bobikHome@gmail.com\",\r\n    \"password\": \"bober111\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users/12"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:8080/rest/users/2"
+							},
+							"response": []
+						},
+						{
+							"name": "Activate Subscription",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"months\": 11\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/users/14/activate-subscription"
+							},
+							"response": []
+						},
+						{
+							"name": "Cancel Subscription",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "http://localhost:8080/rest/users/12/cancel-subscription"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ACCOUNTS",
+					"item": [
+						{
+							"name": "Get Accounts",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/accounts"
+							},
+							"response": []
+						},
+						{
+							"name": "Create account",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"my family\",\r\n    \"budget\": {\r\n        \"balance\": 0.00,\r\n        \"currency\": \"CZK\"\r\n    }\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/accounts"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/rest/accounts/9"
+							},
+							"response": []
+						},
+						{
+							"name": "Add user to account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "http://localhost:8080/rest/accounts/addUser/3/to/1"
+							},
+							"response": []
+						},
+						{
+							"name": "Remove user from account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/rest/accounts/removeUser/2/from/12"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "CATEGORIES",
+					"item": [
+						{
+							"name": "Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Create category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Food\",\r\n    \"description\": \"For grocery expenses\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories"
+							},
+							"response": []
+						},
+						{
+							"name": "Update category",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Updated category\",\r\n    \"description\": \"Updated description for medical expenses\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/categories/9"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete category",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/rest/categories/9"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "BUDGETS",
+					"item": [
+						{
+							"name": "Get budgets",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/budgets"
+							},
+							"response": []
+						},
+						{
+							"name": "Increase budget",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"100.00\",\r\n    \"currency\": \"CZK\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/13/increase"
+							},
+							"response": []
+						},
+						{
+							"name": "Decrease budget",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"9911111.00\",\r\n    \"currency\": \"EUR\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/budgets/13/decrease"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TRANSACTIONS",
+					"item": [
+						{
+							"name": "Delete transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": "http://localhost:8080/rest/transactions/1"
+							},
+							"response": []
+						},
+						{
+							"name": "Get transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Income transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 100000.00,\r\n    \"currency\": \"EUR\",\r\n    \"date\": \"2024-12-31\",\r\n    \"description\": \"gift from grandparents\",\r\n    \"type\": \"INCOME\",\r\n    \"accountId\": 13,\r\n    \"categoryId\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Expense transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 1111.00,\r\n    \"currency\": \"USD\",\r\n    \"date\": \"2024-12-31\",\r\n    \"description\": \"casino\",\r\n    \"type\": \"EXPENSE\",\r\n    \"accountId\": 13,\r\n    \"categoryId\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Create recursive transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": \"1000.00\",\r\n    \"currency\": \"CZK\",\r\n    \"date\": \"2024-11-11\",\r\n    \"description\": \"test recurring transaction\",\r\n    \"type\": \"INCOME\",\r\n    \"accountId\": \"1\",\r\n    \"categoryId\": \"1\",\r\n    \"interval\": \"1\",\r\n    \"intervalUnit\": \"MONTH\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions"
+							},
+							"response": []
+						},
+						{
+							"name": "Update transaction",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 111.00,\r\n    \"currency\": \"USD\",\r\n    \"date\": \"2024-11-11\",\r\n    \"description\": \"test\",\r\n    \"type\": \"INCOME\",\r\n    \"accountId\": 1,\r\n    \"categoryId\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://localhost:8080/rest/transactions/22"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "REPORTS",
+					"item": [
+						{
+							"name": "Create report",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "accountId",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "fromDate",
+											"value": "2024-01-01",
+											"type": "text"
+										},
+										{
+											"key": "toDate",
+											"value": "2024-12-31",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/rest/reports"
+							},
+							"response": []
+						},
+						{
+							"name": "Get report",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://localhost:8080/rest/reports/1"
+							},
+							"response": []
+						},
+						{
+							"name": "Update report",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "fromDate",
+											"value": "2011-11-11",
+											"type": "text"
+										},
+										{
+											"key": "toDate",
+											"value": "2012-12-12",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://localhost:8080/rest/reports/1"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete report",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://localhost:8080/rest/reports/7"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Auth Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": "http://localhost:8080/login"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
