@@ -1,13 +1,14 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.ReportDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NotPremiumUserException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,28 +17,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEnti
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.ReportDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
-
-
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+
+;
 
 @SpringBootTest
 @Transactional

@@ -3,8 +3,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.service;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.SubscriptionNotActiveException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UsernameAlreadyTakenException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.UserService;
 import jakarta.transaction.Transactional;

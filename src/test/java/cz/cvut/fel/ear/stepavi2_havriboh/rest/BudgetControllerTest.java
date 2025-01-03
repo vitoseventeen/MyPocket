@@ -20,11 +20,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role.ADMIN;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 public class BudgetControllerTest extends BaseControllerTestRunner {

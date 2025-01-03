@@ -1,6 +1,5 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +7,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Entity

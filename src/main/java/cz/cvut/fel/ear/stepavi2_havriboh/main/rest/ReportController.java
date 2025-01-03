@@ -1,7 +1,8 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.AccountNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;

@@ -3,7 +3,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
-
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {

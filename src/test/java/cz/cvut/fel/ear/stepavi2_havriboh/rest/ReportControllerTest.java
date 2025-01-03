@@ -1,28 +1,21 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.rest;
 
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.rest.ReportController;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
-import org.junit.jupiter.api.*;
-import org.mockito.*;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
 
 class ReportControllerTest extends BaseControllerTestRunner {
 

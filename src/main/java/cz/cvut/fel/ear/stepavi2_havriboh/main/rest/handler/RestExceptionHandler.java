@@ -1,7 +1,6 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.rest.handler;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

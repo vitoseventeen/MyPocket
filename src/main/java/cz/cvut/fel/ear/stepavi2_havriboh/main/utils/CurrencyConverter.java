@@ -1,7 +1,6 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.utils;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UnsupportedCurrencyException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 

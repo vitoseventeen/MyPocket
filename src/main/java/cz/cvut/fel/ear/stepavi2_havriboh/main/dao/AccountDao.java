@@ -1,7 +1,6 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.dao;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 

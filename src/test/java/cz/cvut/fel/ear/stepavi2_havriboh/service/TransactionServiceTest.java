@@ -1,7 +1,8 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
 import jakarta.transaction.Transactional;

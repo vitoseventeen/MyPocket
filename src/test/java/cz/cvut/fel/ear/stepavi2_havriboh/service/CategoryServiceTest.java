@@ -3,8 +3,10 @@ package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryHasTransactionsException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.EmptyDescriptionException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.EmptyNameException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.TransactionType;
@@ -12,11 +14,9 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.service.CategoryService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -25,9 +25,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @SpringBootTest
 @Transactional

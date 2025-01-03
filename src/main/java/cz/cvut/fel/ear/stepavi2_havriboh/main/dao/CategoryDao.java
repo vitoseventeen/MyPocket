@@ -4,8 +4,6 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import jakarta.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public class CategoryDao extends BaseDao<Category> {
     public CategoryDao() {

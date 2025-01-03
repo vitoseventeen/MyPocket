@@ -2,7 +2,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.BudgetNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;

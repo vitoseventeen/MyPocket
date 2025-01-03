@@ -6,7 +6,6 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.AccountNotFoundException
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
