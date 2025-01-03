@@ -4,6 +4,7 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.BudgetNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.BudgetService;
@@ -40,30 +41,20 @@ public class BudgetController {
         return ResponseEntity.ok(budgets);
     }
 
-    private boolean checkIsOwnerOrAdmin (int budgetId) {
-        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
+    private boolean isMemberOrAdmin(int budgetId) {
+        User user = SecurityUtils.getCurrentUser();
         Budget budget = budgetService.getBudgetById(budgetId);
-
-        boolean isOwner = currentUser.getId().equals(budget.getAccount().getCreator().getId());
-        boolean isAdmin = currentUser.isAdmin();
-
-        return !isOwner && !isAdmin;
-    }
-
-    private boolean checkIsMemberOrAdmin (int budgetId) {
-        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
-        Budget budget = budgetService.getBudgetById(budgetId);
-
-        boolean isMember = budget.getAccount().getUsers().contains(currentUser);
-        boolean isAdmin = currentUser.isAdmin();
-
-        return !isMember && !isAdmin;
+        assert user != null;
+        return budget.getAccount().getMemberUsernames().contains(user.getUsername()) || user.isAdmin();
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getBudgetById(@PathVariable("id") int id) {
         try {
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Access denied");
+            }
             Budget budget = budgetService.getBudgetById(id);
             logger.info("Fetched budget with id: {}", id);
             return ResponseEntity.ok(budget);
@@ -75,13 +66,11 @@ public class BudgetController {
     @PutMapping("/{id}/increase")
     public ResponseEntity<Object> increaseBudget(@PathVariable("id") int id, @RequestBody Map<String, Object> request) {
         try {
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Access denied");
+            }
             BigDecimal amount = new BigDecimal(request.get("amount").toString());
             String currency = (String) request.get("currency");
-
-            if (checkIsMemberOrAdmin(id)) {
-                throw new AccessDeniedException("You do not have permission to access this resource.");
-            }
-
             budgetService.increaseBudget(id, amount, currency);
             logger.info("Increased budget with id: {}", id);
             return ResponseEntity.ok("Budget increased");
@@ -94,13 +83,11 @@ public class BudgetController {
     @PutMapping("/{id}/decrease")
     public ResponseEntity<Object> decreaseBudget(@PathVariable("id") int id, @RequestBody Map<String, Object> request) {
         try {
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Access denied");
+            }
             BigDecimal amount = new BigDecimal(request.get("amount").toString());
             String currency = (String) request.get("currency");
-
-            if (checkIsMemberOrAdmin(id)) {
-                throw new AccessDeniedException("You do not have permission to access this resource.");
-            }
-
             budgetService.decreaseBudget(id, amount, currency);
             logger.info("Decreased budget with id: {}", id);
             return ResponseEntity.ok("Budget decreased");

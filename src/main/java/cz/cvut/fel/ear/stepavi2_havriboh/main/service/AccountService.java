@@ -55,17 +55,12 @@ public class AccountService {
         account.setBudget(budget);
         budget.setAccount(account);
         User currentUser = SecurityUtils.getCurrentUser();
-        if (currentUser == null) {
-            throw new UnauthorizedActionException("You must be logged in to create an account");
-        }
         account.setCreator(currentUser);
         accountDao.persist(account);
 
+        assert currentUser != null;
         addUserToAccountById(currentUser.getId(), account.getId());
     }
-
-
-
 
     @Transactional
     public void addUserToAccountById(int userId, int accountId) {

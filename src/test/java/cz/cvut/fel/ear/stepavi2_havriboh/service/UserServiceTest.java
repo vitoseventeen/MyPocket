@@ -59,7 +59,7 @@ public class UserServiceTest {
         user.setEmail("userserser@gmail.com");
         user.setUsername("userwqeqwe");
         user.setPassword(passwordEncoder.encode("password"));
-        userService.activateSubscription(user, 1);
+        userService.activateSubscription(user.getId(), 1);
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertTrue(updatedUser.isSubscribed());
@@ -68,20 +68,20 @@ public class UserServiceTest {
 
     @Test
     void activateSubscriptionForOneMonthUpdatesExistingSubscription() {
-        userService.activateSubscription(testUser, 1);
+        userService.activateSubscription(testUser.getId(), 1);
         LocalDate firstSubscriptionEndDate = testUser.getSubscriptionEndDate();
-        userService.activateSubscription(testUser, 1);
+        userService.activateSubscription(testUser.getId(), 1);
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertEquals(firstSubscriptionEndDate.plusMonths(1), updatedUser.getSubscriptionEndDate());
     }
 
     @Test
     void cancelSubscriptionCancelsSubscription() {
-        userService.activateSubscription(testUser, 1);
+        userService.activateSubscription(testUser.getId(), 1);
         testUser.setSubscriptionEndDate(LocalDate.now().plusMonths(2));
         userDao.update(testUser);
 
-        userService.cancelSubscription(testUser);
+        userService.cancelSubscription(testUser.getId());
 
         User updatedUser = userDao.findById(testUser.getId()).orElseThrow();
         assertFalse(updatedUser.isSubscribed());
@@ -89,12 +89,12 @@ public class UserServiceTest {
     }
     @Test
     void cancelSubscriptionThrowsSubscriptionNotActiveException() {
-        userService.cancelSubscription(testUser);
+        userService.cancelSubscription(testUser.getId());
         testUser.setSubscriptionEndDate(LocalDate.now().minusDays(1));
         userDao.update(testUser);
 
         assertThrows(SubscriptionNotActiveException.class, () ->
-                userService.cancelSubscription(testUser)
+                userService.cancelSubscription(testUser.getId())
         );
     }
 }

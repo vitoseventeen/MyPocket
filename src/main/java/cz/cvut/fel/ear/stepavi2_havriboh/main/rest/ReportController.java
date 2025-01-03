@@ -3,9 +3,11 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.rest;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.AccountNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.ReportNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Report;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,27 +34,13 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-
-    private boolean checkUserPerms(int userId) {
-        User currentUser = Objects.requireNonNull(SecurityUtils.getCurrentUser(), "Current user cannot be null.");
-
-        boolean isOwner = currentUser.getId().equals(userId);
-        boolean isAdmin = currentUser.isAdmin();
-
-        return !isOwner && !isAdmin;
-    }
-
-    // Only PREMIUM users can create reports
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
+    @PreAuthorize("hasAnyRole('ROLE_PREMIUM','ROLE_ADMIN','ROLE_USER')")
     @PostMapping
     public ResponseEntity<Object> createReport(
             @RequestParam int accountId,
             @RequestParam LocalDate fromDate,
             @RequestParam LocalDate toDate) {
         try {
-            if (checkUserPerms(accountId)) {
-                throw new AccessDeniedException("Access denied");
-            }
             reportService.createReport(accountId, fromDate, toDate);
             return ResponseEntity.status(201).body("Report created successfully.");
         } catch (AccountNotFoundException | InvalidDateException e) {
@@ -62,15 +50,23 @@ public class ReportController {
         }
     }
 
+    private boolean isMemberOrAdmin(int reportId) {
+        User user = SecurityUtils.getCurrentUser();
+        Report report = reportService.getReportById(reportId);
+        assert user != null;
+        return report.getAccount().getMemberUsernames().contains(user.getUsername()) || user.isAdmin();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getReportById(@PathVariable("id") int id) {
         try {
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("You are not allowed to view this report.");
+            }
             Report report = reportService.getReportById(id);
             return ResponseEntity.ok(report);
         } catch (ReportNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while retrieving the report.");
         }
     }
 
@@ -82,38 +78,30 @@ public class ReportController {
         return ResponseEntity.ok(reports);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_PREMIUM')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteReportById(@PathVariable int id) {
         try {
-            if (checkUserPerms(reportService.getReportById(id).getAccountId())) {
-                throw new AccessDeniedException("Access denied");
-            }
             reportService.deleteReportById(id);
             return ResponseEntity.ok("Report deleted successfully.");
         } catch (ReportNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while deleting the report.");
         }
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_PREMIUM','ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateReportDateById(
             @PathVariable int id,
             @RequestParam LocalDate fromDate,
             @RequestParam LocalDate toDate) {
         try {
-            if (checkUserPerms(reportService.getReportById(id).getAccountId())) {
-                throw new AccessDeniedException("Access denied");
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("You are not allowed to update this report.");
             }
             reportService.updateReportDateById(id, fromDate, toDate);
             return ResponseEntity.ok("Report dates updated successfully.");
         } catch (ReportNotFoundException | InvalidDateException e) {
             return ResponseEntity.status(400).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred while updating the report.");
         }
     }
 }

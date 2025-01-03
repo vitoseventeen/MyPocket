@@ -47,20 +47,6 @@ public class Account extends AbstractEntity {
     )
     private List<User> users = new ArrayList<>();
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonProperty("budget")
-    private Budget budget;
-
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "creator_id", nullable = false)
-    private User creator;
-
-    @JsonGetter("creator")
-    public String getCreatorUsername() {
-        return creator != null ? creator.getUsername() : null;
-    }
-
     @JsonGetter("members")
     public List<String> getMemberUsernames() {
         List<String> usernames = new ArrayList<>();
@@ -69,6 +55,22 @@ public class Account extends AbstractEntity {
         }
         return usernames;
     }
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonProperty("budget")
+    private Budget budget;
+
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
+
+    @JsonGetter("creator")
+    public String getCreatorUsername() {
+        return creator != null ? creator.getUsername() : null;
+    }
+
+
 
     public Account() {
     }
