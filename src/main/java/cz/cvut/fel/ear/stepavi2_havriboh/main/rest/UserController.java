@@ -120,8 +120,7 @@ public class UserController {
         int months = requestBody.getOrDefault("months", 1);
         logger.info("Activating subscription for user with ID: {} for {} month(s)", id, months);
         try {
-            User user = userService.getUserById(id);
-            userService.activateSubscription(user, months);
+            userService.activateSubscription(id, months);
             return ResponseEntity.ok().body("Subscription activated for user with ID: " + id + " for " + months + " month(s)");
         } catch (UserNotFoundException e) {
             logger.error("User not found with ID: {}", id);
@@ -137,8 +136,7 @@ public class UserController {
             if (checkUserPerms(id)) {
                 throw new AccessDeniedException("Access denied");
             }
-            User user = userService.getUserById(id);
-            userService.cancelSubscription(user);
+            userService.cancelSubscription(id);
             return ResponseEntity.ok().body("Subscription cancelled for user with ID: " + id);
         } catch (UserNotFoundException e) {
             logger.error("User not found with ID: {}", id);

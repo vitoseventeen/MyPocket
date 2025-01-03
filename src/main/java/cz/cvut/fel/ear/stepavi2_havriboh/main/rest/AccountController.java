@@ -4,6 +4,8 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.AccountNotFoundException
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserAlreadyInAccountException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UserNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService;
 import org.slf4j.Logger;
@@ -27,19 +29,21 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    private boolean isOwnerOrAdmin(int accountId) {
+    private boolean isMemberOrAdmin(int accountId) {
+        User user = SecurityUtils.getCurrentUser();
         Account account = accountService.getAccountById(accountId);
-        boolean isOwner = account.getCreator().equals(SecurityUtils.getCurrentUser());
-        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
-        return !isOwner && !isAdmin;
+        assert user != null;
+        return account.getMemberUsernames().contains(user.getUsername()) || user.isAdmin();
     }
 
-    private boolean isMemberOrAdmin(int accountId) {
+    private boolean isCreatorOrAdmin(int accountId) {
+        User user = SecurityUtils.getCurrentUser();
         Account account = accountService.getAccountById(accountId);
-        boolean isMember = account.getUsers().contains(SecurityUtils.getCurrentUser());
-        boolean isAdmin = SecurityUtils.getCurrentUser().isAdmin();
-        return !isMember && !isAdmin;
+        assert user != null;
+        return account.getCreator().getUsername().equals(user.getUsername()) || user.isAdmin();
     }
+
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
@@ -49,11 +53,13 @@ public class AccountController {
         return ResponseEntity.ok(accounts);
     }
 
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAccountById(@PathVariable("id") int id) {
         try {
-            if (isMemberOrAdmin(id)) {
-                return ResponseEntity.status(403).body("Forbidden");
+            if (!isMemberOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Access denied");
             }
             Account account = accountService.getAccountById(id);
             logger.info("Fetched account with id: {}", id);
@@ -85,12 +91,11 @@ public class AccountController {
     }
 
 
-    // only creator of account can delete it
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("id") int id) {
         try {
-            if (isOwnerOrAdmin(id)) {
-                return ResponseEntity.status(403).body("Forbidden");
+            if (!isCreatorOrAdmin(id)) {
+                return ResponseEntity.status(403).body("Access denied");
             }
             accountService.deleteAccountById(id);
             logger.info("Deleted account with id: {}", id);
@@ -104,8 +109,8 @@ public class AccountController {
     @PostMapping("/addUser/{userId}/to/{accountId}")
     public ResponseEntity<Object> addUserToAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (isOwnerOrAdmin(accountId)) {
-                return ResponseEntity.status(403).body("Forbidden");
+            if (!isCreatorOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Access denied");
             }
             accountService.addUserToAccountById(userId, accountId);
             logger.info("Added user {} to account {}", userId, accountId);
@@ -120,8 +125,8 @@ public class AccountController {
     @DeleteMapping("/removeUser/{userId}/from/{accountId}")
     public ResponseEntity<Object> removeUserFromAccount(@PathVariable("userId") int userId, @PathVariable("accountId") int accountId) {
         try {
-            if (isOwnerOrAdmin(accountId)) {
-                return ResponseEntity.status(403).body("Forbidden");
+            if (!isCreatorOrAdmin(accountId)) {
+                return ResponseEntity.status(403).body("Access denied");
             }
             accountService.removeUserFromAccountById(userId, accountId);
             logger.info("Removed user {} from account {}", userId, accountId);

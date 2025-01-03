@@ -1,15 +1,16 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryHasTransactionsException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.CategoryNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.EmptyDescriptionException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.EmptyNameException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service

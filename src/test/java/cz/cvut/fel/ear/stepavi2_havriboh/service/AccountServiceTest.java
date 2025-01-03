@@ -1,13 +1,11 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 
-
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.AccountService;
 import jakarta.transaction.Transactional;
@@ -15,20 +13,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Transactional
@@ -43,30 +35,26 @@ public class AccountServiceTest {
     @Autowired
     private AccountDao accountDao;
 
-
     @Autowired
     private AccountService accountService;
-
-    private User user;
-    private Account account;
     @Autowired
     private BudgetDao budgetDao;
 
+    private User testUser;
+    private Account testAccount;
+
     @BeforeEach
     public void setUp() {
-        user = new User();
-        user.setUsername("user");
-        user.setPassword("password");
-        user.setEmail("ysers@gmail.com");
-        user.setRole(Role.USER);
+        testUser = new User();
+        testUser.setUsername("testUser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("password");
+        userDao.persist(testUser);
 
-        userDao.persist(user);
-
-        account = new Account();
-        account.setName("account");
-        account.setBudget(null);
-
-        accountDao.persist(account);
+        testAccount = new Account();
+        testAccount.setName("Test Account");
+        testAccount.setCreator(testUser);
+        accountDao.persist(testAccount);
     }
 
 
@@ -83,46 +71,46 @@ public class AccountServiceTest {
 
     @Test
     public void addUserToAccountByIdAddsUserIfNotAlreadyAdded() {
-        accountService.addUserToAccountById(user.getId(), account.getId());
+        accountService.addUserToAccountById(testUser.getId(), testAccount.getId());
 
-        List<User> users = account.getUsers();
+        List<User> users = testAccount.getUsers();
         assertEquals(1, users.size());
-        assertEquals(user.getId(), users.get(0).getId());
+        assertEquals(testUser.getId(), users.get(0).getId());
     }
 
     @Test
     public void addUserToAccountByIdThrowsExceptionIfAccountNotFound() {
         int invalidAccountId = 666;
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.addUserToAccountById(user.getId(), invalidAccountId));
+                accountService.addUserToAccountById(testUser.getId(), invalidAccountId));
     }
 
     @Test
     public void addUserToAccountByIdThrowsExceptionIfUserNotFound() {
         int invalidUserId = 666;
         assertThrows(UserNotFoundException.class, () ->
-                accountService.addUserToAccountById(invalidUserId, account.getId()));
+                accountService.addUserToAccountById(invalidUserId, testAccount.getId()));
     }
 
     @Test
     public void addUserByIdDoesntAddUserIfAlreadyAdded() {
-        accountService.addUserToAccountById(user.getId(), account.getId());
+        accountService.addUserToAccountById(testUser.getId(), testAccount.getId());
         assertThrows(UserAlreadyInAccountException.class, () ->
-                accountService.addUserToAccountById(user.getId(), account.getId()));
+                accountService.addUserToAccountById(testUser.getId(), testAccount.getId()));
     }
 
     @Test
     public void removeUserFromAccountByIdRemovesUserFromAccount() {
-        accountService.addUserToAccountById(user.getId(), account.getId());
+        accountService.addUserToAccountById(testUser.getId(), testAccount.getId());
         User anotherUser = new User();
         anotherUser.setUsername("anotherUser");
         anotherUser.setPassword("password");
         anotherUser.setEmail("asdasd@gmail.comm");
         userDao.persist(anotherUser);
-        accountService.addUserToAccountById(anotherUser.getId(), account.getId());
-        accountService.removeUserFromAccountById(user.getId(), account.getId());
+        accountService.addUserToAccountById(anotherUser.getId(), testAccount.getId());
+        accountService.removeUserFromAccountById(testUser.getId(), testAccount.getId());
 
-        List<User> users = account.getUsers();
+        List<User> users = testAccount.getUsers();
         assertEquals(1, users.size());
     }
 
@@ -130,29 +118,35 @@ public class AccountServiceTest {
     public void removeUserFromAccountByIdThrowsExceptionIfAccountNotFound() {
         int invalidAccountId = 999;
         assertThrows(AccountNotFoundException.class, () ->
-                accountService.removeUserFromAccountById(user.getId(), invalidAccountId));
+                accountService.removeUserFromAccountById(testUser.getId(), invalidAccountId));
     }
 
     @Test
     public void removeUserFromAccountByIdThrowsExceptionIfUserNotFound() {
         int invalidUserId = 999;
         assertThrows(UserNotFoundException.class, () ->
-                accountService.removeUserFromAccountById(invalidUserId, account.getId()));
+                accountService.removeUserFromAccountById(invalidUserId, testAccount.getId()));
     }
 
     @Test
     public void removeUserFromAccountByIdThrowsExceptionIfLastUser() {
-        accountService.addUserToAccountById(user.getId(), account.getId());
+        accountService.addUserToAccountById(testUser.getId(), testAccount.getId());
 
         assertThrows(LastUserInAccountException.class, () ->
-                accountService.removeUserFromAccountById(user.getId(), account.getId()));
+                accountService.removeUserFromAccountById(testUser.getId(), testAccount.getId()));
     }
 
     @Test
     public void getAllAccountsReturnsAllAccounts() {
+        User anotherUser = new User();
+        anotherUser.setUsername("anotherUser");
+        anotherUser.setPassword("password");
+        anotherUser.setEmail("parek@gmail.com");
+        userDao.persist(anotherUser);
+
         Account anotherAccount = new Account();
         anotherAccount.setName("anotherAccount");
-        anotherAccount.setBudget(null);
+        anotherAccount.setCreator(anotherUser);
         accountDao.persist(anotherAccount);
 
         List<Account> accounts = accountService.getAllAccounts();
@@ -162,10 +156,10 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountByIdReturnsCorrectAccount() {
-        Account foundAccount = accountService.getAccountById(account.getId());
+        Account foundAccount = accountService.getAccountById(testAccount.getId());
 
-        assertEquals(account.getId(), foundAccount.getId());
-        assertEquals(account.getName(), foundAccount.getName());
+        assertEquals(testAccount.getId(), foundAccount.getId());
+        assertEquals(testAccount.getName(), foundAccount.getName());
     }
 
     @Test
@@ -177,14 +171,20 @@ public class AccountServiceTest {
 
     @Test
     public void deleteAccountByIdDeletesAccount() {
-        Account newAccount = new Account();
-        newAccount.setName("AccountToDelete");
-        newAccount.setBudget(null);
-        accountDao.persist(newAccount);
+        User anotherUser = new User();
+        anotherUser.setUsername("anotherUser");
+        anotherUser.setPassword("password");
+        anotherUser.setEmail("parek@gmail.com");
+        userDao.persist(anotherUser);
 
-        accountService.deleteAccountById(newAccount.getId());
+        Account anotherAccount = new Account();
+        anotherAccount.setName("anotherAccount");
+        anotherAccount.setCreator(anotherUser);
+        accountDao.persist(anotherAccount);
 
-        Account deletedAccount = accountDao.find(newAccount.getId());
+        accountService.deleteAccountById(anotherAccount.getId());
+
+        Account deletedAccount = accountDao.find(anotherAccount.getId());
         assertNull(deletedAccount);
     }
 

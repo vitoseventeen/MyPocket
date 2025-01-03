@@ -4,10 +4,10 @@ import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.UserDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,17 +55,12 @@ public class AccountService {
         account.setBudget(budget);
         budget.setAccount(account);
         User currentUser = SecurityUtils.getCurrentUser();
-        if (currentUser == null) {
-            throw new UnauthorizedActionException("You must be logged in to create an account");
-        }
         account.setCreator(currentUser);
         accountDao.persist(account);
 
+        assert currentUser != null;
         addUserToAccountById(currentUser.getId(), account.getId());
     }
-
-
-
 
     @Transactional
     public void addUserToAccountById(int userId, int accountId) {

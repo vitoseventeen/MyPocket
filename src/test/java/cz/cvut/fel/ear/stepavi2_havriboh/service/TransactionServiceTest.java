@@ -1,8 +1,7 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.*;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidDateException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.InvalidTransactionTypeException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
@@ -12,18 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Optional;
 
-import static cz.cvut.fel.ear.stepavi2_havriboh.main.model.TransactionIntervalType.MONTHS;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
 @SpringBootTest
 @Transactional
 @AutoConfigureTestEntityManager
@@ -43,38 +38,119 @@ public class TransactionServiceTest {
     private AccountDao accountDao;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
     private ReportDao reportDao;
 
     @Autowired
     private BudgetDao budgetDao;
 
+    private Transaction testTransaction;
+    private User testUser;
+    private Account testAccount;
+    private Budget testBudget;
+    private Category testCategory;
+
     @BeforeEach
     public void setUp() {
 
-    }
+        testUser = new User();
+        testUser.setUsername("testUser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("password");
+        userDao.persist(testUser);
 
-    @Test
-    public void createTransactionWithValidData() {
+        testAccount = new Account();
+        testAccount.setName("Test Account");
+        testAccount.setCreator(testUser);
 
-    }
+        accountDao.persist(testAccount);
+        testBudget = new Budget();
+        testBudget.setBalance(BigDecimal.valueOf(1000));
+        testBudget.setCurrency(Currency.valueOf("CZK"));
+        testBudget.setAccount(testAccount);
+        testAccount.setBudget(testBudget);
+        budgetDao.persist(testBudget);
 
-    @Test
-    public void createTransactionWithInvalidData() {
 
-    }
+        testCategory = new Category();
+        testCategory.setName("Test Category");
+        testCategory.setDescription("Test Description");
+        categoryDao.persist(testCategory);
 
-
-
-    @Test
-    public void deleteTransactionByIdDeletesTransaction() {
-        Transaction testTransaction = new Transaction();
+        testTransaction = new Transaction();
         testTransaction.setAmount(BigDecimal.valueOf(100));
-        testTransaction.setBudget(null);
+        testTransaction.setBudget(testBudget);
         testTransaction.setDate(LocalDate.now());
         testTransaction.setDescription("Test Transaction");
         testTransaction.setType(TransactionType.EXPENSE);
+        testTransaction.setCategory(testCategory);
+        testTransaction.setAccount(testAccount);
         transactionDao.persist(testTransaction);
 
+    }
+
+    @Test
+    public void createTransactionCreatingTransaction() {
+        BigDecimal amount = BigDecimal.valueOf(200);
+        Currency currency = Currency.CZK;
+        LocalDate date = LocalDate.now();
+        String description = "New Transaction";
+        TransactionType type = TransactionType.EXPENSE;
+        int accountId = testAccount.getId();
+        int categoryId = testCategory.getId();
+
+        transactionService.createTransaction(amount, currency, date, description, type, accountId, categoryId);
+
+        Transaction createdTransaction = transactionDao.findAll().get(1);
+        assertNotNull(createdTransaction);
+        assertEquals(amount, createdTransaction.getAmount());
+        assertEquals(description, createdTransaction.getDescription());
+        assertEquals(type, createdTransaction.getType());
+        assertEquals(testAccount, createdTransaction.getAccount());
+        assertEquals(testCategory, createdTransaction.getCategory());
+
+    }
+
+    @Test
+    public void createTransactionWithInvalidDataThrowsNegativeAmountException() {
+        assertThrows(NegativeAmountException.class, () -> {
+            transactionService.createTransaction(BigDecimal.valueOf(-100), Currency.USD, LocalDate.now(), "blabla", TransactionType.EXPENSE, testAccount.getId(), testCategory.getId());
+        });
+    }
+
+    @Test
+    public void updateTransactionUpdatesTransaction() {
+        int transactionId = testTransaction.getId();
+        BigDecimal newAmount = BigDecimal.valueOf(150);
+        Currency newCurrency = Currency.CZK;
+        LocalDate newDate = LocalDate.now();
+        String newDescription = "Updated Transaction";
+        TransactionType newType = TransactionType.EXPENSE;
+        int accountId = testAccount.getId();
+        int categoryId = testCategory.getId();
+
+        transactionService.updateTransaction(transactionId, newAmount, newCurrency, newDate, newDescription, newType, accountId, categoryId);
+
+        Transaction updatedTransaction = transactionDao.find(transactionId);
+        assertNotNull(updatedTransaction);
+        assertEquals(newAmount, updatedTransaction.getAmount());
+        assertEquals(newDescription, updatedTransaction.getDescription());
+        assertEquals(newType, updatedTransaction.getType());
+        assertEquals(testAccount, updatedTransaction.getAccount());
+        assertEquals(testCategory, updatedTransaction.getCategory());
+    }
+
+    @Test
+    public void updateTransactionWithInvalidDataThrowsTransactionNotFoundException() {
+        assertThrows(TransactionNotFoundException.class, () -> {
+            transactionService.updateTransaction(-1, BigDecimal.valueOf(1000), Currency.USD, LocalDate.now(), "blabla", TransactionType.EXPENSE, testAccount.getId(), testCategory.getId());
+        });
+    }
+
+    @Test
+    public void deleteTransactionByIdDeletesTransaction() {
         transactionService.deleteTransactionById(testTransaction.getId());
         Transaction deletedTransaction = transactionDao.find(testTransaction.getId());
         assertNull(deletedTransaction);
@@ -88,14 +164,6 @@ public class TransactionServiceTest {
 
     @Test
     public void getTransactionByIdReturnsTransaction() {
-        Transaction testTransaction = new Transaction();
-        testTransaction.setAmount(BigDecimal.valueOf(100));
-        testTransaction.setDate(LocalDate.now());
-        testTransaction.setBudget(null);
-        testTransaction.setDescription("Test Transaction");
-        testTransaction.setType(TransactionType.EXPENSE);
-        transactionDao.persist(testTransaction);
-
         Transaction returnedTransaction = transactionService.getTransactionById(testTransaction.getId());
         assertEquals(testTransaction, returnedTransaction);
     }
@@ -103,7 +171,8 @@ public class TransactionServiceTest {
     @Test
     public void getTransactionByIdThrowsTransactionNotFoundException() {
         assertThrows(TransactionNotFoundException.class, () ->
-                transactionService.getTransactionById(99999));
+                transactionService.getTransactionById(99999999));
     }
+
 
 }

@@ -3,7 +3,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.TransactionDao;
-
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.*;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -181,9 +179,13 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Transaction getTransactionById(int id) {
-        return transactionDao.find(id);
+        Transaction transaction = transactionDao.find(id);
+        if (transaction == null) {
+            throw new TransactionNotFoundException("Transaction with ID " + id + " not found");
+        }
+        return transaction;
     }
-
+    @Transactional(readOnly = true)
     public List<Transaction> getAllTransactions() {
         return transactionDao.findAll();
     }

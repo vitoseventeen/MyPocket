@@ -2,10 +2,10 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.service;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.AccountDao;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.BudgetDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.dao.CategoryDao;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.*;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.BudgetNotFoundException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.NegativeAmountException;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.UnsupportedCurrencyException;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Budget;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Category;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Currency;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,6 @@ package cz.cvut.fel.ear.stepavi2_havriboh.main.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.utils.CurrencyConverter;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -12,6 +11,20 @@ import java.util.List;
 
 @Entity
 @Table(name = "budgets")
+@NamedQueries({
+        @NamedQuery(
+                name = "Budget.findByAccountId",
+                query = "SELECT b FROM Budget b WHERE b.account.id = :accountId"
+        ),
+        @NamedQuery(
+                name = "Budget.findByTransactionId",
+                query = "SELECT b FROM Budget b JOIN b.transactions t WHERE t.id = :transactionId"
+        ),
+        @NamedQuery(
+                name = "Budget.findById",
+                query = "SELECT b FROM Budget b WHERE b.id = :id"
+        )
+})
 public class Budget extends AbstractEntity {
 
     @Column(name = "balance", nullable = false, precision = 15, scale = 2)
@@ -25,9 +38,13 @@ public class Budget extends AbstractEntity {
 
     @OneToOne
     @JsonBackReference
+    @OrderBy("id ASC")
     private Account account;
 
-
+    @JsonProperty("account_id")
+    public Integer getAccountId() {
+        return account != null ? account.getId() : null;
+    }
 
     @OneToMany (mappedBy = "budget")
     @JsonIgnore

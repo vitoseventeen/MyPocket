@@ -61,7 +61,9 @@ public class UserService {
     }
 
     @Transactional
-    public void activateSubscription(User user, int months) {
+    public void activateSubscription(int userId, int months) {
+        User user = getUserById(userId);
+
         if (months <= 0) {
             throw new InvalidDataException("Subscription period must be a positive number of months.");
         }
@@ -73,14 +75,13 @@ public class UserService {
             user.setSubscriptionEndDate(LocalDate.now().plusMonths(months));
         }
 
-        if (user.isSubscribed()) {
-            user.setRole(Role.PREMIUM);
-        }
+        user.setRole(Role.PREMIUM);
         userDao.update(user);
     }
 
     @Transactional
-    public void cancelSubscription(User user) {
+    public void cancelSubscription(int userId) {
+        User user = getUserById(userId);
         if (!user.isSubscribed()) {
             throw new SubscriptionNotActiveException("User is not subscribed");
         }
@@ -111,9 +112,6 @@ public class UserService {
         userDao.update(existingUser);
     }
 
-
-
-    // pridat kontrolu
     @Transactional(readOnly = true)
     public List<User> findAll() {
         return userDao.findAll();

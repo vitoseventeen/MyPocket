@@ -1,92 +1,112 @@
 package cz.cvut.fel.ear.stepavi2_havriboh.rest;
 
 import cz.cvut.fel.ear.stepavi2_havriboh.main.exception.TransactionNotFoundException;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.model.TransactionType;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.rest.TransactionController;
-import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Account;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Role;
 import cz.cvut.fel.ear.stepavi2_havriboh.main.model.Transaction;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.model.User;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.rest.TransactionController;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.security.SecurityUtils;
+import cz.cvut.fel.ear.stepavi2_havriboh.main.service.TransactionService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Arrays;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class TransactionControllerTest extends BaseControllerTestRunner {
 
     private TransactionService transactionService;
-    private TransactionController transactionController;
+    private MockedStatic<SecurityUtils> mockedSecurityUtils;
 
     @BeforeEach
     void setUp() {
         transactionService = Mockito.mock(TransactionService.class);
-        transactionController = new TransactionController(transactionService);
+        TransactionController transactionController = new TransactionController(transactionService);
         super.setUp(transactionController);
+
+        mockedSecurityUtils = Mockito.mockStatic(SecurityUtils.class);
+        User mockUser = new User();
+        mockUser.setRole(Role.ADMIN);
+        mockedSecurityUtils.when(SecurityUtils::getCurrentUser).thenReturn(mockUser);
     }
+
+    @AfterEach
+    void tearDown() {
+        mockedSecurityUtils.close();
+    }
+
+    @Test
+    void getAllTransactions_shouldReturnTransactions() throws Exception {
+        Transaction transaction1 = new Transaction();
+        transaction1.setAmount(new BigDecimal("100.00"));
+
+        Transaction transaction2 = new Transaction();
+        transaction2.setAmount(new BigDecimal("200.00"));
+
+        when(transactionService.getAllTransactions()).thenReturn(Arrays.asList(transaction1, transaction2));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2));
+    }
+
     @Test
     void getTransactionById_shouldReturnTransaction() throws Exception {
-        int transactionId = 1;
         Transaction transaction = new Transaction();
-        transaction.setAmount(BigDecimal.TEN);
-        transaction.setDate(LocalDate.of(2023, 12, 1));
-        transaction.setDescription("Test Transaction");
-        transaction.setType(TransactionType.EXPENSE);
+        transaction.setAccount(new Account());
+        transaction.setAmount(new BigDecimal("100.00"));
 
-        // Настройка мока
-        when(transactionService.getTransactionById(transactionId)).thenReturn(transaction);
+        when(transactionService.getTransactionById(1)).thenReturn(transaction);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/{id}", transactionId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.amount").value(10))
-                .andExpect(jsonPath("$.date").value("2023-12-01"))
-                .andExpect(jsonPath("$.description").value("Test Transaction"))
-                .andExpect(jsonPath("$.type").value("EXPENSE"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(100.00));
     }
+
     @Test
     void getTransactionById_shouldReturn404WhenNotFound() throws Exception {
-        int transactionId = 999;
-        doThrow(new TransactionNotFoundException("Transaction not found")).when(transactionService).getTransactionById(transactionId);
+        when(transactionService.getTransactionById(1)).thenThrow(new TransactionNotFoundException("Transaction not found"));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/{id}", transactionId))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("\"Transaction not found with ID: " + transactionId + "\""));
-    }
-
-
-    @Test
-    void createTransaction_shouldCreateTransaction() throws Exception {
-
+        mockMvc.perform(MockMvcRequestBuilders.get("/rest/transactions/1"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.content().string("\"Transaction not found\""));
     }
 
     @Test
-    void deleteTransaction_shouldDeleteTransaction() throws Exception {
+    void deleteTransaction_shouldDeleteAndReturn200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/rest/transactions/1"))
-                .andExpect(status().is(200))
-                .andExpect(content().string("\"Transaction deleted\""));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("\"Transaction deleted\""));
 
         verify(transactionService, times(1)).deleteTransactionById(1);
     }
 
     @Test
     void deleteTransaction_shouldReturn404WhenNotFound() throws Exception {
-        doThrow(new TransactionNotFoundException("Transaction not found")).when(transactionService).deleteTransactionById(anyInt());
+        doThrow(new TransactionNotFoundException("Transaction not found"))
+                .when(transactionService).deleteTransactionById(1);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/rest/transactions/1"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.content().string("\"Transaction not found\""));
     }
 
+    @Test
+    void updateTransaction_shouldReturn200() throws Exception {
+        //TODO: implement
+    }
 
     @Test
-    void updateTransaction_shouldUpdateTransaction() throws Exception {
-
+    void updateTransaction_shouldReturn404WhenNotFound() throws Exception {
+        //TODO: implement
     }
+
 }

@@ -8,11 +8,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.List;
+
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorValue("USER")
 @Table(name = "users")
 @JsonPropertyOrder({"id", "username", "email", "password", "role", "subscriptionStartDate", "subscriptionEndDate"})
+@NamedQueries({
+        @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :email"),
+        @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
+        @NamedQuery(name = "User.findById", query = "SELECT u FROM User u WHERE u.id = :id"),
+        @NamedQuery(name = "User.findAll", query = "SELECT u FROM User u")
+})
 public class User extends AbstractEntity {
 
     @Basic(optional = false)
@@ -39,6 +46,7 @@ public class User extends AbstractEntity {
 
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
+    @OrderBy("id ASC")
     private List<Account> accounts;
 
     public User() {
